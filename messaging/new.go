@@ -24,8 +24,9 @@ func New(transport string) (Transport, error) {
 		return &AMQP{}, nil
 	}
 
-	if transport == "sqs" {
-		return &SQS{}, nil
-	}
+	// Commented out to reduce package sizes
+	// if transport == "sqs" {
+	// 	return &SQS{}, nil
+	// }
 	return nil, fmt.Errorf("Unknown transport type '%s'", transport)
 }
