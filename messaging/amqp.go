@@ -73,7 +73,18 @@ func (_amqp *AMQP) DeleteMessage(id string) error {
 // ReceiveMessages is an AMQP convenience method to receive messages from a given queue
 func (_amqp *AMQP) ReceiveMessages(queue string) (<-chan Message, error) {
 
-	// messages := make([]Message, 0)
+	_, err := _amqp.Channel.QueueDeclare(
+		queue, // name
+		false, // durable
+		false, // delete when unused
+		false, // exclusive
+		false, // no-wait
+		nil,   // arguments
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to declare queue %s: %s", queue, err.Error())
+	}
 
 	output, err := _amqp.Channel.Consume(
 		queue, // queue
