@@ -7,6 +7,7 @@ type Transport interface {
 	Connect(string) error
 	SendMessage(string, Message) error
 	DeleteMessage(string) error
+	CreateQueue(string, map[string]interface{}) error
 	ReceiveMessages(string) (<-chan Message, error)
 }
 
