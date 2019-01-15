@@ -62,7 +62,7 @@ func (_amqp *AMQP) CreateQueue(name string, attributes map[string]interface{}) e
 
 	_, err := _amqp.Channel.QueueDeclare(
 		name,       // name
-		false,      // durable
+		true,       // durable
 		false,      // delete when unused
 		false,      // exclusive
 		false,      // no-wait
