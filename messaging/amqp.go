@@ -60,13 +60,19 @@ func (_amqp *AMQP) DeleteMessage(id string) error {
 // CreateQueue creates a new message with the given name and attributes
 func (_amqp *AMQP) CreateQueue(name string, attributes map[string]interface{}) error {
 
+	var table amqp.Table
+
+	for k, v := range attributes {
+		table[k] = v
+	}
+
 	_, err := _amqp.Channel.QueueDeclare(
-		name,       // name
-		false,      // durable
-		false,      // delete when unused
-		false,      // exclusive
-		false,      // no-wait
-		attributes, // arguments
+		name,  // name
+		false, // durable
+		false, // delete when unused
+		false, // exclusive
+		false, // no-wait
+		table, // arguments
 	)
 
 	return err
