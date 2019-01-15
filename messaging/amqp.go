@@ -60,7 +60,7 @@ func (_amqp *AMQP) DeleteMessage(id string) error {
 // CreateQueue creates a new message with the given name and attributes
 func (_amqp *AMQP) CreateQueue(name string, attributes map[string]interface{}) error {
 
-	var table amqp.Table
+	table := make(amqp.Table, 0)
 
 	for k, v := range attributes {
 		table[k] = v
