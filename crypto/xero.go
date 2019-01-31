@@ -32,7 +32,6 @@ func XeroSigner(input Xero) (string, error) {
 		"oauth_signature_method": "RSA-SHA1",
 		"oauth_timestamp":        strconv.FormatInt(time.Now().Unix(), 10),
 	}
-	URL := input.BaseURL
 	METHOD := "GET&"
 	if input.Refresh {
 		Auth["oauth_session_handle"] = input.SessionHandle
@@ -40,11 +39,10 @@ func XeroSigner(input Xero) (string, error) {
 	} else {
 		if input.Query != "" {
 			Auth["where"] = input.Query
-			URL = URL + "?where=" + OauthEscape(input.Query)
 		}
 	}
 	sortedAuthString := SortAuth(Auth)
-	signatureText := METHOD + OauthEscape(URL) + "&" + OauthEscape(sortedAuthString)
+	signatureText := METHOD + OauthEscape(input.BaseURL) + "&" + OauthEscape(sortedAuthString)
 	signatureByte := []byte(signatureText)
 	signature := GenerateSignature(signatureByte, input.PrivateKeyPath)
 	return signature, nil
