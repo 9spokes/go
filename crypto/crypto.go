@@ -102,8 +102,13 @@ func Encrypt(str string, secret []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+<<<<<<< HEAD
 //GenerateSignature creates the signature for oauth1 with rsa-sha1
 func GenerateSignature(message []byte, filepath string) string {
+=======
+//SignRSA creates the signature for oauth1 with rsa-sha1
+func SignRSA(message []byte, filepath string) string {
+>>>>>>> 4754450ec62adf751befe00751ec43d6ce3bb8d2
 	keyInfo, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		log.Panic(err)
