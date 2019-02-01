@@ -2,12 +2,19 @@ package crypto
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"errors"
 	"io"
+	"io/ioutil"
+	"log"
 
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -93,4 +100,25 @@ func Encrypt(str string, secret []byte) ([]byte, error) {
 	mode.CryptBlocks(ciphertext[len(header):], bytes)
 
 	return ciphertext, nil
+}
+
+//SignRSA creates the signature for oauth1 with rsa-sha1
+func SignRSA(message []byte, filepath string) string {
+	keyInfo, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Panic(err)
+	}
+	keyBlock, _ := pem.Decode(keyInfo)
+	privatekey, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+	if err != nil {
+		log.Panic(err)
+	}
+	hash := crypto.SHA1.New()
+	hash.Write(message)
+	data := hash.Sum(nil)
+	signed, err := rsa.SignPKCS1v15(rand.Reader, privatekey, crypto.SHA1, data)
+	if err != nil {
+		log.Panic(err)
+	}
+	return base64.StdEncoding.EncodeToString(signed)
 }
