@@ -13,10 +13,7 @@ steps:
       secureFile: "Github"
 
 - script: |
-    git remote add github git@github.com:9spokes/go.git && false
-  displayName: 'Configure Git Remote'
-
-- script: |
+    git remote add github git@github.com:9spokes/go.git
     test -d ~/.ssh || mkdir -p ~/.ssh
     mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
     printf "Host github.org\n  StrictHostKeyChecking no" > ~/.ssh/config
