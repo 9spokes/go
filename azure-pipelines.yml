@@ -20,5 +20,6 @@ steps:
 
 - script: |
     git remote -v show
+    git checkout master
     git push github master --force
   displayName: 'Sync to Github'
