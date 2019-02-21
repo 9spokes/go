@@ -23,36 +23,36 @@ type Request struct {
 }
 
 // Post isn an HTTP POST Method
-func (request *Request) Post() (*Response, error) {
+func (request Request) Post() (*Response, error) {
 	request.Method = "POST"
 	return request.http()
 }
 
 // Get is an HTTP GET Method
-func (request *Request) Get() (*Response, error) {
+func (request Request) Get() (*Response, error) {
 	request.Method = "GET"
 	return request.http()
 }
 
 // Put is an HTTP PUT Method
-func (request *Request) Put() (*Response, error) {
+func (request Request) Put() (*Response, error) {
 	request.Method = "PUT"
 	return request.http()
 }
 
 // Patch is an HTTP PATCH Method
-func (request *Request) Patch() (*Response, error) {
+func (request Request) Patch() (*Response, error) {
 	request.Method = "PATCH"
 	return request.http()
 }
 
 // Delete is an HTTP DELETE Method
-func (request *Request) Delete() (*Response, error) {
+func (request Request) Delete() (*Response, error) {
 	request.Method = "DELETE"
 	return request.http()
 }
 
-func (request *Request) http() (*Response, error) {
+func (request Request) http() (*Response, error) {
 
 	client := &http.Client{}
 
