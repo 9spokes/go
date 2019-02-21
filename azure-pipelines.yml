@@ -14,9 +14,13 @@ steps:
 
 - script: |
     git remote add github git@github.com:9spokes/go.git
+  displayName: 'Configure Git Remote'
+
+- script: |
     test -d ~/.ssh || mkdir -p ~/.ssh
     mv id_rsa ~/.ssh
-  displayName: 'Configure Git Remote'
+    printf "Host github.org\n  StrictHostKeyChecking no" > ~/.ssh/config
+  displayName: 'Configure SSH'
 
 - script: |
     git push github master
