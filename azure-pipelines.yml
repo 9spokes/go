@@ -19,5 +19,6 @@ steps:
   displayName: 'Configure Git Remote'
 
 - script: |
-    git push github master
+    git remote -v show
+    git push github master --force
   displayName: 'Sync to Github'
