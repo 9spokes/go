@@ -1,0 +1,23 @@
+trigger:
+- master
+
+queue:
+  name: "kubernetes-vsts-agents"
+
+steps:
+
+- task: DownloadSecureFile@1
+  displayName: "Download SSH Private Key for GitHub"
+  name: "Github"
+  inputs:
+      secureFile: "id_rsa"
+
+- script: |
+    git remote add github git@github.com:9spokes/go.git
+    test -d ~/.ssh || mkdir -p ~/.ssh
+    mv id_rsa ~/.ssh
+  displayName: 'Configure Git Remote'
+
+- script: |
+    git push github master
+  displayName: 'Sync to Github'
