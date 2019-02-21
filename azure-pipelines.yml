@@ -15,7 +15,7 @@ steps:
 - script: |
     git remote add github git@github.com:9spokes/go.git
     test -d ~/.ssh || mkdir -p ~/.ssh
-    mv Github ~/.ssh/id_rsa
+    mv id_rsa ~/.ssh/id_rsa
   displayName: 'Configure Git Remote'
 
 - script: |
