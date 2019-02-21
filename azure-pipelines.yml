@@ -8,7 +8,7 @@ steps:
 
 - task: DownloadSecureFile@1
   displayName: "Download SSH Private Key for GitHub"
-  name: "Github"
+  name: "id_rsa"
   inputs:
       secureFile: "Github"
 
