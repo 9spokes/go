@@ -13,12 +13,9 @@ steps:
       secureFile: "Github"
 
 - script: |
-    set
-    find .
-    ls -la
     git remote add github git@github.com:9spokes/go.git
     test -d ~/.ssh || mkdir -p ~/.ssh
-    mv id_rsa ~/.ssh/id_rsa
+    mv $AGENT_TEMPDIRECTORY/id_rsa ~/.ssh/id_rsa
   displayName: 'Configure Git Remote'
 
 - script: |
