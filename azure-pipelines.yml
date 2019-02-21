@@ -13,7 +13,7 @@ steps:
       secureFile: "Github"
 
 - script: |
-    git remote add github git@github.com:9spokes/go.git
+    git remote add github git@github.com:9spokes/go.git && false
   displayName: 'Configure Git Remote'
 
 - script: |
