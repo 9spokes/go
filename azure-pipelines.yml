@@ -20,5 +20,5 @@ steps:
   displayName: 'Configure SSH'
 
 - script: |
-    git push github master
+    git push github master --force
   displayName: 'Sync to Github'
