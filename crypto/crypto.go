@@ -102,8 +102,7 @@ func Encrypt(str string, secret []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-//SignRSA creates the signature for oauth1 with rsa-sha1
-func SignRSA(message []byte, filepath string) string {
+func signRSA(message []byte, filepath string) string {
 	keyInfo, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		log.Panic(err)
@@ -121,4 +120,19 @@ func SignRSA(message []byte, filepath string) string {
 		log.Panic(err)
 	}
 	return base64.StdEncoding.EncodeToString(signed)
+}
+
+func signHMAC(message []byte, secret string) string {
+	return ""
+}
+
+// Sign is a generic oAuth1 signing method
+func Sign(message []byte, method string, key string) string {
+	if method == "RSA-SHA1" {
+		return signRSA(message, key)
+	}
+
+	if method == "SHA-" {
+		return signHMAC(message, key)
+	}
 }
