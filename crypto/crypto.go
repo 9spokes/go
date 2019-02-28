@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -122,8 +123,14 @@ func signRSA(message []byte, filepath string) string {
 	return base64.StdEncoding.EncodeToString(signed)
 }
 
-func signHMAC(message []byte, secret string) string {
-	return ""
+func signHMAC(message []byte, key string) string {
+	hash := hmac.New(crypto.SHA1.New, []byte(key))
+	_, err := hash.Write(message)
+	if err != nil {
+		log.Panic(err)
+	}
+	signedHash := hash.Sum(nil)
+	return base64.StdEncoding.EncodeToString(signedHash)
 }
 
 // Sign is a generic oAuth1 signing method
@@ -132,7 +139,9 @@ func Sign(message []byte, method string, key string) string {
 		return signRSA(message, key)
 	}
 
-	if method == "SHA-" {
+	if method == "HMAC-SHA1" {
 		return signHMAC(message, key)
 	}
+
+	return "Unsupported Method please fix"
 }
