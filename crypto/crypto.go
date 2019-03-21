@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -121,4 +122,15 @@ func SignRSA(message []byte, filepath string) string {
 		log.Panic(err)
 	}
 	return base64.StdEncoding.EncodeToString(signed)
+}
+
+//SignHMAC will sign a message using the HMAC-SHA1 algorithm.
+func SignHMAC(message []byte, key string) string {
+	hash := hmac.New(crypto.SHA1.New, []byte(key))
+	_, err := hash.Write(message)
+	if err != nil {
+		log.Panic(err)
+	}
+	signedHash := hash.Sum(nil)
+	return base64.StdEncoding.EncodeToString(signedHash)
 }
