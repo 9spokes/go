@@ -25,7 +25,7 @@ func XeroSigner(input Xero) (string, error) {
 		"oauth_token":            input.AccessToken,
 		"oauth_consumer_key":     input.ConsumerKey,
 		"oauth_nonce":            misc.GenerateNonce(),
-		"oauth_version":          "1.0A",
+		"oauth_version":          "1.0",
 		"oauth_signature_method": "RSA-SHA1",
 		"oauth_timestamp":        strconv.FormatInt(time.Now().Unix(), 10),
 	}
