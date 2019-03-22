@@ -25,7 +25,7 @@ func XeroSigner(input Xero) (string, error) {
 		"oauth_token":            input.AccessToken,
 		"oauth_consumer_key":     input.ConsumerKey,
 		"oauth_nonce":            misc.GenerateNonce(),
-		"oauth_version":          "1.0A",
+		"oauth_version":          "1.0",
 		"oauth_signature_method": "RSA-SHA1",
 		"oauth_timestamp":        strconv.FormatInt(time.Now().Unix(), 10),
 	}
@@ -43,9 +43,9 @@ func XeroSigner(input Xero) (string, error) {
 	signature := SignRSA([]byte(signatureText), input.PrivateKeyPath)
 	var authHeader string
 	if input.Refresh {
-		authHeader = "OAuth oauth_consumer_key=\"" + auth["oauth_consumer_key"] + "\",oauth_nonce=\"" + auth["oauth_nonce"] + "\",oauth_session_handle=\"" + auth["oauth_session_handle"] + "\",oauth_signature_method=\"" + auth["oauth_signature_method"] + "\",oauth_timestamp=\"" + auth["oauth_timestamp"] + "\",oauth_token=\"" + auth["oauth_token"] + "\",oauth_version=\"" + auth["oauth_version"] + "\",oauth_signature=\"" + misc.OauthEscape(signature) + "\""
+		authHeader = "OAuth oauth_consumer_key=\\\"" + auth["oauth_consumer_key"] + "\\\",oauth_nonce=\\\"" + auth["oauth_nonce"] + "\\\",oauth_session_handle=\\\"" + auth["oauth_session_handle"] + "\\\",oauth_signature_method=\\\"" + auth["oauth_signature_method"] + "\\\",oauth_timestamp=\\\"" + auth["oauth_timestamp"] + "\\\",oauth_token=\\\"" + auth["oauth_token"] + "\\\",oauth_version=\\\"" + auth["oauth_version"] + "\\\",oauth_signature=\\\"" + misc.OauthEscape(signature) + "\\\""
 	} else {
-		authHeader = "OAuth oauth_consumer_key=\"" + auth["oauth_consumer_key"] + "\", oauth_token=\"" + auth["oauth_token"] + "\", oauth_signature_method=\"" + auth["oauth_signature_method"] + "\", oauth_timestamp=\"" + auth["oauth_timestamp"] + "\", oauth_nonce=\"" + auth["oauth_nonce"] + "\", oauth_version=\"" + auth["oauth_version"] + "\", oauth_signature=\"" + misc.OauthEscape(signature) + "\""
+		authHeader = "OAuth oauth_consumer_key=\\\"" + auth["oauth_consumer_key"] + "\\\", oauth_token=\\\"" + auth["oauth_token"] + "\\\", oauth_signature_method=\\\"" + auth["oauth_signature_method"] + "\\\", oauth_timestamp=\\\"" + auth["oauth_timestamp"] + "\\\", oauth_nonce=\\\"" + auth["oauth_nonce"] + "\\\", oauth_version=\\\"" + auth["oauth_version"] + "\\\", oauth_signature=\\\"" + misc.OauthEscape(signature) + "\\\""
 	}
 	return authHeader, nil
 }
