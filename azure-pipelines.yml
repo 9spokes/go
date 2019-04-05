@@ -2,7 +2,7 @@ trigger:
 - master
 
 queue:
-  name: "kubernetes-vsts-agents"
+  name: "Private-Ubuntu-1604"
 
 steps:
 
