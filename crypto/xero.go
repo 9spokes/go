@@ -19,8 +19,8 @@ type Xero struct {
 	PrivateKeyPath string
 }
 
-//XeroSigner generates a signature for a xero request
-func XeroSigner(input Xero) (string, error) {
+//Sign generates a signature for a xero request
+func Sign(input Xero) (string, error) {
 	auth := map[string]string{
 		"oauth_token":            input.AccessToken,
 		"oauth_consumer_key":     input.ConsumerKey,
@@ -38,7 +38,7 @@ func XeroSigner(input Xero) (string, error) {
 			auth["where"] = input.Query
 		}
 	}
-	sortedAuthString := SortAuth(auth)
+	sortedAuthString := sortAuth(auth)
 	signatureText := METHOD + misc.OauthEscape(input.BaseURL) + "&" + misc.OauthEscape(sortedAuthString)
 	signature := SignRSA([]byte(signatureText), input.PrivateKeyPath)
 	var authHeader string
@@ -50,8 +50,8 @@ func XeroSigner(input Xero) (string, error) {
 	return authHeader, nil
 }
 
-//SortAuth creates a sorted Authentication string. The string is sorted Lexographically.
-func SortAuth(auth map[string]string) string {
+//sortAuth creates a sorted Authentication string. The string is sorted Lexographically.
+func sortAuth(auth map[string]string) string {
 	var keys []string
 	for k := range auth {
 		keys = append(keys, k)
