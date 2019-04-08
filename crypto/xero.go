@@ -19,8 +19,8 @@ type Xero struct {
 	PrivateKeyPath string
 }
 
-//Sign generates a signature for a xero request
-func Sign(input Xero) (string, error) {
+//XeroSigner generates a signature for a xero request
+func XeroSigner(input Xero) (string, error) {
 	auth := map[string]string{
 		"oauth_token":            input.AccessToken,
 		"oauth_consumer_key":     input.ConsumerKey,
