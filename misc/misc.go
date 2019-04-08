@@ -1,21 +1,23 @@
 package misc
 
 import (
-	"crypto/rand"
-	"math/big"
+	"math/rand"
 	"net/url"
-	"strconv"
 	"strings"
+	"time"
 )
+
+const alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
 //GenerateNonce creates a pseudo-random integer to use as a nonce value.
 func GenerateNonce() string {
-	bigInt, err := rand.Int(rand.Reader, big.NewInt(9999999999))
-	if err != nil {
-		panic(err)
+	rand.Seed(time.Now().UnixNano())
+	toRet := make([]byte, 32)
+	length := len(alphanumeric)
+	for i := range toRet {
+		toRet[i] = alphanumeric[rand.Int63()%int64(length)]
 	}
-	nonce := bigInt.Int64()
-	return strconv.FormatInt(nonce, 10)
+	return string(toRet)
 }
 
 //OauthEscape creates a safe text to use in URL's
