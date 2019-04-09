@@ -10,13 +10,13 @@ import (
 
 //Xero is the structure required for input to the xero function
 type Xero struct {
-	AccessToken    string
-	ConsumerKey    string
-	SessionHandle  string
-	Refresh        bool
-	Query          string
-	BaseURL        string
-	PrivateKeyPath string
+	AccessToken   string
+	ConsumerKey   string
+	SessionHandle string
+	Refresh       bool
+	Query         string
+	BaseURL       string
+	PrivateKeyID  string
 }
 
 //XeroSigner generates a signature for a xero request
@@ -40,7 +40,7 @@ func XeroSigner(input Xero) (string, error) {
 	}
 	sortedAuthString := sortAuth(auth)
 	signatureText := METHOD + misc.OauthEscape(input.BaseURL) + "&" + misc.OauthEscape(sortedAuthString)
-	signature := SignRSA([]byte(signatureText), input.PrivateKeyPath)
+	signature := SignRSA([]byte(signatureText), "/ssl/"+input.PrivateKeyID+".pem")
 	var authHeader string
 	if input.Refresh {
 		authHeader = "OAuth oauth_consumer_key=\\\"" + auth["oauth_consumer_key"] + "\\\",oauth_nonce=\\\"" + auth["oauth_nonce"] + "\\\",oauth_session_handle=\\\"" + auth["oauth_session_handle"] + "\\\",oauth_signature_method=\\\"" + auth["oauth_signature_method"] + "\\\",oauth_timestamp=\\\"" + auth["oauth_timestamp"] + "\\\",oauth_token=\\\"" + auth["oauth_token"] + "\\\",oauth_version=\\\"" + auth["oauth_version"] + "\\\",oauth_signature=\\\"" + misc.OauthEscape(signature) + "\\\""
