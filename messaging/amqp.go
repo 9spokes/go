@@ -60,12 +60,43 @@ func (_amqp *AMQP) DeleteMessage(id string) error {
 // CreateQueue creates a new message with the given name and attributes
 func (_amqp *AMQP) CreateQueue(name string, attributes map[string]interface{}) error {
 
+	var durable, del, exclusive, noWait bool
+
+	if _, ok := attributes["durable"]; ok {
+		durable = attributes["durable"].(bool)
+		delete(attributes, "durable")
+	} else {
+		durable = true
+	}
+
+	if _, ok := attributes["delete"]; ok {
+		del = attributes["delete"].(bool)
+		delete(attributes, "delete")
+	} else {
+		del = false
+	}
+
+	if _, ok := attributes["exclusive"]; ok {
+		exclusive = attributes["exclusive"].(bool)
+		delete(attributes, "exclusive")
+	} else {
+		exclusive = false
+	}
+
+	if _, ok := attributes["no-wait"]; ok {
+		noWait = attributes["no-wait"].(bool)
+		delete(attributes, "no-wait")
+	} else {
+		noWait = false
+	}
+
+	fmt.Printf("durable: %v, delete: %v, name: %s, exclusive: %v, no-wait: %v, attributes: %v\n", durable, del, name, exclusive, noWait, attributes)
 	_, err := _amqp.Channel.QueueDeclare(
 		name,       // name
-		true,       // durable
-		false,      // delete when unused
-		false,      // exclusive
-		false,      // no-wait
+		durable,    // durable
+		del,        // delete when unused
+		exclusive,  // exclusive
+		noWait,     // no-wait
 		attributes, // arguments
 	)
 
