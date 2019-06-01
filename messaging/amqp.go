@@ -90,7 +90,6 @@ func (_amqp *AMQP) CreateQueue(name string, attributes map[string]interface{}) e
 		noWait = false
 	}
 
-	fmt.Printf("durable: %v, delete: %v, name: %s, exclusive: %v, no-wait: %v, attributes: %v\n", durable, del, name, exclusive, noWait, attributes)
 	_, err := _amqp.Channel.QueueDeclare(
 		name,       // name
 		durable,    // durable
