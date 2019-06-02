@@ -1,6 +1,8 @@
 package messaging
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Transport is a messaging protocol transport
 type Transport interface {
@@ -8,7 +10,7 @@ type Transport interface {
 	SendMessage(string, Message) error
 	DeleteMessage(string) error
 	CreateQueue(string, map[string]interface{}) error
-	ReceiveMessages(string) (<-chan Message, error)
+	ReceiveMessages(string, map[string]interface{}) (<-chan Message, error)
 }
 
 // Message is an abstract message structure
@@ -16,6 +18,7 @@ type Message struct {
 	ID            string
 	CorrelationID string
 	Body          []byte
+	Options       map[string]interface{}
 }
 
 // New is a function that creates a new transport type
