@@ -7,13 +7,9 @@ import (
 	"github.com/op/go-logging"
 )
 
-// Logger is a logging object wrapper
-type Logger logging.Logger
-
 // New ceates a new 9 Spokes logger with a formatter, uses stdout as a backend.
-func New(category, level string) *Logger {
+func New(category, level string) *logging.Logger {
 	logger := logging.MustGetLogger(category)
-	ret := Logger(*logger)
 
 	var format = logging.MustStringFormatter(
 		`%{color}%{time:15:04:05.000} %{level:.5s} %{shortfunc}() ▶ %{message}%{color:reset}`,
@@ -23,17 +19,17 @@ func New(category, level string) *Logger {
 	level = strings.ToUpper(level)
 	if level == "DEBUG" {
 		logging.SetLevel(logging.DEBUG, category)
-		return &ret
+		return logger
 	}
 	if level == "ERROR" {
 		logging.SetLevel(logging.ERROR, category)
-		return &ret
+		return logger
 	}
 	if level == "CRITICAL" {
 		logging.SetLevel(logging.CRITICAL, category)
-		return &ret
+		return logger
 	}
 	logging.SetLevel(logging.INFO, category)
 
-	return &ret
+	return logger
 }
