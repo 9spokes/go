@@ -7,8 +7,11 @@ import (
 	"github.com/op/go-logging"
 )
 
+// Logger is a logging object wrapper
+type Logger *logging.Logger
+
 // New ceates a new 9 Spokes logger with a formatter, uses stdout as a backend.
-func New(category, level string) *logging.Logger {
+func New(category, level string) Logger {
 	logger := logging.MustGetLogger(category)
 
 	var format = logging.MustStringFormatter(
