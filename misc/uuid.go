@@ -18,9 +18,7 @@ func GenUUIDv4() string {
 // IsUUIDv4 determins whether a string is a valid UUID form.  Returns a boolean
 func IsUUIDv4(id string) bool {
 
-	match, err := regexp.Match(`^\d{8}-\d{4}-\d{4}-\d{4}-\d{12}$`, []byte(id))
-
-	if !match || err != nil {
+	if match, err := regexp.Match(`^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$`, []byte(id)); !match || err != nil {
 		return false
 	}
 
