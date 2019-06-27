@@ -12,7 +12,7 @@ func New(category, level string) *logging.Logger {
 	logger := logging.MustGetLogger(category)
 
 	var format = logging.MustStringFormatter(
-		`%{color}%{time:15:04:05.000} %{level:.5s} %{shortfunc}() ▶ %{message}%{color:reset}`,
+		`%{color}%{time:15:04:05.000} %{level:.4s} %{shortfunc}() ▶ %{message}%{color:reset}`,
 	)
 	logging.SetBackend(logging.NewBackendFormatter(logging.NewLogBackend(os.Stdout, "", 0), format))
 
