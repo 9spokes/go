@@ -27,7 +27,7 @@ type Options struct {
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
-func (params OAuth2) Authorize(opt Options) (Document, error) {
+func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 
 	var auth string
 
@@ -81,7 +81,7 @@ func (params OAuth2) Authorize(opt Options) (Document, error) {
 	contentType := response.Header["Content-Type"][0]
 
 	if strings.Contains(contentType, "application/json") {
-		var parsed Document
+		var parsed map[string]interface{}
 		if err = json.Unmarshal(resp, &parsed); err != nil {
 			return nil, fmt.Errorf("failed to deserialise the response: %s (%s)", resp, err.Error())
 		}
@@ -91,7 +91,7 @@ func (params OAuth2) Authorize(opt Options) (Document, error) {
 	if strings.Contains(contentType, "application/x-www-form-urlencoded") || strings.Contains(contentType, "text/html") {
 
 		m, _ := url.ParseQuery(string(resp))
-		ret := make(Document)
+		ret := make(map[string]interface{})
 		for k, v := range m {
 			ret[k] = v[0]
 		}
@@ -103,7 +103,7 @@ func (params OAuth2) Authorize(opt Options) (Document, error) {
 }
 
 // Refresh implements an OAuth2 token refresh methods.  Parameters are sent via the OAuth2 struct
-func (params OAuth2) Refresh(opt Options) (Document, error) {
+func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 
 	var auth string
 
@@ -156,7 +156,7 @@ func (params OAuth2) Refresh(opt Options) (Document, error) {
 	contentType := response.Header["Content-Type"][0]
 
 	if strings.Contains(contentType, "application/json") {
-		var parsed Document
+		var parsed map[string]interface{}
 		if err = json.Unmarshal(resp, &parsed); err != nil {
 			return nil, fmt.Errorf("failed to deserialise the response: %s (%s)", resp, err.Error())
 		}
@@ -166,7 +166,7 @@ func (params OAuth2) Refresh(opt Options) (Document, error) {
 	if strings.Contains(contentType, "application/x-www-form-urlencoded") || strings.Contains(contentType, "text/html") {
 
 		m, _ := url.ParseQuery(string(resp))
-		ret := make(Document)
+		ret := make(map[string]interface{})
 		for k, v := range m {
 			ret[k] = v[0]
 		}
