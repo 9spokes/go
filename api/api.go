@@ -5,6 +5,13 @@ import (
 	"net/http"
 )
 
+//Response is an API response message envelope
+type Response struct {
+	Status  string      `json:"status,omitempty"`
+	Message string      `json:"message,omitempty"`
+	Details interface{} `json:"details,omitempty"`
+}
+
 // ErrorResponse sends a standardised error message body to the caller
 // in the form of { "status": "err", "message": "<your error message>"}
 func ErrorResponse(w http.ResponseWriter, msg string, code int) {
@@ -15,10 +22,7 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("AAccess-Control-Request-Headers", "*")
 
-	response := struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-	}{"err", msg}
+	response := Response{Status: "err", Message: msg}
 
 	e, _ := json.Marshal(response)
 	w.WriteHeader(code)
@@ -36,10 +40,7 @@ func SuccessResponse(w http.ResponseWriter, data interface{}, code int) {
 	w.Header().Set("Access-Control-Request-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Method", "*")
 
-	response := struct {
-		Status  string      `json:"status"`
-		Details interface{} `json:"details"`
-	}{"ok", data}
+	response := Response{Status: "ok", Details: data, Message: ""}
 
 	o, _ := json.Marshal(response)
 	w.Write(o)
