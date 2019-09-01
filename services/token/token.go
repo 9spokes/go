@@ -6,17 +6,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/globalsign/mgo/bson"
 )
 
 // Connection is a short-form connection object as returned by the token service, it excludes sensitive info and is meant as a summary
 type Connection struct {
-	ID       bson.ObjectId `bson:"_id" json:"id"`
-	Created  time.Time     `json:"created"`
-	Modified time.Time     `json:"modified"`
-	OSP      string        `json:"osp"`
-	Status   string        `json:"status"`
+	ID       string    `json:"id,omitempty"`
+	Created  time.Time `json:"created" bson:"created,omitempty"`
+	Modified time.Time `json:"modified" bson:"modified,omitempty"`
+	OSP      string    `json:"osp" bson:"osp,omitempty"`
+	Status   string    `json:"status" bson:"status,omitempty"`
 }
 
 //GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
