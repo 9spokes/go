@@ -40,6 +40,73 @@ func TestValidateJWT_X5c(t *testing.T) {
 	fmt.Printf("TOKEN : [%v]\n", token.Claims)
 }
 
+// Ensure all standard claims ( aud, exp, jti, iat, iss, nbf, sub ) are NOT!!! overwritten by addtional claims
+func TestMakeJWTPreserveStandardClaims(t *testing.T) {
+
+	opt.CertificatePath = "certificate.pem"
+	opt.KeyPath = "private.pem"
+	opt.KeyPassword = "password"
+
+	// Create addtional claims with the same names as the standard claims
+	additionalClaims := map[string]interface{}{
+		"aud": "",
+		"exp": "",
+		"jti": "",
+		"iat": "",
+		"iss": "",
+		"nbf": "",
+		"sub": "",
+	}
+
+	jws, err := makeJWT("123456789", additionalClaims)
+	if err != nil {
+		t.Fail()
+	}
+
+	token, err := validateJWT(jws)
+	if err != nil {
+		t.Fail()
+	}
+
+	// Check standard claims not overwritten
+	if token.Claims.(jwt.MapClaims)["sub"] == "" {
+		t.Error("sub should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["aud"] == "" {
+		t.Error("aud should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["exp"] == "" {
+		t.Error("exp should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["jti"] == "" {
+		t.Error("jti should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["iat"] == "" {
+		t.Error("iat should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["iss"] == "" {
+		t.Error("iss should not be empty")
+		t.Fail()
+	}
+
+	if token.Claims.(jwt.MapClaims)["nbf"] == "" {
+		t.Error("nbf should not be empty")
+		t.Fail()
+	}
+
+	fmt.Printf("TOKEN : [%v]\n", token.Claims)
+}
+
 func TestValidateJWT_KID(t *testing.T) {
 
 	t.SkipNow() // Test intended to be used manually
