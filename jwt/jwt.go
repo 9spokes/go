@@ -20,7 +20,7 @@ var keyMap = make(map[string]rsa.PublicKey)
 //Params is a struct defining the required parameters needed to generate a new signed JWT token
 type Params struct {
 	Subject            string
-	Claims             map[string]string
+	Claims             map[string]interface{}
 	PrivateKeyPath     string
 	PrivateKeyPassword string
 	PublicKeyPath      string
