@@ -191,7 +191,7 @@ func MakeJWT(params Params) (string, error) {
 	claims := jwt.MapClaims{}
 
 	// Add addtional claims
-	for k, v := range additionalClaims {
+	for k, v := range params.Claims {
 		claims[k] = v
 	}
 
