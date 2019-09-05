@@ -27,41 +27,6 @@ type Connection struct {
 	Status        string    `bson:"status,omitempty" default:"NEW" json:"status"`
 }
 
-// ConnectionSummary is a short-form connection object as returned by the token service, it excludes sensitive info and is meant as a summary
-type ConnectionSummary struct {
-	ID           string    `json:"id,omitempty"`
-	Created      time.Time `json:"created" bson:"created,omitempty"`
-	Modified     time.Time `json:"modified" bson:"modified,omitempty"`
-	OSP          string    `json:"osp" bson:"osp,omitempty"`
-	Status       string    `json:"status" bson:"status,omitempty"`
-	AuthorizeURL string    `json:"authorize_url,omitempty"`
-	Tiles        []string  `json:"tiles"`
-}
-
-//GetConnectionsSummary returns a full list of connections but with several fields removed
-func GetConnectionsSummary(url, filter, limit string) ([]ConnectionSummary, error) {
-
-	connections, err := GetConnections(url, filter, limit, "osp,connection,user,created,modified,credentials,status")
-	if err != nil {
-		return []ConnectionSummary{}, fmt.Errorf("while retrieving list of connections from token service: %s", err.Error())
-	}
-
-	ret := make([]ConnectionSummary, len(connections))
-
-	for i := range connections {
-		ret[i] = ConnectionSummary{
-			ID:           connections[i].ID,
-			Created:      connections[i].Created,
-			Modified:     connections[i].Modified,
-			OSP:          connections[i].OSP,
-			Status:       connections[i].Status,
-			AuthorizeURL: connections[i].Credentials["authorize_url"].(string),
-		}
-	}
-
-	return ret, nil
-}
-
 //GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
 func GetConnections(url, filter, limit, selector string) ([]Connection, error) {
 
@@ -85,22 +50,20 @@ func GetConnections(url, filter, limit, selector string) ([]Connection, error) {
 	}
 
 	var ret struct {
-		Status  string `json:"status"`
-		Details struct {
-			Connections []Connection `json:"connections"`
-		} `json:"details"`
-		Message string `json:"message"`
+		Status  string       `json:"status"`
+		Details []Connection `json:"details"`
+		Message string       `json:"message"`
 	}
 
 	if err := json.Unmarshal(body, &ret); err != nil {
 		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
 	}
 
-	return ret.Details.Connections, nil
+	return ret.Details, nil
 }
 
 //CreateConnection creates a new connection document and optionally runs the "Initiate" state to prime the document
-func CreateConnection(url, user, app string) (ConnectionSummary, error) {
+func CreateConnection(url, user, app string) (Connection, error) {
 
 	res, err := http.Post(
 		fmt.Sprintf("%s/connections", url),
@@ -108,50 +71,33 @@ func CreateConnection(url, user, app string) (ConnectionSummary, error) {
 		bytes.NewReader([]byte(fmt.Sprintf("osp=%s&user=%s", app, user))),
 	)
 	if err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while interacting with token services: %s", err.Error())
+		return Connection{}, fmt.Errorf("while interacting with token services: %s", err.Error())
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while reading message body: %s", err.Error())
+		return Connection{}, fmt.Errorf("while reading message body: %s", err.Error())
 	}
 
 	if res.StatusCode != 200 {
-		return ConnectionSummary{}, fmt.Errorf("received a non-OK response from token service: [%s] %s", res.Status, body)
+		return Connection{}, fmt.Errorf("received a non-OK response from token service: [%s] %s", res.Status, body)
 	}
 
 	var ret struct {
-		Status  string `json:"status"`
-		Details struct {
-			ID          string                 `json:"id"`
-			Created     time.Time              `json:"created"`
-			Modified    time.Time              `json:"modified"`
-			OSP         string                 `json:"osp"`
-			Status      string                 `json:"status"`
-			Credentials map[string]interface{} `json:"credentials"`
-		} `json:"details"`
-		Message string `json:"message"`
+		Status  string     `json:"status"`
+		Details Connection `json:"details"`
+		Message string     `json:"message"`
 	}
 
 	if err := json.Unmarshal(body, &ret); err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while unmarshalling message: %s", err.Error())
+		return Connection{}, fmt.Errorf("while unmarshalling message: %s", err.Error())
 	}
 
-	// created, _ := time.Parse("2006-01-02T15:04:05.000Z", ret.Details["created"].(string))
-	// modified, _ := time.Parse("2006-01-02T15:04:05.000Z", ret.Details["modified"].(string))
-
-	return ConnectionSummary{
-		AuthorizeURL: ret.Details.Credentials["authorize_url"].(string),
-		ID:           ret.Details.ID,
-		Created:      ret.Details.Created,
-		Modified:     ret.Details.Modified,
-		OSP:          ret.Details.OSP,
-		Status:       ret.Details.Status,
-	}, nil
+	return ret.Details, nil
 }
 
 //ActivateConnection transitions a connection from authorized to active by swapping the authoriztion code for an access token
-func ActivateConnection(url, user, app string, form url.Values) (ConnectionSummary, error) {
+func ActivateConnection(url, user, app string, form url.Values) (Connection, error) {
 
 	res, err := http.Get(fmt.Sprintf("%s/connections/%s?action=authorize&%s",
 		url,
@@ -159,29 +105,57 @@ func ActivateConnection(url, user, app string, form url.Values) (ConnectionSumma
 		form.Encode(),
 	))
 	if err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while interacting with token services: %s", err.Error())
+		return Connection{}, fmt.Errorf("while interacting with token services: %s", err.Error())
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while reading message body: %s", err.Error())
+		return Connection{}, fmt.Errorf("while reading message body: %s", err.Error())
 	}
 
 	if res.StatusCode != 200 {
-		return ConnectionSummary{}, fmt.Errorf("received a non-OK response from token service: [%s] %s", res.Status, body)
+		return Connection{}, fmt.Errorf("received a non-OK response from token service: [%s] %s", res.Status, body)
 	}
 
 	var ret struct {
-		Status  string `json:"status"`
-		Details struct {
-			Connection ConnectionSummary `json:"connection"`
-		} `json:"details"`
-		Message string `json:"message"`
+		Status  string     `json:"status"`
+		Details Connection `json:"details"`
+		Message string     `json:"message"`
 	}
 
 	if err := json.Unmarshal(body, &ret); err != nil {
-		return ConnectionSummary{}, fmt.Errorf("while unmarshalling message: %s", err.Error())
+		return Connection{}, fmt.Errorf("while unmarshalling message: %s", err.Error())
 	}
 
-	return ret.Details.Connection, nil
+	return ret.Details, nil
+}
+
+//GetOSP returns an OSP definition from the Token service
+func GetOSP(url, osp string) (Document, error) {
+
+	res, err := http.Get(fmt.Sprintf("%s/osp/%s", url, osp))
+	if err != nil {
+		return nil, fmt.Errorf("while interacting with token services: %s", err.Error())
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("while reading message body: %s", err.Error())
+	}
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("received a non-OK response from token service: [%s] %s", res.Status, body)
+	}
+
+	var ret struct {
+		Status  string   `json:"status"`
+		Details Document `json:"details"`
+		Message string   `json:"message"`
+	}
+
+	if err := json.Unmarshal(body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
+	}
+
+	return ret.Details, nil
 }
