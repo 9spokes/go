@@ -184,9 +184,6 @@ func MakeJWT(params Params) (string, error) {
 	// Place certificate into certificate chain ( required for format reasons )
 	certChain := []string{string(cert)}
 
-	// Place certificate into certificate chain ( required for format reasons )
-	certChain := []string{string(cert)}
-
 	// Empty claims
 	claims := jwt.MapClaims{}
 
