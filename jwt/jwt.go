@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/9spokes/go/misc"
 	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/square/go-jose.v2"
 )
@@ -21,7 +20,7 @@ var keyMap = make(map[string]rsa.PublicKey)
 //Params is a struct defining the required parameters needed to generate a new signed JWT token
 type Params struct {
 	Subject            string
-	Claims             map[string]string
+	Claims             map[string]interface{}
 	PrivateKeyPath     string
 	PrivateKeyPassword string
 	PublicKeyPath      string
@@ -185,21 +184,22 @@ func MakeJWT(params Params) (string, error) {
 	// Place certificate into certificate chain ( required for format reasons )
 	certChain := []string{string(cert)}
 
+	// Empty claims
+	claims := jwt.MapClaims{}
+
 	// Add addtional claims
-	claims := jwt.MapClaims{
-
-		"iss": "9Spokes",
-		"sub": params.Subject,
-		"aud": "9spokes",
-		"exp": time.Now().UTC().Add(time.Second * params.Expiry).Unix(),
-		"nbf": time.Now().Unix(),
-		"iat": time.Now().Unix(),
-		"jti": misc.GenUUIDv4(),
-	}
-
 	for k, v := range params.Claims {
 		claims[k] = v
 	}
+
+	// Add standard claims
+	claims["iss"] = "9Spokes"
+	claims["sub"] = subject
+	claims["aud"] = "9spokes"
+	claims["exp"] = time.Now().UTC().Add(time.Second * time.Duration(opt.TokenExpiryPeriod)).Unix()
+	claims["nbf"] = time.Now().Unix()
+	claims["iat"] = time.Now().Unix()
+	claims["jti"] = logging.GenUUIDv4()
 
 	// Sign JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
