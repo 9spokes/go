@@ -13,10 +13,12 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"time"
 
+	"github.com/mergermarket/go-pkcs7"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -104,33 +106,65 @@ func Encrypt(str string, secret []byte) ([]byte, error) {
 }
 
 //SignRSA creates the signature for oauth1 with rsa-sha1
-func SignRSA(message []byte, filepath string) string {
+func SignRSA(message []byte, filepath string) (string, error) {
 	keyInfo, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		log.Panic(err)
+		return "", err
 	}
 	keyBlock, _ := pem.Decode(keyInfo)
 	privatekey, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
 	if err != nil {
-		log.Panic(err)
+		return "", err
 	}
 	hash := crypto.SHA1.New()
 	hash.Write(message)
 	data := hash.Sum(nil)
 	signed, err := rsa.SignPKCS1v15(rand.Reader, privatekey, crypto.SHA1, data)
 	if err != nil {
-		log.Panic(err)
+		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(signed)
+	return base64.StdEncoding.EncodeToString(signed), nil
 }
 
 //SignHMAC will sign a message using the HMAC-SHA1 algorithm.
-func SignHMAC(message []byte, key string) string {
+func SignHMAC(message []byte, key string) (string, error) {
 	hash := hmac.New(crypto.SHA1.New, []byte(key))
 	_, err := hash.Write(message)
 	if err != nil {
-		log.Panic(err)
+		return "", err
 	}
 	signedHash := hash.Sum(nil)
-	return base64.StdEncoding.EncodeToString(signedHash)
+	return base64.StdEncoding.EncodeToString(signedHash), nil
+}
+
+// GenerateCallbackURL is used to generate an encrypted URL where a user-agent can be directed.
+// It leverages the cb.9spokes.io/redirect callback handler which is used to decouple environments from callback URLs
+func GenerateCallbackURL(url, callback, secret, iv string) (string, error) {
+
+	unencrypted := fmt.Sprintf("{\"url\":\"%s\",\"timestamp\":\"%d\",\"callback\":\"%s\"}", url, time.Now().UnixNano(), callback)
+	decoded, _ := base64.StdEncoding.DecodeString(secret)
+	key := []byte(decoded)
+	plainText := []byte(unencrypted)
+	plainText, err := pkcs7.Pad(plainText, aes.BlockSize)
+	if err != nil {
+		return "", fmt.Errorf(`plainText: "%s" has error`, plainText)
+	}
+	if len(plainText)%aes.BlockSize != 0 {
+		err := fmt.Errorf(`plainText: "%s" has the wrong block size`, plainText)
+		return "", err
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	cipherText := make([]byte, len(plainText))
+	ivBytes, _ := base64.StdEncoding.DecodeString(iv)
+
+	mode := cipher.NewCBCEncrypter(block, ivBytes)
+	mode.CryptBlocks(cipherText, plainText)
+
+	return fmt.Sprintf("%s", base64.StdEncoding.EncodeToString(cipherText)), nil
+
 }
