@@ -3,6 +3,7 @@ package jwt
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/9spokes/go/logging"
 	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/square/go-jose.v2"
 )
@@ -20,7 +22,7 @@ var keyMap = make(map[string]rsa.PublicKey)
 //Params is a struct defining the required parameters needed to generate a new signed JWT token
 type Params struct {
 	Subject            string
-	Claims             map[string]interface{}
+	Claims             map[string]string
 	PrivateKeyPath     string
 	PrivateKeyPassword string
 	PublicKeyPath      string
@@ -30,7 +32,7 @@ type Params struct {
 // ValidateJWT checks that the supplied string constitutes a JWT token
 func ValidateJWT(tokenString string) (*jwt.Token, error) {
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
@@ -56,12 +58,34 @@ func ValidateJWT(tokenString string) (*jwt.Token, error) {
 
 		case "x5c":
 
-			certificate := token.Header["x5c"].([]interface{})[0].(string)
+			var certificate string
 
+			if x5c, ok := token.Header["x5c"].([]interface{}); ok {
+				certificate = x5c[0].(string)
+			} else if x5c, ok := token.Header["x5c"].(string); ok {
+				certificate = x5c
+			} else {
+				return nil, fmt.Errorf("Invalid x5c header, not string and not array of strings")
+			}
+
+			// Our decoded DER certificate
+			var der []byte
+
+			// Assume a certificate chain is provided with proper BEGIN and END lines
 			block, _ := pem.Decode([]byte(certificate))
+			if block == nil {
+				// If the Decoding fails, assume it is a single Base64-encoded DER certificate
+				der, err = base64.StdEncoding.DecodeString(certificate)
+				// If the decoding fails, we're unable to handle the data
+				if err != nil {
+					return nil, fmt.Errorf("Could not decode x509 certificate: %s", certificate)
+				}
+			} else {
+				der = block.Bytes
+			}
 
 			var cert *x509.Certificate
-			cert, err := x509.ParseCertificate(block.Bytes)
+			cert, err := x509.ParseCertificate(der)
 			if err != nil {
 				return nil, fmt.Errorf("Could not load x5c certificate")
 			}
@@ -73,8 +97,6 @@ func ValidateJWT(tokenString string) (*jwt.Token, error) {
 
 		return nil, err
 	})
-
-	return token, err
 }
 
 // GetKeyType determines what type of key a JWT is using
@@ -184,22 +206,21 @@ func MakeJWT(params Params) (string, error) {
 	// Place certificate into certificate chain ( required for format reasons )
 	certChain := []string{string(cert)}
 
-	// Empty claims
-	claims := jwt.MapClaims{}
-
 	// Add addtional claims
+	claims := jwt.MapClaims{
+
+		"iss": "9Spokes",
+		"sub": params.Subject,
+		"aud": "9spokes",
+		"exp": time.Now().UTC().Add(time.Second * params.Expiry).Unix(),
+		"nbf": time.Now().Unix(),
+		"iat": time.Now().Unix(),
+		"jti": logging.GenUUIDv4(),
+	}
+
 	for k, v := range params.Claims {
 		claims[k] = v
 	}
-
-	// Add standard claims
-	claims["iss"] = "9Spokes"
-	claims["sub"] = subject
-	claims["aud"] = "9spokes"
-	claims["exp"] = time.Now().UTC().Add(time.Second * time.Duration(opt.TokenExpiryPeriod)).Unix()
-	claims["nbf"] = time.Now().Unix()
-	claims["iat"] = time.Now().Unix()
-	claims["jti"] = logging.GenUUIDv4()
 
 	// Sign JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
