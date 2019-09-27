@@ -17,10 +17,6 @@ type Response struct {
 func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 
 	w.Header().Set("Content-type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Method", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("AAccess-Control-Request-Headers", "*")
 
 	response := Response{Status: "err", Message: msg}
 
@@ -35,10 +31,6 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 func SuccessResponse(w http.ResponseWriter, data interface{}, code int) {
 
 	w.Header().Set("Content-type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Access-Control-Request-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Method", "*")
 
 	response := Response{Status: "ok", Details: data, Message: ""}
 
