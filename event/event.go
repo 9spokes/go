@@ -16,7 +16,7 @@ type Service struct {
 func New(url string) (*Service, error) {
 
 	svc := &Service{
-		url: url,
+		url: url + "/events",
 	}
 
 	return svc, nil
