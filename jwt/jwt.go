@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/9spokes/go/misc"
+	"github.com/9spokes/go/logging"
 	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/square/go-jose.v2"
 )
@@ -30,7 +30,7 @@ type Params struct {
 }
 
 // ValidateJWT checks that the supplied string constitutes a JWT token
-func ValidateJWT(tokenString string) (*jwt.Token, error) {
+func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, error) {
 
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
@@ -50,9 +50,26 @@ func ValidateJWT(tokenString string) (*jwt.Token, error) {
 		case "kid":
 
 			kid := token.Header["kid"].(string)
+
 			publicKey, ok := keyMap[kid]
+
+			// If key is missing, refresh the keyMap
 			if !ok {
-				return nil, fmt.Errorf("No key found for kid [%s]", kid)
+				oidcConfig, err := FetchOIDCConfiguration(OpenIDDiscoveryURL)
+				if err != nil {
+					return nil, err
+				}
+
+				err = FetchJWKS(oidcConfig["jwks_uri"].(string))
+				if err != nil {
+					return nil, fmt.Errorf("Failed to validate token")
+				}
+
+				publicKey, ok := keyMap[kid]
+				if !ok {
+					return nil, fmt.Errorf("No key found for kid [%s]", kid)
+				}
+				return &publicKey, nil
 			}
 			return &publicKey, nil
 
@@ -215,7 +232,7 @@ func MakeJWT(params Params) (string, error) {
 		"exp": time.Now().UTC().Add(time.Second * params.Expiry).Unix(),
 		"nbf": time.Now().Unix(),
 		"iat": time.Now().Unix(),
-		"jti": misc.GenUUIDv4(),
+		"jti": logging.GenUUIDv4(),
 	}
 
 	for k, v := range params.Claims {
