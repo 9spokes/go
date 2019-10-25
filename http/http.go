@@ -2,9 +2,12 @@ package http
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // Response is an HTTP response, optionally parsed if the `json=true` parameter is supplied to httpGet()
@@ -82,4 +85,41 @@ func (request Request) http() (*Response, error) {
 	}
 
 	return &Response{resp.StatusCode, body}, nil
+}
+
+// ValidateBasicAuthCreds parses an HTTP Basic authoriation header and validates the credentials contained therein against
+// a the map of credentials supplied as the second argument
+// Returns the client ID (username) that matched on success or empty string if no match.  Returns an error if the parsing failed
+func ValidateBasicAuthCreds(header string, creds map[string]string) (string, error) {
+
+	if header == "" {
+		return "", fmt.Errorf("Authorization header missing")
+	}
+
+	// Parse Authorization header (eg: Basic a2V5OnZhbHVlCg==)
+	fields := strings.Split(header, " ")
+	if len(fields) != 2 || strings.ToLower(fields[0]) != "basic" {
+		return "", fmt.Errorf("Invalid authorization type '%s'", fields[0])
+	}
+
+	// Base64 decode
+	encoded, err := base64.StdEncoding.DecodeString(fields[1])
+	if err != nil {
+		return "", fmt.Errorf("Unable to parse authorization header '%s': %s", fields[0], err.Error())
+	}
+
+	// Extract client_id & client_secret
+	val := strings.Split(strings.TrimSpace(string(encoded)), ":")
+	if len(val) != 2 {
+		return "", fmt.Errorf("Malformed authorization header: %s", fields[1])
+	}
+
+	for id, secret := range creds {
+		if strings.ToLower(id) == strings.ToLower(val[0]) && secret == val[1] {
+			return id, nil
+
+		}
+	}
+
+	return "", fmt.Errorf("Invalid client_id/client_secret combination")
 }
