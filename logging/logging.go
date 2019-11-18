@@ -17,19 +17,19 @@ func New(category, level string) *logging.Logger {
 	logging.SetBackend(logging.NewBackendFormatter(logging.NewLogBackend(os.Stdout, "", 0), format))
 
 	level = strings.ToUpper(level)
-	if level == "DEBUG" {
+	switch level {
+	case "DEBUG":
 		logging.SetLevel(logging.DEBUG, category)
 		return logger
-	}
-	if level == "ERROR" {
+	case "ERROR":
 		logging.SetLevel(logging.ERROR, category)
 		return logger
-	}
-	if level == "CRITICAL" {
+	case "CRITICAL":
 		logging.SetLevel(logging.CRITICAL, category)
 		return logger
+	default:
+		logging.SetLevel(logging.INFO, category)
+		return logger
 	}
-	logging.SetLevel(logging.INFO, category)
 
-	return logger
 }
