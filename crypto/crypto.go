@@ -141,7 +141,7 @@ func SignHMAC(message []byte, key string) (string, error) {
 // It leverages the cb.9spokes.io/redirect callback handler which is used to decouple environments from callback URLs
 func GenerateCallbackURL(url, callback, secret, iv string) (string, error) {
 
-	unencrypted := fmt.Sprintf("{\"url\":\"%s\",\"timestamp\":\"%d\",\"callback\":\"%s\"}", url, time.Now().UnixNano(), callback)
+	unencrypted := fmt.Sprintf("{\"url\":\"%s\",\"timestamp\":%d,\"callback\":\"%s\"}", url, time.Now().UnixNano()/1e6, callback)
 	decoded, _ := base64.StdEncoding.DecodeString(secret)
 	key := []byte(decoded)
 	plainText := []byte(unencrypted)
