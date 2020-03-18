@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/9spokes/go/logging"
+	"github.com/9spokes/go/misc"
 	"github.com/dgrijalva/jwt-go"
 	"gopkg.in/square/go-jose.v2"
 )
@@ -232,7 +232,7 @@ func MakeJWT(params Params) (string, error) {
 		"exp": time.Now().UTC().Add(time.Second * params.Expiry).Unix(),
 		"nbf": time.Now().Unix(),
 		"iat": time.Now().Unix(),
-		"jti": logging.GenUUIDv4(),
+		"jti": misc.GenUUIDv4(),
 	}
 
 	for k, v := range params.Claims {

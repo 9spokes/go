@@ -3,7 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/base64"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -14,15 +14,27 @@ import (
 type Response struct {
 	StatusCode int
 	Body       []byte
+	JSON       interface{}
+}
+
+// Authentication contains the keys needed to build an authorization URL
+type Authentication struct {
+	Scheme   string
+	Username string
+	Password string
+	Token    string
 }
 
 // Request is an HTTP request struct
 type Request struct {
-	URL     string `default:"http://localhost/"`
-	Method  string `default:"GET"`
-	Headers map[string]string
-	Query   map[string]string
-	Body    string `default:""`
+	URL            string `default:"http://localhost/"`
+	Method         string `default:"GET"`
+	Headers        map[string]string
+	Query          map[string]string
+	ContentType    string `default:"application/json"`
+	Authentication Authentication
+	Client         *http.Client
+	Body           []byte
 }
 
 // Post isn an HTTP POST Method
@@ -57,12 +69,30 @@ func (request Request) Delete() (*Response, error) {
 
 func (request Request) http() (*Response, error) {
 
-	client := &http.Client{}
+	var client *http.Client
+	if request.Client != nil {
+		client = request.Client
+	} else {
+		client = &http.Client{}
+	}
 
-	req, err := http.NewRequest(request.Method, request.URL, bytes.NewBuffer([]byte(request.Body)))
+	req, err := http.NewRequest(request.Method, request.URL, bytes.NewBuffer(request.Body))
+
+	if request.ContentType == "" {
+		req.Header.Set("Content-type", "application/json")
+	} else {
+		req.Header.Set("Content-type", request.ContentType)
+	}
 
 	for k, v := range request.Headers {
 		req.Header.Set(k, v)
+	}
+
+	switch strings.ToLower(request.Authentication.Scheme) {
+	case "basic":
+		req.Header.Set("Authorization", request.Authentication.Scheme+" "+base64.StdEncoding.EncodeToString([]byte(request.Authentication.Username+":"+request.Authentication.Password)))
+	case "bearer":
+		req.Header.Set("Authorization", request.Authentication.Scheme+" "+request.Authentication.Token)
 	}
 
 	q := req.URL.Query()
@@ -74,17 +104,24 @@ func (request Request) http() (*Response, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return nil, errors.New("Failed to read the response body: " + err.Error())
+		return nil, fmt.Errorf("Failed to read the response body: " + err.Error())
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &Response{resp.StatusCode, body}, errors.New("Failed to read the response body: " + err.Error())
+		return &Response{resp.StatusCode, body, ""}, fmt.Errorf("failed to read the response body: " + err.Error())
 	}
 
-	return &Response{resp.StatusCode, body}, nil
+	var decoded interface{}
+	json.Unmarshal(body, &decoded)
+
+	if resp.StatusCode > 399 {
+		return &Response{resp.StatusCode, body, decoded}, fmt.Errorf("non-OK response: %s", body)
+	}
+
+	return &Response{resp.StatusCode, body, decoded}, nil
 }
 
 // ValidateBasicAuthCreds parses an HTTP Basic authoriation header and validates the credentials contained therein against
