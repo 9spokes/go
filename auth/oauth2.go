@@ -19,6 +19,8 @@ type OAuth2 struct {
 	Code          string
 	TokenEndpoint string
 	Extras        map[string]string
+	Headers       map[string]string
+	Client        *http.Client
 }
 
 // Options are a set of flags & modifiers to the OAuth2 implementation
@@ -28,6 +30,14 @@ type Options struct {
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
 func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
+
+	if params.ClientID == "" || params.ClientSecret == "" {
+		return nil, fmt.Errorf("client_id and client_secret cannot be empty")
+	}
+
+	if params.Code == "" {
+		return nil, fmt.Errorf("the authorization code is missing")
+	}
 
 	var auth string
 
@@ -52,6 +62,10 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 		return nil, fmt.Errorf("failed to create an HTTP client: %s", err.Error())
 	}
 
+	for k, v := range params.Headers {
+		request.Header.Set(k, v)
+	}
+
 	if opt.AuthInHeader {
 		request.Header.Set("Authorization", auth)
 	}
@@ -59,7 +73,12 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
+	var client *http.Client
+	if params.Client != nil {
+		client = params.Client
+	} else {
+		client = &http.Client{}
+	}
 
 	response, err := client.Do(request)
 	if err != nil {
