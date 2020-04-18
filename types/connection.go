@@ -20,3 +20,13 @@ type Connection struct {
 	Status        string    `bson:"status" default:"NEW" json:"status"`
 }
 
+// ConnectionSummary is a short-form connection object as returned by the token service, it excludes sensitive info and is meant as a summary
+type ConnectionSummary struct {
+	ID           string      `json:"id,omitempty"`
+	Created      time.Time   `json:"created" bson:"created,omitempty"`
+	Modified     time.Time   `json:"modified" bson:"modified,omitempty"`
+	OSP          string      `json:"osp" bson:"osp,omitempty"`
+	Status       string      `json:"status" bson:"status,omitempty"`
+	AuthorizeURL string      `json:"authorize_url,omitempty"`
+	Settings     interface{} `json:"settings"`
+}

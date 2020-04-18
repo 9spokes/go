@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/9spokes/go/misc"
@@ -108,16 +107,6 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 				return nil, fmt.Errorf("Could not load x5c certificate")
 			}
 
-			// Verfy certificate
-			opts := x509.VerifyOptions{
-				DNSName: nil, // Use system roots
-				Roots:   roots,
-			}
-
-			if _, err := cert.Verify(opts); err != nil {
-				panic("failed to verify certificate: " + err.Error())
-			}
-
 			publicKey := cert.PublicKey.(*rsa.PublicKey)
 
 			return publicKey, nil
@@ -159,14 +148,6 @@ func GetKeyType(joseHeader map[string]interface{}) (string, error) {
 func FetchJWKS(jwksURL string) error {
 
 	// Get open id connect configuration
-	u, err := url.Parse(jwksURL)
-	if err != nil {
-		return fmt.Errorf("while parsing JWKS URL '%s': %s", jwksURL, err.Error())
-	}
-	if u.Scheme != "https" {
-		return fmt.Errorf("JWKS URL requires https scheme '%s': %s", jwksURL, err.Error())
-	}
-
 	response, err := http.Get(jwksURL)
 	if err != nil {
 		return fmt.Errorf("while connecting to remote endpoint '%s': %s", jwksURL, err.Error())
