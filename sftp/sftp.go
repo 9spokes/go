@@ -1,7 +1,7 @@
 package sftp
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,25 +16,69 @@ type Context struct {
 	PrivateKey string
 }
 
-// Get retrieves a file from an SFTP server
-func (sftp Context) Get(dir, file string) ([]string, error) {
+// TransferOptions contains a set of options that customise a file operation
+type TransferOptions struct {
+	RemoteDirectory  string
+	LocalDirectory   string
+	ArchiveDirectory string
+	RemoveOnSuccess  bool
+	FilePattern      string
+}
 
-	return sftp.runScript([]string{
-		"cd " + dir,
-		"get " + file,
-		"rm " + file,
-		"exit",
-	})
+// List gets a list of remote files in a directory
+func (sftp Context) List(opt TransferOptions) ([]string, error) {
+
+	script := make([]string, 0)
+
+	if opt.RemoteDirectory != "" {
+		script = append(script, "cd "+opt.RemoteDirectory)
+	}
+
+	script = append(script, "ls "+opt.FilePattern)
+	script = append(script, "exit")
+
+	return sftp.runScript(script)
+}
+
+// Get retrieves a file from an SFTP server
+func (sftp Context) Get(file string, opt TransferOptions) ([]string, error) {
+
+	script := make([]string, 0)
+
+	if opt.RemoteDirectory != "" {
+		script = append(script, "cd "+opt.RemoteDirectory)
+	}
+
+	if opt.LocalDirectory != "" {
+		script = append(script, "lcd "+opt.LocalDirectory)
+	}
+
+	script = append(script, "get "+file)
+
+	if opt.ArchiveDirectory != "" {
+		script = append(script, "mv "+file+" "+opt.ArchiveDirectory)
+	} else if opt.RemoveOnSuccess {
+		script = append(script, "rm "+file)
+	}
+
+	script = append(script, "exit")
+
+	return sftp.runScript(script)
 }
 
 // Put retrieves a file from an SFTP server
-func (sftp Context) Put(dir, file string) ([]string, error) {
+func (sftp Context) Put(file string, opt TransferOptions) ([]string, error) {
 
-	return sftp.runScript([]string{
-		"cd " + dir,
-		"put " + file,
-		"exit",
-	})
+	script := make([]string, 0)
+
+	if opt.RemoteDirectory != "" {
+		script = append(script, "cd "+opt.RemoteDirectory)
+	}
+
+	script = append(script, "put "+file)
+	script = append(script, "exit")
+
+	return sftp.runScript(script)
 }
 
 func (sftp Context) runScript(script []string) ([]string, error) {
@@ -59,23 +103,25 @@ func (sftp Context) runScript(script []string) ([]string, error) {
 
 	cmd := exec.Command("sftp", "-q", "-oStrictHostKeyChecking=no", "-oUserKnownHostsFile=/dev/null", "-i", sftp.PrivateKey, "-b", tmpfile.Name(), sftp.Username+"@"+sftp.Hostname)
 
-	stderr, err := cmd.StderrPipe()
+	out, err := cmd.CombinedOutput()
+
 	if err != nil {
-		return output, fmt.Errorf("while reading from stderr: %s", err.Error())
+		return strings.Split(string(out), "\n"), err
+	}
+	return sftp.sanitiseOutput(out)
+}
+
+func (sftp Context) sanitiseOutput(output []byte) ([]string, error) {
+
+	raw := bytes.Split(output, []byte{'\n'})
+	lines := make([]string, 0)
+
+	for i := range raw {
+		line := string(raw[i])
+		if len(line) > 0 && !strings.Contains(line, "sftp> ") {
+			lines = append(lines, strings.Replace(line, " ", "", -1))
+		}
 	}
 
-	if err := cmd.Start(); err != nil {
-		return output, fmt.Errorf("while launching command: %s", err.Error())
-	}
-
-	scanner := bufio.NewScanner(stderr)
-	for scanner.Scan() {
-		output = append(output, scanner.Text())
-	}
-
-	if err := cmd.Wait(); err != nil {
-		return output, err
-	}
-
-	return output, nil
+	return lines, nil
 }

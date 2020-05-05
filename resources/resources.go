@@ -1,15 +1,16 @@
 package resources
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"time"
 
-	"github.com/9spokes/go/event"
-	"github.com/streadway/amqp"
+	event "github.com/9spokes/go/services/events"
 
 	"github.com/9spokes/go/db"
 	"github.com/9spokes/go/network"
@@ -41,12 +42,6 @@ func New(opt types.Document) (*types.Resources, error) {
 		return nil, err
 	}
 
-	if amqp, err := initAMQP(opt["MessagingURL"]); err == nil {
-		res.AMQP = amqp
-	} else {
-		return nil, err
-	}
-
 	if creds, err := initCreds(opt["Creds"]); err == nil {
 		res.Creds = creds
 	} else {
@@ -61,6 +56,12 @@ func New(opt types.Document) (*types.Resources, error) {
 
 	if events, err := initEvents(opt["EventURL"]); err == nil {
 		res.Events = events
+	} else {
+		return nil, err
+	}
+
+	if keystore, err := initX509Keystore(opt["Keystore"]); err == nil {
+		res.Keystore = keystore
 	} else {
 		return nil, err
 	}
@@ -191,7 +192,7 @@ func initClients(file interface{}) (map[string]string, error) {
 	return clients, nil
 }
 
-func initEvents(url interface{}) (*event.Service, error) {
+func initEvents(url interface{}) (*event.Context, error) {
 
 	if url == nil {
 		return nil, nil
@@ -209,32 +210,32 @@ func initEvents(url interface{}) (*event.Service, error) {
 	return events, nil
 }
 
-func initAMQP(url interface{}) (*amqp.Channel, error) {
+func initX509Keystore(path interface{}) ([]x509.Certificate, error) {
 
-	if url == nil {
+	if _, ok := path.(string); !ok {
 		return nil, nil
 	}
 
-	if _, ok := url.(string); !ok {
-		return nil, fmt.Errorf("Invalid AMQP URL")
-	}
+	pool := make([]x509.Certificate, 0)
 
-	re := regexp.MustCompile("^amqp://([^:]+:[^@]+@)?([^:]+:[0-9]+)/?")
-	if !re.MatchString(url.(string)) {
-		return nil, fmt.Errorf("Invalid Messaging URL")
-	}
-	host := re.FindStringSubmatch(url.(string))[2]
-	network.Dial("tcp", host, 120)
-
-	transport, err := amqp.Dial(url.(string))
+	raw, err := ioutil.ReadFile(path.(string))
 	if err != nil {
-		return nil, fmt.Errorf("While connecting to AMQP: %s", err.Error())
-	}
-	ch, err := transport.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("While connecting to AMQP: %s", err.Error())
+		return nil, fmt.Errorf("while reading keystore %s: %s", path, err.Error())
 	}
 
-	return ch, nil
+	for i := 0; ; i++ {
+		block, rest := pem.Decode(raw)
+		if block == nil {
+			break
+		}
+		cert, err := x509.ParseCertificate(block.Bytes)
+		if err != nil {
+			//logger.Warningf("Failed to load certificate #%d", i+1)
+		} else {
+			pool = append(pool, *cert)
+		}
+		raw = rest
+	}
 
+	return pool, nil
 }
