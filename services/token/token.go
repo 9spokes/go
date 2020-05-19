@@ -68,3 +68,76 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 
 	return parsed.Details, nil
 }
+
+//GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
+func (ctx Context) GetConnections(filter string, limit int, selector string) ([]types.Connection, error) {
+
+	if selector == "" {
+		selector = "osp"
+	}
+
+	url := fmt.Sprintf("%s/connections?filter=%s&limit=%d&selector=%s",
+		ctx.URL,
+		filter,
+		limit,
+		selector,
+	)
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("while interacting with Token service: %s", err.Error())
+	}
+
+	var ret struct {
+		Status  string             `json:"status"`
+		Details []types.Connection `json:"details"`
+		Message string             `json:"message"`
+	}
+
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
+	}
+
+	return ret.Details, nil
+}
+
+//GetOSP returns an OSP definition from the Token service
+func (ctx Context) GetOSP(osp string) (types.Document, error) {
+
+	url := fmt.Sprintf("%s/osp/%s", ctx.URL, osp)
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("while interacting with token services: %s", err.Error())
+	}
+
+	var ret struct {
+		Status  string         `json:"status"`
+		Details types.Document `json:"details"`
+		Message string         `json:"message"`
+	}
+
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
+	}
+
+	return ret.Details, nil
+}

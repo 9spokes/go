@@ -10,10 +10,9 @@ import (
 	"regexp"
 	"time"
 
-	event "github.com/9spokes/go/services/events"
-
 	"github.com/9spokes/go/db"
 	"github.com/9spokes/go/network"
+	event "github.com/9spokes/go/services/events"
 	"github.com/9spokes/go/types"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/sessions"
@@ -54,8 +53,8 @@ func New(opt types.Document) (*types.Resources, error) {
 		return nil, err
 	}
 
-	if events, err := initEvents(opt["EventURL"]); err == nil {
-		res.Events = events
+	if ev, err := initEvents(opt["EventURL"]); err == nil {
+		res.Events = ev
 	} else {
 		return nil, err
 	}
@@ -202,17 +201,17 @@ func initEvents(url interface{}) (*event.Context, error) {
 		return nil, fmt.Errorf("Invalid Events URL")
 	}
 
-	events, err := event.New(url.(string))
+	e, err := event.New(url.(string))
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to the Event service: %s", err.Error())
 	}
 
-	return events, nil
+	return e, nil
 }
 
 func initX509Keystore(path interface{}) ([]x509.Certificate, error) {
 
-	if _, ok := path.(string); !ok {
+	if _, ok := path.(string); !ok || path.(string) == "" {
 		return nil, nil
 	}
 
