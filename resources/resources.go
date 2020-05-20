@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/streadway/amqp"
 	"github.com/9spokes/go/db"
 	"github.com/9spokes/go/network"
 	event "github.com/9spokes/go/services/events"
@@ -37,6 +38,13 @@ func New(opt types.Document) (*types.Resources, error) {
 
 	if redis, err := initRedisDB(opt["CacheHost"]); err == nil {
 		res.RedisDB = redis
+	} else {
+		return nil, err
+	}
+	
+	if amqp, conn, err := initAMQP(opt["MessagingURL"]); err == nil {
+		res.AMQP.Channel = amqp
+		res.AMQP.Connection = conn
 	} else {
 		return nil, err
 	}
@@ -237,4 +245,34 @@ func initX509Keystore(path interface{}) ([]x509.Certificate, error) {
 	}
 
 	return pool, nil
+}
+
+func initAMQP(url interface{}) (*amqp.Channel, *amqp.Connection, error) {
+
+	if url == nil {
+		return nil, nil, nil
+	}
+
+	if _, ok := url.(string); !ok {
+		return nil, nil, fmt.Errorf("Invalid AMQP URL")
+	}
+
+	re := regexp.MustCompile("^amqp://([^:]+:[^@]+@)?([^:]+:[0-9]+)/?")
+	if !re.MatchString(url.(string)) {
+		return nil, nil, fmt.Errorf("Invalid Messaging URL")
+	}
+	host := re.FindStringSubmatch(url.(string))[2]
+	network.Dial("tcp", host, 120)
+
+	transport, err := amqp.Dial(url.(string))
+	if err != nil {
+		return nil, nil, fmt.Errorf("While connecting to AMQP: %s", err.Error())
+	}
+	ch, err := transport.Channel()
+	if err != nil {
+		return nil, nil, fmt.Errorf("While connecting to AMQP: %s", err.Error())
+	}
+
+	return ch, transport, nil
+
 }
