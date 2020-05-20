@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -19,6 +20,12 @@ import (
 
 var keyMap = make(map[string]rsa.PublicKey)
 
+// Options are a set of options & flags used to validate a JWT token
+type Options struct {
+	OIDCDiscoveryURI string
+	TrustedSigners   []x509.Certificate
+}
+
 //Params is a struct defining the required parameters needed to generate a new signed JWT token
 type Params struct {
 	Subject            string
@@ -30,19 +37,23 @@ type Params struct {
 }
 
 // ValidateJWT checks that the supplied string constitutes a JWT token
-func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, error) {
+func ValidateJWT(tokenString string, opt Options) (*jwt.Token, error) {
+
+	if opt.OIDCDiscoveryURI == "" && opt.TrustedSigners == nil {
+		return nil, fmt.Errorf("neither an OIDC Discovery URL nor an x509 certificate pool was supplied")
+	}
 
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		// Get public key
 		keyType, err := GetKeyType(token.Header)
 		if err != nil {
-			return nil, fmt.Errorf("Error unrecognised public key type: %s", err.Error())
+			return nil, fmt.Errorf("unrecognised public key type '%s': %s", keyType, err.Error())
 		}
 
 		switch keyType {
@@ -55,19 +66,19 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 
 			// If key is missing, refresh the keyMap
 			if !ok {
-				oidcConfig, err := FetchOIDCConfiguration(OpenIDDiscoveryURL)
+				oidcConfig, err := FetchOIDCConfiguration(opt.OIDCDiscoveryURI)
 				if err != nil {
 					return nil, err
 				}
 
 				err = FetchJWKS(oidcConfig["jwks_uri"].(string))
 				if err != nil {
-					return nil, fmt.Errorf("Failed to validate token")
+					return nil, fmt.Errorf(err.Error())
 				}
 
 				publicKey, ok := keyMap[kid]
 				if !ok {
-					return nil, fmt.Errorf("No key found for kid [%s]", kid)
+					return nil, fmt.Errorf("no key found for kid [%s]", kid)
 				}
 				return &publicKey, nil
 			}
@@ -82,7 +93,7 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 			} else if x5c, ok := token.Header["x5c"].(string); ok {
 				certificate = x5c
 			} else {
-				return nil, fmt.Errorf("Invalid x5c header, not string and not array of strings")
+				return nil, fmt.Errorf("invalid x5c header, not string and not array of strings")
 			}
 
 			// Our decoded DER certificate
@@ -95,7 +106,7 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 				der, err = base64.StdEncoding.DecodeString(certificate)
 				// If the decoding fails, we're unable to handle the data
 				if err != nil {
-					return nil, fmt.Errorf("Could not decode x509 certificate: %s", certificate)
+					return nil, fmt.Errorf("could not decode x509 certificate: %s", certificate)
 				}
 			} else {
 				der = block.Bytes
@@ -107,6 +118,10 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 				return nil, fmt.Errorf("Could not load x5c certificate")
 			}
 
+			if !isJWSAuthorized(cert, opt.TrustedSigners) {
+				return nil, fmt.Errorf("certificate is not trusted")
+			}
+
 			publicKey := cert.PublicKey.(*rsa.PublicKey)
 
 			return publicKey, nil
@@ -114,6 +129,18 @@ func ValidateJWT(tokenString string, OpenIDDiscoveryURL string) (*jwt.Token, err
 
 		return nil, err
 	})
+}
+
+// Checks whether this certificate (identified by thumbprint) is part of the trust keystore
+func isJWSAuthorized(cert *x509.Certificate, pool []x509.Certificate) bool {
+	thumbprint := sha1.Sum(cert.Raw)
+
+	for _, c := range pool {
+		if sha1.Sum(c.Raw) == thumbprint {
+			return true
+		}
+	}
+	return false
 }
 
 // GetKeyType determines what type of key a JWT is using
@@ -138,7 +165,7 @@ func GetKeyType(joseHeader map[string]interface{}) (string, error) {
 	// Unknown key type !
 	if keyType == "" {
 		// logger.Debug("JOSE Key type Unrecognised")
-		return "", errors.New("JOSE Key type Unrecognised")
+		return "", errors.New("JOSE key type is unrecognised")
 	}
 
 	return keyType, nil
