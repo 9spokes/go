@@ -34,7 +34,7 @@ func (sftp Context) List(opt TransferOptions) ([]string, error) {
 		script = append(script, "cd "+opt.RemoteDirectory)
 	}
 
-	script = append(script, "ls "+opt.FilePattern)
+	script = append(script, "ls -1 "+opt.FilePattern)
 	script = append(script, "exit")
 
 	return sftp.runScript(script)
