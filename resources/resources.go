@@ -79,7 +79,7 @@ func New(opt types.Document) (*types.Resources, error) {
 func initSessionCookie(key interface{}) (*sessions.CookieStore, error) {
 
 	if _, ok := key.(string); !ok {
-		return nil, fmt.Errorf("The BOARD_SESSION_COOKIE_KEY environment variable is missing")
+		return nil, nil
 	}
 	return sessions.NewCookieStore([]byte(key.(string))), nil
 }
