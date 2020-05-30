@@ -16,7 +16,14 @@ type Context struct {
 	Logger     *goLogging.Logger
 	Redis      *redis.Client
 	MaxRetries int
+	Wait       int
 }
+
+// MaxRetries is the number of times we re-attempt to access the cache when it is locked
+const MaxRetries = 20
+
+// Wait is the amount of time (in seconds) we wait before trying
+const Wait = 2
 
 // New creates a new instance of a Redis cache and returns a context for future use
 func New(url string, logger *goLogging.Logger) (*Context, error) {
@@ -42,7 +49,8 @@ func New(url string, logger *goLogging.Logger) (*Context, error) {
 		}),
 		URL:        url,
 		Logger:     logger,
-		MaxRetries: 20,
+		MaxRetries: MaxRetries,
+		Wait:       Wait,
 	}
 
 	_, err = ctx.Redis.Ping().Result()
@@ -70,8 +78,8 @@ func (ctx *Context) Get(id string) (string, error) {
 				ctx.Clear(id)
 				break
 			}
-			ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for 20 seconds", id)
-			time.Sleep(time.Second * 20)
+			ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", Wait, id)
+			time.Sleep(time.Second * Wait)
 		} else {
 			break
 		}
