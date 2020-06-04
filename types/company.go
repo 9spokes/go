@@ -2,7 +2,7 @@ package types
 
 //Company is a struct that defines a 9 Spokes company entity
 type Company struct {
-	ID                string                 `json:"id" bson:"connection"`
+	ID                string                 `json:"id" bson:"company"`
 	Name              string                 `json:"name" bson:"name"`
 	Industry          string                 `json:"industry"`
 	Phone             string                 `json:"phone"`
