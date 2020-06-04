@@ -18,7 +18,7 @@ type Context struct {
 }
 
 //GetCompanies returns a list of companies that the user belongs to
-func (ctx Context) GetCompanies() ([]types.Company, error) {
+func (ctx Context) GetCompanies(user string) ([]types.Company, error) {
 
 	response, err := http.Request{
 		URL: fmt.Sprintf("%s/companies", ctx.URL),
@@ -26,6 +26,9 @@ func (ctx Context) GetCompanies() ([]types.Company, error) {
 			Scheme:   "basic",
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
+		},
+		Headers: map[string]string{
+			"x-9sp-user": user,
 		},
 		ContentType: "application/json",
 	}.Get()
