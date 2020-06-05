@@ -15,6 +15,7 @@ type Connection struct {
 	User          string    `bson:"user" json:"user"`
 	Configuration Document  `bson:"config" json:"config"`
 	OSP           string    `bson:"osp" json:"osp"`
+	Company       string    `bson:"company" json:"company"`
 	Created       time.Time `bson:"created" json:"created"`
 	Modified      time.Time `bson:"modified" json:"modified"`
 	Status        string    `bson:"status" default:"NEW" json:"status"`
