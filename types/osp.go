@@ -1,7 +1,7 @@
 package types
 
-//OSPDefinition is an Online Service Provider definition
-type OSPDefinition struct {
+//OSP is an Online Service Provider definition
+type OSP struct {
 	Name                 string            `json:"name"`
 	Credentials          map[string]string `json:"credentials"`
 	NotificationSettings []struct {
