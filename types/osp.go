@@ -9,7 +9,7 @@ type OSP struct {
 
 // OSPTile is a tile definition for an OSP
 type OSPTile struct {
-	Name                 string `json:"name'`
+	Name                 string `json:"name"`
 	NotificationSettings []struct {
 		Metric string   `json:"metric,omitempty"`
 		Period []string `json:"period,omitempty"`
