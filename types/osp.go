@@ -3,7 +3,7 @@ package types
 //OSP is an Online Service Provider definition
 type OSP struct {
 	Name        string            `json:"osp"`
-	Credentials map[string]string `json:"credentials,omit_empty"`
+	Credentials map[string]string `json:"credentials,omitempty"`
 	Tiles       []OSPTile         `json:"tiles"`
 }
 
@@ -11,7 +11,7 @@ type OSP struct {
 type OSPTile struct {
 	Name                 string `json:"name'`
 	NotificationSettings []struct {
-		Metric string   `json:"metric,omit_empty"`
-		Period []string `json:"period,omit_empty"`
-	} `json:"notification_settings,omit_empty"`
+		Metric string   `json:"metric,omitempty"`
+		Period []string `json:"period,omitempty"`
+	} `json:"notification_settings,omitempty"`
 }
