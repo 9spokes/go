@@ -2,7 +2,9 @@ package http
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -151,10 +153,13 @@ func ValidateBasicAuthCreds(header string, creds map[string]string) (string, err
 		return "", fmt.Errorf("Malformed authorization header: %s", fields[1])
 	}
 
-	for id, secret := range creds {
-		if strings.ToLower(id) == strings.ToLower(val[0]) && secret == val[1] {
-			return id, nil
+	h := sha256.New()
+	h.Write([]byte(val[1]))
+	hashed := hex.EncodeToString(h.Sum(nil))
 
+	for id, secret := range creds {
+		if strings.ToLower(id) == strings.ToLower(val[0]) && secret == hashed {
+			return id, nil
 		}
 	}
 
