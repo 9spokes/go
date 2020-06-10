@@ -30,5 +30,4 @@ type ConnectionSummary struct {
 	Status       string      `json:"status" bson:"status,omitempty"`
 	AuthorizeURL string      `json:"authorize_url,omitempty"`
 	Settings     interface{} `json:"settings"`
-	Demo     	 bool 		 `json:"demo"`
 }
