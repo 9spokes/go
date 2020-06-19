@@ -150,3 +150,59 @@ func (ctx Context) GetOSP(osp string) (types.Document, error) {
 
 	return ret.Details, nil
 }
+
+// SetConnectionStatus returns a connection by ID from the designated Token service instance
+func (ctx Context) SetConnectionStatus(id string, status string) error {
+
+	if status != StatusNotConnected {
+		return fmt.Errorf("cannot set status to %s. %s != %s", status, status, StatusNotConnected)
+	}
+
+	url := fmt.Sprintf("%s/connections/%s/status", ctx.URL, id)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/x-www-form-urlencoded",
+		Body:        []byte(status),
+	}.Post()
+
+	if err != nil {
+		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	return nil
+}
