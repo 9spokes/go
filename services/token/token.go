@@ -9,6 +9,15 @@ import (
 	goLogging "github.com/op/go-logging"
 )
 
+// StatusActive is an ACTIVE connection document
+const StatusActive = "ACTIVE"
+
+// StatusNotConnected is an NOT_CONNECTED connection document
+const StatusNotConnected = "NOT_CONNECTED"
+
+// StatusNew is an NEW connection document
+const StatusNew = "NEW"
+
 // Context represents a connection object into the token service
 type Context struct {
 	URL          string
@@ -18,7 +27,7 @@ type Context struct {
 }
 
 // GetConnection returns a connection by ID from the designated Token service instance
-func (ctx Context) GetConnection(id string) (types.Connection, error) {
+func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 
 	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
 
@@ -41,7 +50,7 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
 	var parsed struct {
@@ -55,7 +64,7 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
 	if parsed.Status != "ok" {
@@ -63,10 +72,10 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
-	return parsed.Details, nil
+	return &parsed.Details, nil
 }
 
 //GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
