@@ -8,5 +8,6 @@ type ETLMessage struct {
 	Company      string `json:"company,omitempty"`
 	Index        string `json:"index,omitempty"`
 	Period       string `json:"period,omitempty"`
+	Cycle        string `json:"cycle,omitempty"`
 	Storage      string `json:"storage,omitempty"`
 }
