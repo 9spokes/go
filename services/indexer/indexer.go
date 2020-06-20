@@ -3,6 +3,7 @@ package indexer
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/9spokes/go/http"
 	"github.com/9spokes/go/types"
@@ -72,10 +73,10 @@ func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.Inde
 // UpdateIndex updates an entry with the data provided
 func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome string, ok, retry bool) error {
 
-	url := fmt.Sprintf("%s/%s/%s/%s?cycle=%s&index=%s", ctx.URL, company, osp, datasource, cycle, index)
+	location := fmt.Sprintf("%s/%s/%s/%s?cycle=%s&index=%s", ctx.URL, company, osp, datasource, cycle, index)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
+		ctx.Logger.Debugf("Invoking Indexer service at: %s", location)
 	}
 
 	status := "ok"
@@ -83,19 +84,24 @@ func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome s
 		status = "err"
 	}
 
+	params := url.Values{}
+	params.Add("outcome", outcome)
+	params.Add("status", status)
+	params.Add("retry", fmt.Sprintf("%t", retry))
+
 	response, err := http.Request{
-		URL: url,
+		URL: location,
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/x-www-form-urlencoded",
-		Body:        []byte(fmt.Sprintf("outcome=%s&status=%s,retry=%t", outcome, status, retry)),
-	}.Post()
+		Body:        []byte(params.Encode()),
+	}.Put()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking Indexer service at: %s: %s", url, err.Error())
+		e := fmt.Sprintf("Error invoking Indexer service at: %s: [%d] %s", location, response.StatusCode, err.Error())
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
