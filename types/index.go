@@ -29,7 +29,7 @@ type IndexerDatasource struct {
 	Type       string      `json:"type"`
 	OSP        string      `json:"osp"`
 	Count      int64       `json:"count"`
-	Period     string      `json:"period"`
+	Cycle      string      `json:"cycle"`
 	Storage    string      `json:"storage"`
 	Data       interface{} `json:"data"`
 }
