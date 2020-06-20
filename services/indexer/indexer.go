@@ -78,6 +78,11 @@ func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome s
 		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
 	}
 
+	status := "ok"
+	if !ok {
+		status = "err"
+	}
+
 	response, err := http.Request{
 		URL: url,
 		Authentication: http.Authentication{
@@ -86,7 +91,7 @@ func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome s
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/x-www-form-urlencoded",
-		Body:        []byte(fmt.Sprintf("cycle=%s&index=%s", cycle, index)),
+		Body:        []byte(fmt.Sprintf("outcome=%s&status=%s,retry=%t", outcome, status, retry)),
 	}.Post()
 
 	if err != nil {
@@ -111,7 +116,7 @@ func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome s
 	}
 
 	if parsed.Status != "ok" {
-		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		e := fmt.Sprintf("Non-OK response received from Indexer service: %s", parsed.Message)
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
