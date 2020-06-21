@@ -26,7 +26,7 @@ func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.Inde
 		if r := recover(); r != nil {
 			err := fmt.Sprintf("%s", r)
 			if ctx.Logger != nil {
-				ctx.Logger.Errorf("an error occured parsing the response from the Indexer service: %s", err)
+				ctx.Logger.Errorf("An error occured parsing the response from the Indexer service: %s", err)
 			}
 		}
 	}()
@@ -70,6 +70,20 @@ func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.Inde
 		data := make([]types.IndexerDatasourceRolling, len(parsed.Details.Data.([]interface{})))
 
 		for i, e := range parsed.Details.Data.([]interface{}) {
+
+			skip := false
+
+			for _, key := range []string{"index", "outcome", "period", "retry", "status", "updated"} {
+				if _, ok := e.(map[string]interface{})[key]; !ok {
+					ctx.Logger.Errorf("Failed to parsed '%s' as a string", key)
+					skip = true
+				}
+			}
+
+			if skip {
+				continue
+			}
+
 			updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
 			data[i] = types.IndexerDatasourceRolling{
 				Index:   e.(map[string]interface{})["index"].(string),
