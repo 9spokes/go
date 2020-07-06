@@ -2,7 +2,9 @@ package http
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -104,7 +106,7 @@ func (request Request) http() (*Response, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read the response body: " + err.Error())
+		return nil, fmt.Errorf("failed to read the response body: " + err.Error())
 	}
 
 	defer resp.Body.Close()
@@ -130,33 +132,36 @@ func (request Request) http() (*Response, error) {
 func ValidateBasicAuthCreds(header string, creds map[string]string) (string, error) {
 
 	if header == "" {
-		return "", fmt.Errorf("Authorization header missing")
+		return "", fmt.Errorf("authorization header missing")
 	}
 
 	// Parse Authorization header (eg: Basic a2V5OnZhbHVlCg==)
 	fields := strings.Split(header, " ")
 	if len(fields) != 2 || strings.ToLower(fields[0]) != "basic" {
-		return "", fmt.Errorf("Invalid authorization type '%s'", fields[0])
+		return "", fmt.Errorf("invalid authorization type '%s'", fields[0])
 	}
 
 	// Base64 decode
 	encoded, err := base64.StdEncoding.DecodeString(fields[1])
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse authorization header '%s': %s", fields[0], err.Error())
+		return "", fmt.Errorf("unable to parse authorization header '%s': %s", fields[0], err.Error())
 	}
 
 	// Extract client_id & client_secret
 	val := strings.Split(strings.TrimSpace(string(encoded)), ":")
 	if len(val) != 2 {
-		return "", fmt.Errorf("Malformed authorization header: %s", fields[1])
+		return "", fmt.Errorf("malformed authorization header: %s", fields[1])
 	}
 
-	for id, secret := range creds {
-		if strings.ToLower(id) == strings.ToLower(val[0]) && secret == val[1] {
-			return id, nil
+	h := sha256.New()
+	h.Write([]byte(val[1]))
+	hashed := hex.EncodeToString(h.Sum(nil))
 
+	for id, secret := range creds {
+		if strings.ToLower(id) == strings.ToLower(val[0]) && secret == hashed {
+			return id, nil
 		}
 	}
 
-	return "", fmt.Errorf("Invalid client_id/client_secret combination")
+	return "", fmt.Errorf("invalid client_id/client_secret combination")
 }

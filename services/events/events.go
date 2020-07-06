@@ -1,10 +1,10 @@
-package event
+package events
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
+
+	"github.com/9spokes/go/http"
 )
 
 // Context represents the coordinates of the event service
@@ -30,6 +30,11 @@ func (svc *Context) Post(fields map[string]interface{}) error {
 		return fmt.Errorf("while marshaling fields: %s", err.Error())
 	}
 
-	_, err = http.Post(svc.url, "application/json", bytes.NewReader(encoded))
+	_, err = http.Request{
+		Body:        encoded,
+		ContentType: "application/json",
+		URL:         svc.url,
+	}.Post()
+
 	return err
 }

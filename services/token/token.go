@@ -9,6 +9,15 @@ import (
 	goLogging "github.com/op/go-logging"
 )
 
+// StatusActive is an ACTIVE connection document
+const StatusActive = "ACTIVE"
+
+// StatusNotConnected is an NOT_CONNECTED connection document
+const StatusNotConnected = "NOT_CONNECTED"
+
+// StatusNew is an NEW connection document
+const StatusNew = "NEW"
+
 // Context represents a connection object into the token service
 type Context struct {
 	URL          string
@@ -18,7 +27,7 @@ type Context struct {
 }
 
 // GetConnection returns a connection by ID from the designated Token service instance
-func (ctx Context) GetConnection(id string) (types.Connection, error) {
+func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 
 	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
 
@@ -41,7 +50,7 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
 	var parsed struct {
@@ -55,7 +64,7 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
 	if parsed.Status != "ok" {
@@ -63,10 +72,10 @@ func (ctx Context) GetConnection(id string) (types.Connection, error) {
 		if ctx.Logger != nil {
 			ctx.Logger.Error(e)
 		}
-		return types.Connection{}, fmt.Errorf(e)
+		return nil, fmt.Errorf(e)
 	}
 
-	return parsed.Details, nil
+	return &parsed.Details, nil
 }
 
 //GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
@@ -140,4 +149,60 @@ func (ctx Context) GetOSP(osp string) (types.Document, error) {
 	}
 
 	return ret.Details, nil
+}
+
+// SetConnectionStatus returns a connection by ID from the designated Token service instance
+func (ctx Context) SetConnectionStatus(id string, status string) error {
+
+	if status != StatusNotConnected {
+		return fmt.Errorf("cannot set status to %s. %s != %s", status, status, StatusNotConnected)
+	}
+
+	url := fmt.Sprintf("%s/connections/%s/status", ctx.URL, id)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/x-www-form-urlencoded",
+		Body:        []byte(status),
+	}.Post()
+
+	if err != nil {
+		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		if ctx.Logger != nil {
+			ctx.Logger.Error(e)
+		}
+		return fmt.Errorf(e)
+	}
+
+	return nil
 }
