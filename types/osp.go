@@ -5,6 +5,7 @@ type OSP struct {
 	Name        string            `json:"osp"`
 	Credentials map[string]string `json:"credentials,omitempty"`
 	Tiles       []OSPTile         `json:"tiles"`
+	IsUnique    bool              `json:"is_unique,omitempty"`
 }
 
 // OSPTile is a tile definition for an OSP
