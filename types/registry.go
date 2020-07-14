@@ -4,63 +4,63 @@ import "time"
 
 // CompanyAddress represents a company address
 type CompanyAddress struct {
-	AdressLine1 string `json:"addressLine1"`
-	AdressLine2 string `json:"addressLine2"`
-	AdressLine3 string `json:"addressLine3"`
-	AdressLine4 string `json:"addressLine4"`
-	PostCode    string `json:"postCode"`
+	AdressLine1 string `json:"address-line-1"`
+	AdressLine2 string `json:"address-line-2"`
+	AdressLine3 string `json:"address-line-3"`
+	AdressLine4 string `json:"address-line-4"`
+	PostCode    string `json:"post-code"`
 	Country     string `json:"country"`
-	CareOf      string `json:"careOf"`
+	CareOf      string `json:"care-of"`
 	Type        string `json:"type"`
 }
 
 // CompanyAnnualReturn represents a company's annual return details
 type CompanyAnnualReturn struct {
-	FilingMonth int       `json:"filingMonth"`
-	LastFiled   time.Time `json:"lastFiled"`
+	FilingMonth int       `json:"filing-month"`
+	LastFiled   time.Time `json:"last-filed"`
 }
 
 // CompanyDirector represents a company director
 type CompanyDirector struct {
-	Name            string    `json:"name"`
-	AppointmentDate time.Time `json:"appointmentDate"`
-	Status          string    `json:"status"`
+	Name        string    `json:"name"`
+	AppointedAt time.Time `json:"appointed-at"`
+	Status      string    `json:"status"`
 }
 
-// ShareAllocation represents a company share allocation
-type ShareAllocation struct {
+// CompanyShareAllocation represents a company share allocation
+type CompanyShareAllocation struct {
 	Type       string `json:"type"`
 	Allocation int    `json:"allocation"`
-	Name       string `json:"shareholderName"`
+	Name       string `json:"shareholder-name"`
 }
 
-// IndustryClassification represents the company's industry classification
-type IndustryClassification struct {
+// CompanyIndustry represents the company's industry classification
+type CompanyIndustry struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
 
 // CompanySummary is a struct that defines an external Company Registry company short summary
 type CompanySummary struct {
-	ID         string `json:"id"`
-	Entityname string `json:"name"`
-	Status     string `json:"status"`
-	Type       string `json:"type"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Type   string `json:"type"`
 }
 
 // CompanyDetails is a struct that defines a company's details as retrieved from an external Company Registry
 type CompanyDetails struct {
-	ID                      string                   `json:"id"`
-	Entityname              string                   `json:"name"`
-	Status                  string                   `json:"status"`
-	Type                    string                   `json:"type"`
-	IncorporationDate       string                   `json:"incorporationDate"`
-	Emails                  []string                 `json:"emails"`
-	Adressess               []CompanyAddress         `json:"adresses"`
-	IndustryClassifications []IndustryClassification `json:"industryClassifications"`
-	AnnualReturn            CompanyAnnualReturn      `json:"annualReturn"`
-	TotalShares             int                      `json:"totalShares"`
-	ShareAllocation         []ShareAllocation        `json:"shareAllocation"`
-	Directors               []CompanyDirector        `json:"directors"`
-	Extras                  map[string]interface{}   `json:"extras"`
+	ID                string                   `json:"id"`
+	Name              string                   `json:"name"`
+	Status            string                   `json:"status"`
+	Type              string                   `json:"type"`
+	IncorporationDate string                   `json:"incorporation-date"`
+	Emails            []string                 `json:"emails"`
+	Addresses         []CompanyAddress         `json:"addresses"`
+	Industry          []CompanyIndustry        `json:"industry"`
+	AnnualReturn      CompanyAnnualReturn      `json:"annual-return"`
+	TotalShares       int64                    `json:"total-shares"`
+	ShareAllocation   []CompanyShareAllocation `json:"share-allocation"`
+	Directors         []CompanyDirector        `json:"directors"`
+	Extras            map[string]interface{}   `json:"extras"`
 }
