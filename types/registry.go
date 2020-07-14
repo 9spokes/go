@@ -4,10 +4,10 @@ import "time"
 
 // CompanyAddress represents a company address
 type CompanyAddress struct {
-	AdressLine1 string `json:"address-line-1"`
-	AdressLine2 string `json:"address-line-2"`
-	AdressLine3 string `json:"address-line-3"`
-	AdressLine4 string `json:"address-line-4"`
+	AddressLine1 string `json:"address-line1"`
+	AddressLine2 string `json:"address-line2"`
+	AddressLine3 string `json:"address-line3"`
+	AddressLine4 string `json:"address-line4"`
 	PostCode    string `json:"post-code"`
 	Country     string `json:"country"`
 	CareOf      string `json:"care-of"`
@@ -31,7 +31,7 @@ type CompanyDirector struct {
 type CompanyShareAllocation struct {
 	Type       string `json:"type"`
 	Allocation int    `json:"allocation"`
-	Name       string `json:"shareholder-name"`
+	Name       string `json:"shareholder"`
 }
 
 // CompanyIndustry represents the company's industry classification
