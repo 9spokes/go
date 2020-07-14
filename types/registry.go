@@ -8,10 +8,10 @@ type CompanyAddress struct {
 	AddressLine2 string `json:"address-line2"`
 	AddressLine3 string `json:"address-line3"`
 	AddressLine4 string `json:"address-line4"`
-	PostCode    string `json:"post-code"`
-	Country     string `json:"country"`
-	CareOf      string `json:"care-of"`
-	Type        string `json:"type"`
+	PostCode     string `json:"post-code"`
+	Country      string `json:"country"`
+	CareOf       string `json:"care-of"`
+	Type         string `json:"type"`
 }
 
 // CompanyAnnualReturn represents a company's annual return details
