@@ -6,6 +6,7 @@ import (
 
 	"github.com/9spokes/go/http"
 	"github.com/9spokes/go/types"
+	"github.com/9spokes/go/api"
 	goLogging "github.com/op/go-logging"
 )
 
@@ -55,7 +56,7 @@ func (ctx Context) GetOptions(user string) (map[string]interface{}, error) {
 
 	optionsURL := fmt.Sprintf("%s/options", ctx.URL)
 
-	req, err := http.Request{
+	response, err := http.Request{
 		URL:     optionsURL,
 		Authentication: http.Authentication{
 			Scheme:   "basic",
@@ -69,13 +70,48 @@ func (ctx Context) GetOptions(user string) (map[string]interface{}, error) {
 	}.Get()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error getting user profile data %s", err.Error())
+		return nil, fmt.Errorf("Error getting user options %s", err.Error())
 	}
 
-	var profileOptions map[string]interface{}
-	if err := json.Unmarshal(req.Body, &profileOptions); err != nil {
-		return nil, fmt.Errorf("while parsing response from profile service options: %s", err.Error())
+	var ret api.Response
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling options: %s", err.Error())
 	}
 
-	return profileOptions, nil
+	if _, ok := ret.Details.(map[string]interface{}); !ok {
+		return nil, fmt.Errorf("while parsing options")
+	}
+	
+	return ret.Details.(map[string]interface{}), nil
+}
+
+
+// GetOption looksup one user option by key
+func (ctx Context) GetOption(user string, option string) (interface{}, error) {
+
+	optionsURL := fmt.Sprintf("%s/options/%s", ctx.URL, option)
+
+	response, err := http.Request{
+		URL:     optionsURL,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		Headers: map[string]string{
+			"x-9sp-user": user,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("Error getting user option %s: %s", option, err.Error())
+	}
+
+	var ret api.Response
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling option %s: %s", option, err.Error())
+	}
+	
+	return ret.Details, nil
 }
