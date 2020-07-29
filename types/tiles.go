@@ -25,7 +25,7 @@ type ListTileEntry struct {
 // GraphTile is a 9 Spokes V2 area chart tile data format
 type GraphTile struct {
 	XUnit  string        `json:"xUnit,omitempty"`
-	YUnit  float64       `json:"yUnit,omitempty"`
+	YUnit  string        `json:"yUnit,omitempty"`
 	Labels []interface{} `json:"labels,omitempty"`
 	Series []struct {
 		Key  string    `json:"key,omitempty"`
