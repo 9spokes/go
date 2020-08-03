@@ -40,7 +40,7 @@ type GraphTile struct {
 // between them
 type CompositeListTile struct {
 	GroupedData []struct {
-		Key  string `json:"key,omitempty"`
-		Data ListTile
+		Key  string   `json:"key,omitempty"`
+		Data ListTile `json:"data,omitempty"`
 	} `json:"groupedData,omitempty"`
 }
