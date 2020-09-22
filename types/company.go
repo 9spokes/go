@@ -15,6 +15,10 @@ type Company struct {
 		Country  string `json:"country"`
 		Timezone int    `json:"timezone"`
 	} `json:"location"`
+	Type struct {
+		Code        string `json:"code"`
+		Description string `json:"description"`
+	} `json:"type"`
 	Entity            string                 `json:"entity,omitempty"`
 	Phone             string                 `json:"phone"`
 	Users             []string               `json:"users"`
