@@ -98,4 +98,5 @@ type CompanyDetails struct {
 	ShareAllocation   []CompanyShareAllocation `json:"share-allocation"`
 	Directors         []CompanyDirector        `json:"directors"`
 	Extras            map[string]interface{}   `json:"extras"`
+	Modified          time.Time                `json:"modified"`
 }
