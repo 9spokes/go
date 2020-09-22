@@ -9,12 +9,13 @@ type Company struct {
 	Industry   string `json:"industry"`
 	Industries []struct {
 		Code        string `json:"code"`
-		Description string `json:"desc"`
+		Description string `json:"description"`
 	} `json:"industries"`
 	Location struct {
 		Country  string `json:"country"`
-		Timezone int    `json:"number"`
+		Timezone int    `json:"timezone"`
 	} `json:"location"`
+	Entity            string                 `json:"entity,omitempty"`
 	Phone             string                 `json:"phone"`
 	Users             []string               `json:"users"`
 	TimeZoneOffset    int64                  `json:"timeZoneOffset"`
