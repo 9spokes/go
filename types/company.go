@@ -81,6 +81,7 @@ type CompanySummary struct {
 		Code        string `json:"code"`
 		Description string `json:"description"`
 	} `json:"type"`
+	Industries []CompanyIndustry `json:"industries"`
 }
 
 // CompanyDetails is a struct that defines a company's details as retrieved from an external Company Registry
