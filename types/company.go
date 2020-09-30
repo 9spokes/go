@@ -11,11 +11,8 @@ type Company struct {
 		Code        string `json:"code"`
 		Description string `json:"description"`
 	} `json:"industries,omitempty"`
-	Location struct {
-		Country  string `json:"country"`
-		Timezone int    `json:"timezone"`
-	} `json:"location,omitempty"`
-	Type struct {
+	Location CompanyLocation `json:"location,omitempty"`
+	Type     struct {
 		Code        string `json:"code"`
 		Description string `json:"description"`
 	} `json:"type,omitempty"`
@@ -33,6 +30,12 @@ type Company struct {
 	Updated           time.Time              `json:"updated"`
 	Details           CompanyDetails         `json:"details,omitempty"`
 	Extras            map[string]interface{} `json:"extras,omitempty"`
+}
+
+// CompanyLocation contains the company's locality details
+type CompanyLocation struct {
+	Country  string `json:"country"`
+	Timezone int    `json:"timezone"`
 }
 
 // CompanyAddress represents a company address
