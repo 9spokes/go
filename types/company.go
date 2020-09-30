@@ -19,6 +19,10 @@ type Company struct {
 		Code        string `json:"code"`
 		Description string `json:"description"`
 	} `json:"type,omitempty"`
+	Status struct {
+		Code        string `json:"code"`
+		Description string `json:"description"`
+	} `json:"status,omitempty"`
 	Entity            string                 `json:"entity,omitempty"`
 	Phone             string                 `json:"phone"`
 	Users             []string               `json:"users"`
