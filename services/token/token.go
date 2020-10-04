@@ -47,11 +47,7 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	}.Get()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	var parsed struct {
@@ -61,18 +57,11 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	}
 
 	if json.Unmarshal(response.Body, &parsed); err != nil {
-		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
 		return nil, fmt.Errorf(e)
 	}
 
@@ -177,11 +166,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}.Post()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return fmt.Errorf(e)
+		return err
 	}
 
 	var parsed struct {
@@ -190,18 +175,11 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}
 
 	if json.Unmarshal(response.Body, &parsed); err != nil {
-		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return fmt.Errorf(e)
+		return err
 	}
 
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
 		return fmt.Errorf(e)
 	}
 
@@ -245,11 +223,7 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 	}.Post()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	var parsed struct {
@@ -259,18 +233,11 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 	}
 
 	if json.Unmarshal(response.Body, &parsed); err != nil {
-		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
 		return nil, fmt.Errorf(e)
 	}
 
