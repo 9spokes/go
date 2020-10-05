@@ -3,6 +3,7 @@ package token
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/9spokes/go/http"
 	"github.com/9spokes/go/types"
@@ -46,11 +47,7 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	}.Get()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	var parsed struct {
@@ -60,18 +57,11 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	}
 
 	if json.Unmarshal(response.Body, &parsed); err != nil {
-		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return nil, fmt.Errorf(e)
+		return nil, err
 	}
 
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
 		return nil, fmt.Errorf(e)
 	}
 
@@ -176,11 +166,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}.Post()
 
 	if err != nil {
-		e := fmt.Sprintf("Error invoking token service at: %s: %s", url, err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return fmt.Errorf(e)
+		return err
 	}
 
 	var parsed struct {
@@ -189,20 +175,71 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}
 
 	if json.Unmarshal(response.Body, &parsed); err != nil {
-		e := fmt.Sprintf("Error parsing response from Token service: %s", err.Error())
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
-		return fmt.Errorf(e)
+		return err
 	}
 
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		if ctx.Logger != nil {
-			ctx.Logger.Error(e)
-		}
 		return fmt.Errorf(e)
 	}
 
 	return nil
+}
+
+// CreateConnection requests the designated Token service instance to create a new connection
+func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, error) {
+
+	// validate parameters
+	if form["osp"] == "" {
+		return nil, fmt.Errorf("the field osp is required")
+	}
+	if form["user"] == "" {
+		return nil, fmt.Errorf("the field user is required")
+	}
+
+	// sanitizing parameters
+	params := url.Values{}
+	for _, p := range []string{"osp", "user", "company", "status", "action"} {
+		if form[p] != "" {
+			params.Add(p, form[p])
+		}
+	}
+
+	url := fmt.Sprintf("%s/connections", ctx.URL)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/x-www-form-urlencoded",
+		Body:        []byte(params.Encode()),
+	}.Post()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var parsed struct {
+		Status  string           `json:"status"`
+		Message string           `json:"message"`
+		Details types.Connection `json:"details"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return nil, err
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		return nil, fmt.Errorf(e)
+	}
+
+	return &parsed.Details, nil
 }
