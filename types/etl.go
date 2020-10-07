@@ -10,4 +10,5 @@ type ETLMessage struct {
 	Period       string `json:"period,omitempty"`
 	Cycle        string `json:"cycle,omitempty"`
 	Storage      string `json:"storage,omitempty"`
+	Immediate    bool   `json:"immediate,omitempty"`
 }
