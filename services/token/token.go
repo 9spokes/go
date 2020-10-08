@@ -243,3 +243,60 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 
 	return &parsed.Details, nil
 }
+
+// ManageConnection asks the designated Token service instance to perform an action on the specified connection
+func (ctx Context) ManageConnection(id string, action string, params map[string]string) error {
+
+	if action == "" {
+		return fmt.Errorf("the action must be specified")
+	}
+
+	rawurl := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
+
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return fmt.Errorf("Failed to parse Token Svc URL")
+	}
+
+	q := u.Query()
+	q.Set("action", action)
+	for k, v := range params {
+		q.Set(k, v)
+	}
+	u.RawQuery = q.Encode()
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", u.String())
+	}
+
+	response, err := http.Request{
+		URL: u.String(),
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return err
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Details string `json:"details"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		return fmt.Errorf(e)
+	}
+
+	return nil
+}

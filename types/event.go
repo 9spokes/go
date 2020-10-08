@@ -6,6 +6,7 @@ type Event struct {
 	Service   string                 `json:"service"`
 	Timestamp int64                  `json:"timestamp"`
 	User      string                 `json:"user"`
+	Email     string                 `json:"email"`
 	Session   string                 `json:"session"`
 	Data      map[string]interface{} `json:"data"`
 	Channel   string                 `json:"channel"`
