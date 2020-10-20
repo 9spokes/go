@@ -4,31 +4,22 @@ import "time"
 
 //Company is a struct that defines a 9 Spokes company entity
 type Company struct {
-	ID         string `json:"id" bson:"company"`
-	Name       string `json:"name" bson:"name"`
-	Industry   string `json:"industry,omitempty"`
-	Industries []struct {
-		Code        string `json:"code"`
-		Description string `json:"description"`
-	} `json:"industries,omitempty"`
-	Location CompanyLocation `json:"location,omitempty"`
-	Type     struct {
-		Code        string `json:"code"`
-		Description string `json:"description"`
-	} `json:"type,omitempty"`
-	Status struct {
-		Code        string `json:"code"`
-		Description string `json:"description"`
-	} `json:"status,omitempty"`
+	ID                string                 `json:"id" bson:"company"`
+	Name              string                 `json:"name" bson:"name"`
+	Industry          string                 `json:"industry,omitempty"`
+	Industries        []Record               `json:"industries"`
+	Location          CompanyLocation        `json:"location"`
+	Type              Record                 `json:"type"`
+	Status            Record                 `json:"status"`
 	Entity            string                 `json:"entity,omitempty"`
-	Phone             string                 `json:"phone"`
+	Phone             string                 `json:"phone,omitempty"`
 	Users             []string               `json:"users"`
 	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty"`
 	WorkingHoursStart string                 `json:"workingHoursStart,omitempty"`
 	WorkingHoursEnd   string                 `json:"workingHoursEnd,omitempty"`
 	Created           time.Time              `json:"created"`
 	Updated           time.Time              `json:"updated"`
-	Details           CompanyDetails         `json:"details,omitempty"`
+	Details           *CompanyDetails        `json:"details,omitempty"`
 	Extras            map[string]interface{} `json:"extras,omitempty"`
 }
 
@@ -70,25 +61,19 @@ type CompanyShareAllocation struct {
 	Name       string `json:"shareholder"`
 }
 
-// CompanyIndustry represents the company's industry classification
-type CompanyIndustry struct {
+// Record represents a code and description touple
+type Record struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
 
 // CompanySummary is a struct that defines an external Company Registry company short summary
 type CompanySummary struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Status struct {
-		Code        string `json:"code"`
-		Description string `json:"description"`
-	} `json:"status"`
-	Type struct {
-		Code        string `json:"code"`
-		Description string `json:"description"`
-	} `json:"type"`
-	Industries []CompanyIndustry `json:"industries"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Status     Record   `json:"status"`
+	Type       Record   `json:"type"`
+	Industries []Record `json:"industries"`
 }
 
 // CompanyDetails is a struct that defines a company's details as retrieved from an external Company Registry
@@ -100,7 +85,7 @@ type CompanyDetails struct {
 	IncorporationDate string                   `json:"incorporation-date"`
 	Emails            []string                 `json:"emails"`
 	Addresses         []CompanyAddress         `json:"addresses"`
-	Industry          []CompanyIndustry        `json:"industry"`
+	Industry          []Record                 `json:"industry"`
 	AnnualReturn      CompanyAnnualReturn      `json:"annual-return"`
 	TotalShares       int64                    `json:"total-shares"`
 	ShareAllocation   []CompanyShareAllocation `json:"share-allocation"`
