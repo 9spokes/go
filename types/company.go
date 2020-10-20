@@ -6,21 +6,21 @@ import "time"
 type Company struct {
 	ID                string                 `json:"id" bson:"company"`
 	Name              string                 `json:"name" bson:"name"`
-	Industry          string                 `json:"industry,omitempty"`
+	Industry          string                 `json:"industry,omitempty" bson:"industry,omitempty"`
 	Industries        []Record               `json:"industries"`
 	Location          CompanyLocation        `json:"location"`
 	Type              Record                 `json:"type"`
 	Status            Record                 `json:"status"`
-	Entity            string                 `json:"entity,omitempty"`
-	Phone             string                 `json:"phone,omitempty"`
+	Entity            string                 `json:"entity,omitempty" bson:"entity,omitempty"`
+	Phone             string                 `json:"phone,omitempty" bson:"phone,omitempty"`
 	Users             []string               `json:"users"`
-	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty"`
-	WorkingHoursStart string                 `json:"workingHoursStart,omitempty"`
-	WorkingHoursEnd   string                 `json:"workingHoursEnd,omitempty"`
+	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
+	WorkingHoursStart string                 `json:"workingHoursStart,omitempty" bson:"workingHoursStart,omitempty"`
+	WorkingHoursEnd   string                 `json:"workingHoursEnd,omitempty" bson:"workingHoursEnd,omitempty"`
 	Created           time.Time              `json:"created"`
 	Updated           time.Time              `json:"updated"`
-	Details           *CompanyDetails        `json:"details,omitempty"`
-	Extras            map[string]interface{} `json:"extras,omitempty"`
+	Details           *CompanyDetails        `json:"details,omitempty" bson:"details,omitempty"`
+	Extras            map[string]interface{} `json:"extras,omitempty" bson:"extras,omitempty"`
 }
 
 // CompanyLocation contains the company's locality details
