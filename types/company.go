@@ -4,22 +4,24 @@ import "time"
 
 //Company is a struct that defines a 9 Spokes company entity
 type Company struct {
-	ID             string                 `json:"id" bson:"company"`
-	Name           string                 `json:"name" bson:"name"`
-	Industry       string                 `json:"industry,omitempty" bson:"industry,omitempty"`
-	Industries     []CompanyRecord        `json:"industries"`
-	Location       CompanyLocation        `json:"location"`
-	Type           CompanyRecord          `json:"type"`
-	Status         CompanyRecord          `json:"status"`
-	Entity         string                 `json:"entity,omitempty" bson:"entity,omitempty"`
-	Phone          string                 `json:"phone,omitempty" bson:"phone,omitempty"`
-	Users          []string               `json:"users"`
-	TimeZoneOffset int64                  `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
-	BusinessHours  CompanyBusinessHours   `json:"businessHours"`
-	Created        time.Time              `json:"created"`
-	Updated        time.Time              `json:"updated"`
-	Details        *CompanyDetails        `json:"details,omitempty" bson:"details,omitempty"`
-	Extras         map[string]interface{} `json:"extras,omitempty" bson:"extras,omitempty"`
+	ID                string                 `json:"id" bson:"company"`
+	Name              string                 `json:"name" bson:"name"`
+	Industry          string                 `json:"industry,omitempty" bson:"industry,omitempty"`
+	Industries        []CompanyRecord        `json:"industries"`
+	Location          CompanyLocation        `json:"location"`
+	Type              CompanyRecord          `json:"type"`
+	Status            CompanyRecord          `json:"status"`
+	Entity            string                 `json:"entity,omitempty" bson:"entity,omitempty"`
+	Phone             string                 `json:"phone,omitempty" bson:"phone,omitempty"`
+	Users             []string               `json:"users"`
+	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
+	BusinessHours     CompanyBusinessHours   `json:"businessHours"`
+	WorkingHoursStart string                 `json:"workingHoursStart,omitempty"`
+	WorkingHoursEnd   string                 `json:"workingHoursEnd,omitempty"`
+	Created           time.Time              `json:"created"`
+	Updated           time.Time              `json:"updated"`
+	Details           *CompanyDetails        `json:"details,omitempty" bson:"details,omitempty"`
+	Extras            map[string]interface{} `json:"extras,omitempty" bson:"extras,omitempty"`
 }
 
 // CompanyBusinessHours represent the working days & hours for a company
