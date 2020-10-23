@@ -17,6 +17,7 @@ type Response struct {
 	StatusCode int
 	Body       []byte
 	JSON       interface{}
+	Headers    http.Header
 }
 
 // Authentication contains the keys needed to build an authorization URL
@@ -113,17 +114,17 @@ func (request Request) http() (*Response, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return &Response{resp.StatusCode, body, ""}, fmt.Errorf("failed to read the response body: " + err.Error())
+		return &Response{resp.StatusCode, body, "", resp.Header}, fmt.Errorf("failed to read the response body: " + err.Error())
 	}
 
 	var decoded interface{}
 	json.Unmarshal(body, &decoded)
 
 	if resp.StatusCode > 399 {
-		return &Response{resp.StatusCode, body, decoded}, fmt.Errorf("non-OK response: %s", body)
+		return &Response{resp.StatusCode, body, decoded, resp.Header}, fmt.Errorf("non-OK response: %s", body)
 	}
 
-	return &Response{resp.StatusCode, body, decoded}, nil
+	return &Response{resp.StatusCode, body, decoded, resp.Header}, nil
 }
 
 // ValidateBasicAuthCreds parses an HTTP Basic authoriation header and validates the credentials contained therein against
