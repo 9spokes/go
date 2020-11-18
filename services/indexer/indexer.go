@@ -19,8 +19,39 @@ type Context struct {
 	Logger       *goLogging.Logger
 }
 
+// NewIndex creates a new index for a given connection and datasource.  It returns the new index document
+func (ctx *Context) NewIndex(index *types.IndexerIndex) (*types.IndexerDatasource, error) {
+
+	// New post-Indexer message
+	raw, err := http.Request{
+		ContentType:    "application/x-www-form-urlencoded",
+		URL:            ctx.URL,
+		Body:           []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s", index.Connection, index.Datasource, index.Count, index.Type, index.Storage, index.Cycle)),
+		Authentication: http.Authentication{Scheme: "basic", Username: ctx.ClientID, Password: ctx.ClientSecret},
+	}.Post()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new index: %s", err.Error())
+	}
+
+	var response struct {
+		Status  string                  `json:"status,omitempty"`
+		Message string                  `json:"message,omitempty"`
+		Details types.IndexerDatasource `json:"details,omitempty"`
+	}
+	if err := json.Unmarshal(raw.Body, &response); err != nil {
+		return nil, fmt.Errorf("Error parsing response from indexer service: %s", err.Error())
+	}
+
+	if response.Status != "ok" {
+		return nil, fmt.Errorf("Received an error response from the indexer service: %s", response.Message)
+	}
+
+	return &response.Details, nil
+
+}
+
 // GetIndex returns a connection by ID from the designated indexer service instance
-func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.IndexerDatasource, error) {
+func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerDatasource, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -31,7 +62,7 @@ func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.Inde
 		}
 	}()
 
-	url := fmt.Sprintf("%s/%s/%s/%s?cycle=%s", ctx.URL, company, osp, datasource, cycle)
+	url := fmt.Sprintf("%s/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
 
 	if ctx.Logger != nil {
 		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
@@ -114,9 +145,9 @@ func (ctx Context) GetIndex(company, osp, datasource, cycle string) (*types.Inde
 }
 
 // UpdateIndex updates an entry with the data provided
-func (ctx Context) UpdateIndex(company, osp, datasource, cycle, index, outcome string, ok, retry bool) error {
+func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, ok, retry bool) error {
 
-	location := fmt.Sprintf("%s/%s/%s/%s?cycle=%s&index=%s", ctx.URL, company, osp, datasource, cycle, index)
+	location := fmt.Sprintf("%s/%s/%s?cycle=%s&index=%s", ctx.URL, conn, datasource, cycle, index)
 
 	if ctx.Logger != nil {
 		ctx.Logger.Debugf("Invoking Indexer service at: %s", location)
