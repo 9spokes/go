@@ -1,4 +1,4 @@
-package throttler
+package producer
 
 import (
 	"encoding/json"
