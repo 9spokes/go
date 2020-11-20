@@ -17,7 +17,7 @@ type Context struct {
 }
 
 // ImmediateETL takes a connection ID and notifies the producer to kick off the Immediate ETL cycle for that particular connection.
-func (ctx Context) ImmediateETL(conn string) error {
+func (ctx Context) ImmediateETL(conn, osp string) error {
 
 	response, err := http.Request{
 		URL: ctx.URL,
@@ -27,7 +27,7 @@ func (ctx Context) ImmediateETL(conn string) error {
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/json",
-		Body:        []byte(fmt.Sprintf("{\"connectionId\":\"%s\"}", conn)),
+		Body:        []byte(fmt.Sprintf("{\"connection\":\"%s\", \"osp\":\"%s\"}", conn, osp)),
 	}.Post()
 
 	if err != nil {
