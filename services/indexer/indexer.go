@@ -46,43 +46,7 @@ func (ctx *Context) NewIndex(index *types.IndexerIndex) (*types.IndexerDatasourc
 		return nil, fmt.Errorf("Received an error response from the indexer service: %s", response.Message)
 	}
 
-	idx := response.Details
-
-	if idx.Type == "absolute" {
-
-		updated, _ := time.Parse(time.RFC3339, idx.Data.(map[string]interface{})["updated"].(string))
-		expires, _ := time.Parse(time.RFC3339, idx.Data.(map[string]interface{})["expires"].(string))
-
-		idx.Data = types.IndexerDatasourceAbsolute{
-			Status:  idx.Data.(map[string]interface{})["status"].(string),
-			Retry:   idx.Data.(map[string]interface{})["retry"].(bool),
-			Updated: updated,
-			Outcome: idx.Data.(map[string]interface{})["status"].(string),
-			Index:   idx.Data.(map[string]interface{})["index"].(string),
-			Expires: expires,
-		}
-
-		return &idx, nil
-	}
-
-	data := make([]types.IndexerDatasourceRolling, len(idx.Data.([]interface{})))
-
-	for i, e := range idx.Data.([]interface{}) {
-
-		updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
-
-		data[i] = types.IndexerDatasourceRolling{
-			Index:   e.(map[string]interface{})["index"].(string),
-			Period:  e.(map[string]interface{})["period"].(string),
-			Outcome: e.(map[string]interface{})["outcome"].(string),
-			Retry:   e.(map[string]interface{})["retry"].(bool),
-			Status:  e.(map[string]interface{})["status"].(string),
-			Updated: updated,
-		}
-	}
-	idx.Data = data
-
-	return &idx, nil
+	return &response.Details, nil
 
 }
 

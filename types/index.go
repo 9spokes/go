@@ -24,17 +24,22 @@ type IndexerDatasourceAbsolute struct {
 
 // IndexerDatasource is a new data index structure
 type IndexerDatasource struct {
-	IndexerIndex
-	Data interface{} `json:"data"`
+	Datasource string      `json:"datasource"`
+	Type       string      `json:"type"`
+	OSP        string      `json:"osp"`
+	Count      int64       `json:"count"`
+	Cycle      string      `json:"cycle"`
+	Storage    string      `json:"storage"`
+	Data       interface{} `json:"data"`
 }
 
 // IndexerIndex is an index entry used to create a new Indexer document
 type IndexerIndex struct {
 	Connection string `json:"connection"`
+	OSP        string `json:"osp"`
 	Datasource string `json:"string"`
 	Count      int    `json:"count"`
 	Cycle      string `json:"cycle"`
 	Type       string `json:"type"`
 	Storage    string `json:"storage"`
-	Status     string `json:"status"`
 }
