@@ -28,7 +28,7 @@ func (ctx Context) ImmediateETL(conn string) error {
 		},
 		ContentType: "application/json",
 		Body:        []byte(fmt.Sprintf("{\"connectionId\":\"%s\"}", conn)),
-	}.Get()
+	}.Post()
 
 	if err != nil {
 		return fmt.Errorf("while interacting with Producer service: %s", err.Error())
