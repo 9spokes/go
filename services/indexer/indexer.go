@@ -20,7 +20,7 @@ type Context struct {
 }
 
 // NewIndex creates a new index for a given connection and datasource.  It returns the new index document
-func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
+func (ctx *Context) NewIndex(index *Index) (*Index, error) {
 
 	// New post-Indexer message
 	raw, err := http.Request{
@@ -43,9 +43,9 @@ func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
 	}
 
 	var response struct {
-		Status  string     `json:"status,omitempty"`
-		Message string     `json:"message,omitempty"`
-		Details Datasource `json:"details,omitempty"`
+		Status  string `json:"status,omitempty"`
+		Message string `json:"message,omitempty"`
+		Details Index  `json:"details,omitempty"`
 	}
 	if err := json.Unmarshal(raw.Body, &response); err != nil {
 		return nil, fmt.Errorf("Error parsing response from indexer service: %s", err.Error())
@@ -58,7 +58,7 @@ func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
 	return response.Details.updateData()
 }
 
-func (ds *Datasource) updateData() (*Datasource, error) {
+func (ds *Index) updateData() (*Index, error) {
 
 	switch ds.Type {
 	case "rolling":
@@ -109,7 +109,7 @@ func (ds *Datasource) updateData() (*Datasource, error) {
 }
 
 // GetIndex returns a connection by ID from the designated indexer service instance
-func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Datasource, error) {
+func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -141,9 +141,9 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Datasource, error
 	}
 
 	var parsed struct {
-		Status  string     `json:"status"`
-		Message string     `json:"message"`
-		Details Datasource `json:"details"`
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Details Index  `json:"details"`
 	}
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
