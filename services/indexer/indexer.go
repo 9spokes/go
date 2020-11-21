@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/9spokes/go/http"
@@ -23,9 +24,18 @@ func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
 
 	// New post-Indexer message
 	raw, err := http.Request{
-		ContentType:    "application/x-www-form-urlencoded",
-		URL:            ctx.URL + "/connections",
-		Body:           []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s", index.Connection, index.Datasource, index.Count, index.Type, index.Storage, index.Cycle)),
+		ContentType: "application/x-www-form-urlencoded",
+		URL:         ctx.URL + "/connections",
+		Body: []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s&osp=%s&depends=%s",
+			index.Connection,
+			index.Datasource,
+			index.Count,
+			index.Type,
+			index.Storage,
+			index.Cycle,
+			index.OSP,
+			strings.Join(index.Dependencies, ","),
+		)),
 		Authentication: http.Authentication{Scheme: "basic", Username: ctx.ClientID, Password: ctx.ClientSecret},
 	}.Post()
 	if err != nil {
@@ -195,9 +205,4 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	}
 
 	return nil
-}
-
-// GetConnection returns the list of datasources associated with a given connection and their index status
-func (ctx *Context) GetConnection(conn string) (*Datasource, error) {
-	return nil, nil
 }

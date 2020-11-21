@@ -24,22 +24,20 @@ type DatasourceAbsolute struct {
 
 // Datasource is a new data index structure
 type Datasource struct {
-	Datasource string      `json:"datasource"`
-	Type       string      `json:"type"`
-	OSP        string      `json:"osp"`
-	Count      int64       `json:"count"`
-	Cycle      string      `json:"cycle"`
-	Storage    string      `json:"storage"`
-	Data       interface{} `json:"data"`
+	Index
+	Data interface{} `json:"data"`
 }
 
 // Index is an index entry used to create a new Indexer document
 type Index struct {
-	Connection string `json:"connection"`
-	OSP        string `json:"osp"`
-	Datasource string `json:"string"`
-	Count      int    `json:"count"`
-	Cycle      string `json:"cycle"`
-	Type       string `json:"type"`
-	Storage    string `json:"storage"`
+	Count        int      `json:"count"`
+	Cycle        string   `json:"cycle"`
+	Connection   string   `json:"connection"`
+	Datasource   string   `json:"datasource"`
+	Notify       bool     `json:"notify,omitempty"`
+	OSP          string   `json:"osp"`
+	Status       string   `json:"status,omitempty"`
+	Storage      string   `json:"storage"`
+	Type         string   `json:"type"`
+	Dependencies []string `json:"depends,omitempty"`
 }
