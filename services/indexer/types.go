@@ -22,22 +22,17 @@ type DatasourceAbsolute struct {
 	Expires time.Time `json:"expires"`
 }
 
-// Datasource is a new data index structure
-type Datasource struct {
-	Index
-	Data interface{} `json:"data"`
-}
-
 // Index is an index entry used to create a new Indexer document
 type Index struct {
-	Count        int      `json:"count"`
-	Cycle        string   `json:"cycle"`
-	Connection   string   `json:"connection"`
-	Datasource   string   `json:"datasource"`
-	Notify       bool     `json:"notify,omitempty"`
-	OSP          string   `json:"osp"`
-	Status       string   `json:"status,omitempty"`
-	Storage      string   `json:"storage"`
-	Type         string   `json:"type"`
-	Dependencies []string `json:"depends,omitempty"`
+	Count        int64       `json:"count"`
+	Cycle        string      `json:"cycle"`
+	Connection   string      `json:"connection"`
+	Datasource   string      `json:"datasource"`
+	Notify       bool        `json:"notify,omitempty"`
+	OSP          string      `json:"osp"`
+	Status       string      `json:"status,omitempty"`
+	Storage      string      `json:"storage"`
+	Type         string      `json:"type"`
+	Dependencies []string    `json:"depends,omitempty"`
+	Data         interface{} `json:"data,omitempty"`
 }
