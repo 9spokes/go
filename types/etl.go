@@ -5,10 +5,10 @@ type ETLMessage struct {
 	OSP        string `json:"osp"`
 	Datasource string `json:"datasource"`
 	Connection string `json:"connection"`
-	Company    string `json:"company,omitempty"`
 	Index      string `json:"index,omitempty"`
 	Period     string `json:"period,omitempty"`
 	Cycle      string `json:"cycle,omitempty"`
 	Storage    string `json:"storage,omitempty"`
 	Immediate  bool   `json:"immediate,omitempty"`
+	Completed  string `json:"completed,omitempty"`
 }
