@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/types"
 	goLogging "github.com/op/go-logging"
 )
 
@@ -20,12 +19,12 @@ type Context struct {
 }
 
 // NewIndex creates a new index for a given connection and datasource.  It returns the new index document
-func (ctx *Context) NewIndex(index *types.IndexerIndex) (*types.IndexerDatasource, error) {
+func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
 
 	// New post-Indexer message
 	raw, err := http.Request{
 		ContentType:    "application/x-www-form-urlencoded",
-		URL:            ctx.URL,
+		URL:            ctx.URL + "/connections",
 		Body:           []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s", index.Connection, index.Datasource, index.Count, index.Type, index.Storage, index.Cycle)),
 		Authentication: http.Authentication{Scheme: "basic", Username: ctx.ClientID, Password: ctx.ClientSecret},
 	}.Post()
@@ -34,9 +33,9 @@ func (ctx *Context) NewIndex(index *types.IndexerIndex) (*types.IndexerDatasourc
 	}
 
 	var response struct {
-		Status  string                  `json:"status,omitempty"`
-		Message string                  `json:"message,omitempty"`
-		Details types.IndexerDatasource `json:"details,omitempty"`
+		Status  string     `json:"status,omitempty"`
+		Message string     `json:"message,omitempty"`
+		Details Datasource `json:"details,omitempty"`
 	}
 	if err := json.Unmarshal(raw.Body, &response); err != nil {
 		return nil, fmt.Errorf("Error parsing response from indexer service: %s", err.Error())
@@ -51,7 +50,7 @@ func (ctx *Context) NewIndex(index *types.IndexerIndex) (*types.IndexerDatasourc
 }
 
 // GetIndex returns a connection by ID from the designated indexer service instance
-func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerDatasource, error) {
+func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Datasource, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -62,7 +61,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 		}
 	}()
 
-	url := fmt.Sprintf("%s/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
+	url := fmt.Sprintf("%s/connections/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
 
 	if ctx.Logger != nil {
 		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
@@ -83,9 +82,9 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 	}
 
 	var parsed struct {
-		Status  string                  `json:"status"`
-		Message string                  `json:"message"`
-		Details types.IndexerDatasource `json:"details"`
+		Status  string     `json:"status"`
+		Message string     `json:"message"`
+		Details Datasource `json:"details"`
 	}
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
@@ -98,7 +97,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 
 	switch parsed.Details.Type {
 	case "rolling":
-		data := make([]types.IndexerDatasourceRolling, len(parsed.Details.Data.([]interface{})))
+		data := make([]DatasourceRolling, len(parsed.Details.Data.([]interface{})))
 
 		for i, e := range parsed.Details.Data.([]interface{}) {
 
@@ -116,7 +115,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 			}
 
 			updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
-			data[i] = types.IndexerDatasourceRolling{
+			data[i] = DatasourceRolling{
 				Index:   e.(map[string]interface{})["index"].(string),
 				Outcome: e.(map[string]interface{})["outcome"].(string),
 				Period:  e.(map[string]interface{})["period"].(string),
@@ -132,7 +131,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 		updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
 		expires, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["expires"].(string))
 
-		parsed.Details.Data = types.IndexerDatasourceAbsolute{
+		parsed.Details.Data = DatasourceAbsolute{
 			Index:   e.(map[string]interface{})["index"].(string),
 			Outcome: e.(map[string]interface{})["outcome"].(string),
 			Expires: expires,
@@ -147,7 +146,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*types.IndexerData
 // UpdateIndex updates an entry with the data provided
 func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, ok, retry bool) error {
 
-	location := fmt.Sprintf("%s/%s/%s?cycle=%s&index=%s", ctx.URL, conn, datasource, cycle, index)
+	location := fmt.Sprintf("%s/connections/%s/%s?cycle=%s&index=%s", ctx.URL, conn, datasource, cycle, index)
 
 	if ctx.Logger != nil {
 		ctx.Logger.Debugf("Invoking Indexer service at: %s", location)
@@ -192,4 +191,9 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	}
 
 	return nil
+}
+
+// GetConnection returns the list of datasources associated with a given connection and their index status
+func (ctx *Context) GetConnection(conn string) (*Datasource, error) {
+	return nil, nil
 }

@@ -1,9 +1,9 @@
-package types
+package indexer
 
 import "time"
 
-// IndexerDatasourceRolling is an indexing data entry for a "rolling" datasource
-type IndexerDatasourceRolling struct {
+// DatasourceRolling is an indexing data entry for a "rolling" datasource
+type DatasourceRolling struct {
 	Period  string    `json:"period"`
 	Status  string    `json:"status"`
 	Retry   bool      `json:"retry"`
@@ -12,8 +12,8 @@ type IndexerDatasourceRolling struct {
 	Index   string    `json:"index"`
 }
 
-// IndexerDatasourceAbsolute is an indexing data entry for an "absolute" datasource
-type IndexerDatasourceAbsolute struct {
+// DatasourceAbsolute is an indexing data entry for an "absolute" datasource
+type DatasourceAbsolute struct {
 	Status  string    `json:"status"`
 	Retry   bool      `json:"retry"`
 	Updated time.Time `json:"updated,omit_empty"`
@@ -22,8 +22,8 @@ type IndexerDatasourceAbsolute struct {
 	Expires time.Time `json:"expires"`
 }
 
-// IndexerDatasource is a new data index structure
-type IndexerDatasource struct {
+// Datasource is a new data index structure
+type Datasource struct {
 	Datasource string      `json:"datasource"`
 	Type       string      `json:"type"`
 	OSP        string      `json:"osp"`
@@ -33,8 +33,8 @@ type IndexerDatasource struct {
 	Data       interface{} `json:"data"`
 }
 
-// IndexerIndex is an index entry used to create a new Indexer document
-type IndexerIndex struct {
+// Index is an index entry used to create a new Indexer document
+type Index struct {
 	Connection string `json:"connection"`
 	OSP        string `json:"osp"`
 	Datasource string `json:"string"`
