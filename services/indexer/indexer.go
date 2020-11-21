@@ -45,8 +45,57 @@ func (ctx *Context) NewIndex(index *Index) (*Datasource, error) {
 		return nil, fmt.Errorf("Received an error response from the indexer service: %s", response.Message)
 	}
 
-	return &response.Details, nil
+	return response.Details.updateData()
+}
 
+func (ds *Datasource) updateData() (*Datasource, error) {
+
+	switch ds.Type {
+	case "rolling":
+		data := make([]DatasourceRolling, len(ds.Data.([]interface{})))
+
+		for i, e := range ds.Data.([]interface{}) {
+
+			skip := false
+
+			for _, key := range []string{"index", "outcome", "period", "retry", "status", "updated"} {
+				if _, ok := e.(map[string]interface{})[key]; !ok {
+					//ctx.Logger.Errorf("Failed to parsed '%s' as a string", key)
+					skip = true
+				}
+			}
+
+			if skip {
+				continue
+			}
+
+			updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
+			data[i] = DatasourceRolling{
+				Index:   e.(map[string]interface{})["index"].(string),
+				Outcome: e.(map[string]interface{})["outcome"].(string),
+				Period:  e.(map[string]interface{})["period"].(string),
+				Retry:   e.(map[string]interface{})["retry"].(bool),
+				Status:  e.(map[string]interface{})["status"].(string),
+				Updated: updated,
+			}
+		}
+		ds.Data = data
+
+	case "absolute":
+		e := ds.Data.(interface{})
+		updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
+		expires, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["expires"].(string))
+
+		ds.Data = DatasourceAbsolute{
+			Index:   e.(map[string]interface{})["index"].(string),
+			Outcome: e.(map[string]interface{})["outcome"].(string),
+			Expires: expires,
+			Retry:   e.(map[string]interface{})["retry"].(bool),
+			Status:  e.(map[string]interface{})["status"].(string),
+			Updated: updated,
+		}
+	}
+	return ds, nil
 }
 
 // GetIndex returns a connection by ID from the designated indexer service instance
@@ -95,52 +144,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Datasource, error
 		return nil, fmt.Errorf("non-OK response received from Indexer service: %s", parsed.Message)
 	}
 
-	switch parsed.Details.Type {
-	case "rolling":
-		data := make([]DatasourceRolling, len(parsed.Details.Data.([]interface{})))
-
-		for i, e := range parsed.Details.Data.([]interface{}) {
-
-			skip := false
-
-			for _, key := range []string{"index", "outcome", "period", "retry", "status", "updated"} {
-				if _, ok := e.(map[string]interface{})[key]; !ok {
-					ctx.Logger.Errorf("Failed to parsed '%s' as a string", key)
-					skip = true
-				}
-			}
-
-			if skip {
-				continue
-			}
-
-			updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
-			data[i] = DatasourceRolling{
-				Index:   e.(map[string]interface{})["index"].(string),
-				Outcome: e.(map[string]interface{})["outcome"].(string),
-				Period:  e.(map[string]interface{})["period"].(string),
-				Retry:   e.(map[string]interface{})["retry"].(bool),
-				Status:  e.(map[string]interface{})["status"].(string),
-				Updated: updated,
-			}
-		}
-		parsed.Details.Data = data
-
-	case "absolute":
-		e := parsed.Details.Data.(interface{})
-		updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
-		expires, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["expires"].(string))
-
-		parsed.Details.Data = DatasourceAbsolute{
-			Index:   e.(map[string]interface{})["index"].(string),
-			Outcome: e.(map[string]interface{})["outcome"].(string),
-			Expires: expires,
-			Retry:   e.(map[string]interface{})["retry"].(bool),
-			Status:  e.(map[string]interface{})["status"].(string),
-			Updated: updated,
-		}
-	}
-	return &parsed.Details, nil
+	return parsed.Details.updateData()
 }
 
 // UpdateIndex updates an entry with the data provided
