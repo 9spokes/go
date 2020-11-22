@@ -26,7 +26,7 @@ type DatasourceAbsolute struct {
 type Index struct {
 	Count        int64       `json:"count"`
 	Cycle        string      `json:"cycle"`
-	Connection   string      `json:"connection"`
+	Connection   string      `json:"connection,omitempty"`
 	Datasource   string      `json:"datasource"`
 	Notify       bool        `json:"notify,omitempty"`
 	OSP          string      `json:"osp"`
