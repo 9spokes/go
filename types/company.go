@@ -13,7 +13,7 @@ type Company struct {
 	Status            CompanyRecord          `json:"status"`
 	Entity            string                 `json:"entity,omitempty" bson:"entity,omitempty"`
 	Phone             string                 `json:"phone,omitempty" bson:"phone,omitempty"`
-	Users             []string               `json:"users"`
+	Users             []CompanyUsers         `json:"users"`
 	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
 	BusinessHours     CompanyBusinessHours   `json:"businessHours"`
 	WorkingHoursStart string                 `json:"workingHoursStart,omitempty"`
@@ -22,6 +22,13 @@ type Company struct {
 	Updated           time.Time              `json:"updated"`
 	Details           *CompanyDetails        `json:"details,omitempty" bson:"details,omitempty"`
 	Extras            map[string]interface{} `json:"extras,omitempty" bson:"extras,omitempty"`
+}
+
+// CompanyUsers represent the user details of the company
+type CompanyUsers struct {
+	User     string `json:"user"`
+	Role     string `json:"role"`
+	Position string `json:"position"`
 }
 
 // CompanyBusinessHours represent the working days & hours for a company
