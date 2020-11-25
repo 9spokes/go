@@ -1,4 +1,4 @@
-package types
+package companies
 
 import "time"
 
