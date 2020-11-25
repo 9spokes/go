@@ -153,7 +153,12 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
+	var client *http.Client
+	if params.Client != nil {
+		client = params.Client
+	} else {
+		client = &http.Client{}
+	}
 
 	response, err := client.Do(request)
 	if err != nil {
