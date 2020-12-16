@@ -6,7 +6,7 @@ import (
 
 	"github.com/9spokes/go/api"
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/types"
+	"github.com/9spokes/go/services/companies"
 )
 
 // Context represents a company object into the profile service
@@ -17,7 +17,7 @@ type Context struct {
 }
 
 //GetCompanies returns a list of companies that the user belongs to
-func (ctx Context) GetCompanies(user string) ([]types.Company, error) {
+func (ctx Context) GetCompanies(user string) ([]companies.Company, error) {
 
 	response, err := http.Request{
 		URL: fmt.Sprintf("%s/companies", ctx.URL),
@@ -39,7 +39,7 @@ func (ctx Context) GetCompanies(user string) ([]types.Company, error) {
 	var ret struct {
 		Status  string `json:"status"`
 		Message string `json:"message"`
-		Details []types.Company
+		Details []companies.Company
 	}
 
 	if err := json.Unmarshal(response.Body, &ret); err != nil {
