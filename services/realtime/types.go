@@ -1,4 +1,4 @@
-package types
+package realtime
 
 // Location contains locality details
 type Place struct {

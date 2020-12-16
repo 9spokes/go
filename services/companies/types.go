@@ -3,7 +3,7 @@ package companies
 import (
 	"time"
 
-	"github.com/9spokes/go/types"
+	"github.com/9spokes/go/services/realtime"
 )
 
 //Company is a struct that defines a 9 Spokes company entity
@@ -12,7 +12,7 @@ type Company struct {
 	Name              string                 `json:"name" bson:"name"`
 	Industry          string                 `json:"industry,omitempty" bson:"industry,omitempty"`
 	Industries        []Record               `json:"industries"`
-	Location          types.Place            `json:"location"`
+	Location          realtime.Place         `json:"location"`
 	Type              Record                 `json:"type"`
 	Status            Record                 `json:"status"`
 	Entity            string                 `json:"entity,omitempty" bson:"entity,omitempty"`
