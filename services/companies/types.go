@@ -8,25 +8,25 @@ import (
 
 //Company is a struct that defines a 9 Spokes company entity
 type Company struct {
-	ID                string                 `json:"id" bson:"company"`
-	Name              string                 `json:"name" bson:"name"`
-	Industry          string                 `json:"industry,omitempty" bson:"industry,omitempty"`
-	Industries        []Record               `json:"industries"`
-	Location          types.Place            `json:"location"`
-	Type              Record                 `json:"type"`
-	Status            Record                 `json:"status"`
-	Entity            string                 `json:"entity,omitempty" bson:"entity,omitempty"`
-	Phone             string                 `json:"phone,omitempty" bson:"phone,omitempty"`
-	Users             []Users                `json:"users"`
-	TimeZoneOffset    int64                  `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
-	BusinessHours     BusinessHours          `json:"businessHours"`
-	WorkingHoursStart string                 `json:"workingHoursStart,omitempty"`
-	WorkingHoursEnd   string                 `json:"workingHoursEnd,omitempty"`
-	Created           time.Time              `json:"created"`
-	Updated           time.Time              `json:"updated"`
-	Details           *Details               `json:"details,omitempty" bson:"details,omitempty"`
-	Extras            map[string]interface{} `json:"extras,omitempty" bson:"extras,omitempty"`
-	Size              int64                  `json:"size,omitempty" bson:"size,omitempty"`
+	ID                string        `json:"id" bson:"company"`
+	Name              string        `json:"name" bson:"name"`
+	Industry          string        `json:"industry,omitempty" bson:"industry,omitempty"`
+	Industries        []Record      `json:"industries"`
+	Location          types.Place   `json:"location"`
+	Type              Record        `json:"type"`
+	Status            Record        `json:"status"`
+	Entity            string        `json:"entity,omitempty" bson:"entity,omitempty"`
+	Phone             string        `json:"phone,omitempty" bson:"phone,omitempty"`
+	Users             []Users       `json:"users"`
+	TimeZoneOffset    int64         `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
+	BusinessHours     BusinessHours `json:"businessHours"`
+	WorkingHoursStart string        `json:"workingHoursStart,omitempty"`
+	WorkingHoursEnd   string        `json:"workingHoursEnd,omitempty"`
+	Created           time.Time     `json:"created"`
+	Updated           time.Time     `json:"updated"`
+	Details           *Details      `json:"details,omitempty" bson:"details,omitempty"`
+	Extras            Extras        `json:"extras,omitempty" bson:"extras,omitempty"`
+	Size              int64         `json:"size,omitempty" bson:"size,omitempty"`
 }
 
 // Users represent the user details of the company
@@ -89,6 +89,11 @@ type Summary struct {
 	Status     Record   `json:"status"`
 	Type       Record   `json:"type"`
 	Industries []Record `json:"industries"`
+}
+
+type Extras struct {
+	AnnualTurnover int64 `json:"annualTurnover,omitempty" bson:"annualTurnover,omitempty"`
+	Size           int64 `json:"size,omitempty" bson:"size,omitempty"`
 }
 
 // Details is a struct that defines a company's details as retrieved from an external Company Registry
