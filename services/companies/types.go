@@ -26,7 +26,7 @@ type Company struct {
 	Updated           time.Time     `json:"updated"`
 	Details           *Details      `json:"details,omitempty" bson:"details,omitempty"`
 	Extras            Extras        `json:"extras,omitempty" bson:"extras,omitempty"`
-	Size              int64         `json:"size,omitempty" bson:"size,omitempty"`
+	Size              string        `json:"size,omitempty" bson:"size,omitempty"`
 }
 
 // Users represent the user details of the company
