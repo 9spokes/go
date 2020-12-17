@@ -92,8 +92,8 @@ type Summary struct {
 }
 
 type Extras struct {
-	AnnualTurnover int64 `json:"annualTurnover,omitempty" bson:"annualTurnover,omitempty"`
-	Size           int64 `json:"size,omitempty" bson:"size,omitempty"`
+	AnnualTurnover float64 `json:"annualTurnover,omitempty" bson:"annualTurnover,omitempty"`
+	Size           int64   `json:"size,omitempty" bson:"size,omitempty"`
 }
 
 // Details is a struct that defines a company's details as retrieved from an external Company Registry
