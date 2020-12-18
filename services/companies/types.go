@@ -22,6 +22,8 @@ type Company struct {
 	BusinessHours     BusinessHours `json:"businessHours"`
 	WorkingHoursStart string        `json:"workingHoursStart,omitempty"`
 	WorkingHoursEnd   string        `json:"workingHoursEnd,omitempty"`
+	StartTime         string        `json:"startTime,omitempty"`
+	EndTime           string        `json:"endTime,omitempty"`
 	Created           time.Time     `json:"created"`
 	Updated           time.Time     `json:"updated"`
 	Details           *Details      `json:"details,omitempty" bson:"details,omitempty"`
