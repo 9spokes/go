@@ -22,6 +22,8 @@ type Company struct {
 	BusinessHours     BusinessHours `json:"businessHours"`
 	WorkingHoursStart string        `json:"workingHoursStart,omitempty"`
 	WorkingHoursEnd   string        `json:"workingHoursEnd,omitempty"`
+	StartTime         string        `json:"startTime,omitempty"`
+	EndTime           string        `json:"endTime,omitempty"`
 	Created           time.Time     `json:"created"`
 	Updated           time.Time     `json:"updated"`
 	Details           *Details      `json:"details,omitempty" bson:"details,omitempty"`
@@ -38,10 +40,10 @@ type Users struct {
 
 // BusinessHours represent the working days & hours for a company
 type BusinessHours struct {
-	DaysFrom  int `json:"daysFrom"`
-	DaysTo    int `json:"daysTo"`
-	HoursFrom int `json:"hoursFrom"`
-	HoursTo   int `json:"hoursTo"`
+	DaysFrom  string `json:"daysFrom"`
+	DaysTo    string `json:"daysTo"`
+	HoursFrom string `json:"hoursFrom"`
+	HoursTo   string `json:"hoursTo"`
 }
 
 // Address represents a company address
