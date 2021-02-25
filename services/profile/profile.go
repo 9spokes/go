@@ -17,7 +17,7 @@ type Context struct {
 }
 
 //UpdateProfile updates the user profile based on the contents of the session
-func (ctx *Context) UpdateProfile(user string, form *url.Values) error {
+func (ctx Context) UpdateProfile(user string, form *url.Values) error {
 
 	response, err := http.Request{
 		URL:         ctx.URL,
