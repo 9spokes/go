@@ -3,10 +3,10 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/9spokes/go/api"
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/services/companies"
 )
 
 // Context represents a company object into the profile service
@@ -16,41 +16,35 @@ type Context struct {
 	ClientSecret string
 }
 
-//GetCompanies returns a list of companies that the user belongs to
-func (ctx Context) GetCompanies(user string) ([]companies.Company, error) {
+//UpdateProfile updates the user profile based on the contents of the session
+func (ctx *Context) UpdateProfile(user string, form *url.Values) error {
 
 	response, err := http.Request{
-		URL: fmt.Sprintf("%s/companies", ctx.URL),
+		URL:         ctx.URL,
+		ContentType: "application/x-www-form-urlencoded",
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
-		Headers: map[string]string{
-			"x-9sp-user": user,
-		},
-		ContentType: "application/json",
-	}.Get()
+		Headers: map[string]string{"x-9sp-user": user},
+		Body:    []byte(form.Encode()),
+	}.Put()
 
 	if err != nil {
-		return nil, fmt.Errorf("while interacting with Profile service: %s", err.Error())
+		return err
 	}
 
-	var ret struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-		Details []companies.Company
-	}
-
+	var ret api.Response
 	if err := json.Unmarshal(response.Body, &ret); err != nil {
-		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
+		return fmt.Errorf("while unmarshalling response: %s", err.Error())
 	}
 
 	if ret.Status != "ok" {
-		return nil, fmt.Errorf(ret.Message)
+		return fmt.Errorf(ret.Message)
 	}
 
-	return ret.Details, nil
+	return nil
 }
 
 // GetOptions retrieves all options for the specified user
