@@ -3,6 +3,8 @@ package metrics
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"path"
 
 	"github.com/9spokes/go/http"
 )
@@ -15,10 +17,21 @@ type Context struct {
 }
 
 //GetTimeSeriesMetric calculates a metric based on the supplied criteria and returns an answer.
-func (ctx Context) GetTimeSeriesMetric(q Query) (*TimeSeries, error) {
+func (ctx Context) GetTimeSeriesMetric(category string, metric string, q Query) (*TimeSeries, error) {
+
+	if category == "" {
+		return nil, fmt.Errorf("Invalid metric category %s", category)
+	}
+
+	if metric == "" {
+		return nil, fmt.Errorf("Invalid metric %s", metric)
+	}
+
+	u, err := url.Parse(ctx.URL)
+	u.Path = path.Join(u.Path, category, "metrics", metric)
 
 	res, err := http.Request{
-		URL: ctx.URL,
+		URL: u.String(),
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
