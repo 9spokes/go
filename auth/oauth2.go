@@ -123,6 +123,10 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 
 // Refresh implements an OAuth2 token refresh methods.  Parameters are sent via the OAuth2 struct
 func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
+	
+	if params.RefreshToken == "" {
+		return nil, fmt.Errorf("the refresh token is missing")
+	}
 
 	var auth string
 
@@ -138,7 +142,9 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 		auth = "Basic " + base64.StdEncoding.EncodeToString([]byte(params.ClientID+":"+params.ClientSecret))
 	} else {
 		data.Set("client_id", params.ClientID)
-		data.Set("client_secret", params.ClientSecret)
+		if params.ClientSecret != "" {
+			data.Set("client_secret", params.ClientSecret)
+		}
 	}
 
 	request, err := http.NewRequest("POST", params.TokenEndpoint, strings.NewReader(data.Encode()))
