@@ -16,7 +16,6 @@ type Company struct {
 	Type              Record        `json:"type"`
 	Status            Record        `json:"status"`
 	Entity            string        `json:"entity,omitempty" bson:"entity,omitempty"`
-	Phone             string        `json:"phone,omitempty" bson:"phone,omitempty"`
 	Users             []Users       `json:"users"`
 	TimeZoneOffset    int64         `json:"timeZoneOffset,omitempty" bson:"timeZoneOffset,omitempty"`
 	BusinessHours     BusinessHours `json:"businessHours"`
