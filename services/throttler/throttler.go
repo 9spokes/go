@@ -15,12 +15,16 @@ type Context struct {
 	Logger *goLogging.Logger
 }
 
+var ( 
+	ErrTooManyRequests = errors.New("failed to acquire token")
+)
+
 // GetToken is a helper function that retrieves a token from the OSP rate limiting service `etl-throttler`.
 //
 // You must call this function before initiating any outbound connection which enforces a rate limiting policy.
 //
 // The function will block until a valid token is returned from the throttling service hence you may wish to implement a timeout
-func (ctx Context) GetToken(osp string) error {
+func (ctx Context) GetToken(osp string, retries int) error {
 
 	ctx.Logger.Debugf("[%s] Getting rate-limiting token", osp)
 	client := &http.Client{}
@@ -28,7 +32,7 @@ func (ctx Context) GetToken(osp string) error {
 	url := fmt.Sprintf("%s/token/%s", ctx.URL, osp)
 	ctx.Logger.Debugf("[%s] URL is: %s", osp, ctx.URL)
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < retries; i++ {
 		ctx.Logger.Debugf("[%s] Attempt #%d", osp, i+1)
 		request, err := http.NewRequest("GET", url, nil)
 		if err != nil {
@@ -55,6 +59,6 @@ func (ctx Context) GetToken(osp string) error {
 		time.Sleep(5 * time.Second)
 	}
 
-	ctx.Logger.Errorf("[%s] Failed to acquire rate-limtiing token after %d attempts", osp, 5)
-	return errors.New("failed to acquire token after 5 attempts")
+	ctx.Logger.Errorf("[%s] Failed to acquire rate-limtiing token after %d attempts", osp, retries)
+	return ErrTooManyRequests
 }
