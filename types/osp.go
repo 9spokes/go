@@ -5,6 +5,7 @@ type OSP struct {
 	Name        string            `json:"osp"`
 	Credentials map[string]string `json:"credentials,omitempty"`
 	Tiles       []OSPTile         `json:"tiles"`
+	Proxy       string            `json:"proxy,omitempty"`
 	Unique      bool              `json:"unique,omitempty"`
 }
 
