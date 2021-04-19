@@ -25,7 +25,10 @@ func (req MTLSRequest) New() (*http.Client, error) {
 		if err != nil {
 			return nil, fmt.Errorf("while reading openbanking CA certificate %s: %s", req.CAFile, err.Error())
 		}
-		caCertPool := x509.NewCertPool()
+		caCertPool, err := x509.SystemCertPool()
+		if err != nil {
+			caCertPool = x509.NewCertPool()
+		}
 		caCertPool.AppendCertsFromPEM(caCert)
 		config.RootCAs = caCertPool
 	}
