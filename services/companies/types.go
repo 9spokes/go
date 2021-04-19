@@ -11,7 +11,7 @@ type Company struct {
 	ID                string        `json:"id" bson:"company"`
 	Name              string        `json:"name" bson:"name"`
 	Industry          string        `json:"industry,omitempty" bson:"industry,omitempty"`
-	Industries        []Record      `json:"industries"`
+	Industries        []Record      `json:"industries,omitempty" bson:"industries,omitempty"`
 	Location          types.Place   `json:"location"`
 	Type              Record        `json:"type"`
 	Status            Record        `json:"status"`
