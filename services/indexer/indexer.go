@@ -26,7 +26,7 @@ func (ctx *Context) NewIndex(index *Index) (*Index, error) {
 	raw, err := http.Request{
 		ContentType: "application/x-www-form-urlencoded",
 		URL:         ctx.URL + "/connections",
-		Body: []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s&osp=%s&notify=%t&depends=%s",
+		Body: []byte(fmt.Sprintf("connection=%s&datasource=%s&count=%d&type=%s&storage=%s&cycle=%s&osp=%s&notify=%t&depends=%s&webhooks=%t",
 			index.Connection,
 			index.Datasource,
 			index.Count,
@@ -36,6 +36,7 @@ func (ctx *Context) NewIndex(index *Index) (*Index, error) {
 			index.OSP,
 			index.Notify,
 			strings.Join(index.Dependencies, ","),
+			index.Webhooks,
 		)),
 		Authentication: http.Authentication{Scheme: "basic", Username: ctx.ClientID, Password: ctx.ClientSecret},
 	}.Post()

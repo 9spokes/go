@@ -28,6 +28,7 @@ type Index struct {
 	Cycle        string      `json:"cycle"`
 	Connection   string      `json:"connection,omitempty"`
 	Datasource   string      `json:"datasource"`
+	Webhooks     bool        `json:"webhooks,omitempty"`
 	Notify       bool        `json:"notify,omitempty"`
 	OSP          string      `json:"osp"`
 	Status       string      `json:"status,omitempty"`
