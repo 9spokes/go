@@ -189,8 +189,8 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 		Body:        []byte(params.Encode()),
 	}.Put()
 
-	if err != nil && response.StatusCode < 399 {
-		return fmt.Errorf("error invoking Indexer service at: %s: [%d] %s", location, response.StatusCode, err.Error())
+	if err != nil {
+		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", location, err.Error())
 	}
 
 	var parsed struct {
