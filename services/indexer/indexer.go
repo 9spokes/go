@@ -190,7 +190,7 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	}.Put()
 
 	if err != nil {
-		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", location, err.Error())
+		return fmt.Errorf("error invoking Indexer service at: %s: %s", location, err.Error())
 	}
 
 	var parsed struct {
