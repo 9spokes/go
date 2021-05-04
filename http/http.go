@@ -80,7 +80,10 @@ func (request Request) http() (*Response, error) {
 	}
 
 	req, err := http.NewRequest(request.Method, request.URL, bytes.NewBuffer(request.Body))
-
+	if err != nil {
+		return nil, err
+	}
+	
 	if request.ContentType == "" {
 		req.Header.Set("Content-type", "application/json")
 	} else {
