@@ -202,7 +202,7 @@ func (ctx Context) SetConnectionSetting(id string, setting types.Document) error
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
-		ContentType: "application/x-www-form-urlencoded",
+		ContentType: "application/json",
 		Body:        newSetting,
 	}.Post()
 
