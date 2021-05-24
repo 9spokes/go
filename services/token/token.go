@@ -186,7 +186,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	return nil
 }
 // SetConnectionSetting updates connection setting by ID from the designated Token service instance
-func (ctx Context) SetConnectionSetting(id string, setting map[string]interface{}) error {
+func (ctx Context) SetConnectionSetting(id string, setting types.Document) error {
 
 	url := fmt.Sprintf("%s/connections/%s/settings", ctx.URL, id)
 
