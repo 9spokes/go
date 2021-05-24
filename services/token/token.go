@@ -185,6 +185,47 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 
 	return nil
 }
+// SetConnectionSetting updates connection setting by ID from the designated Token service instance
+func (ctx Context) SetConnectionSetting(id string, setting map[string]interface{}) error {
+
+	url := fmt.Sprintf("%s/connections/%s/settings", ctx.URL, id)
+
+	newSetting, err := json.Marshal(setting)
+	if err != nil {
+		return err
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/x-www-form-urlencoded",
+		Body:        newSetting,
+	}.Post()
+
+	if err != nil {
+		return err
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		return fmt.Errorf(e)
+	}
+
+	return nil
+}
 
 // CreateConnection requests the designated Token service instance to create a new connection
 func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, error) {
