@@ -179,18 +179,21 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}
 
 	if parsed.Status != "ok" {
-		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		return fmt.Errorf(e)
+		return fmt.Errorf("Non-OK response received from Token service: %s", parsed.Message)
 	}
 
 	return nil
 }
 // SetConnectionSetting updates connection setting by ID from the designated Token service instance
-func (ctx Context) SetConnectionSetting(id string, setting types.Document) error {
+func (ctx Context) SetConnectionSetting(id string, settings types.Document) error {
+
+	if settings == nil {
+		return fmt.Errorf("The new settings provided is empty")
+	}
 
 	url := fmt.Sprintf("%s/connections/%s/settings", ctx.URL, id)
 
-	newSetting, err := json.Marshal(setting)
+	newSettings, err := json.Marshal(settings)
 	if err != nil {
 		return err
 	}
@@ -203,7 +206,7 @@ func (ctx Context) SetConnectionSetting(id string, setting types.Document) error
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/json",
-		Body:        newSetting,
+		Body:        newSettings,
 	}.Post()
 
 	if err != nil {
@@ -220,8 +223,7 @@ func (ctx Context) SetConnectionSetting(id string, setting types.Document) error
 	}
 
 	if parsed.Status != "ok" {
-		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		return fmt.Errorf(e)
+		return fmt.Errorf("Non-OK response received from Token service: %s", parsed.Message)
 	}
 
 	return nil
