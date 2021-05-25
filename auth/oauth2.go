@@ -26,6 +26,7 @@ type OAuth2 struct {
 // Options are a set of flags & modifiers to the OAuth2 implementation
 type Options struct {
 	AuthInHeader bool `default:"false"`
+	DataInQuery bool `default:"false"`
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
@@ -54,12 +55,31 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 		auth = "Basic " + base64.StdEncoding.EncodeToString([]byte(params.ClientID+":"+params.ClientSecret))
 	} else {
 		data.Set("client_id", params.ClientID)
-		if params.ClientSecret != "" {
+		if !opt.DataInQuery && params.ClientSecret != "" {
 			data.Set("client_secret", params.ClientSecret)
 		}
 	}
 
-	request, err := http.NewRequest("POST", params.TokenEndpoint, strings.NewReader(data.Encode()))
+	var body string
+	requestUrl := params.TokenEndpoint
+
+	if opt.DataInQuery {
+		u, err := url.Parse(params.TokenEndpoint)
+		if err != nil {
+			return nil, err
+		}
+		rawQuery := u.RawQuery
+		if rawQuery != "" {
+			rawQuery += "&"
+		}
+		rawQuery += data.Encode()
+		u.RawQuery = rawQuery
+		requestUrl = u.String()
+	} else {
+		body = data.Encode()
+	}
+
+	request, err := http.NewRequest("POST", requestUrl, strings.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an HTTP client: %s", err.Error())
 	}
@@ -73,7 +93,9 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 	}
 
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	if !opt.DataInQuery {
+		request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	}
 
 	client :=  &http.Client{}
 	if params.Client != nil {
@@ -142,12 +164,31 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 		auth = "Basic " + base64.StdEncoding.EncodeToString([]byte(params.ClientID+":"+params.ClientSecret))
 	} else {
 		data.Set("client_id", params.ClientID)
-		if params.ClientSecret != "" {
+		if !opt.DataInQuery && params.ClientSecret != "" {
 			data.Set("client_secret", params.ClientSecret)
 		}
 	}
 
-	request, err := http.NewRequest("POST", params.TokenEndpoint, strings.NewReader(data.Encode()))
+	var body string
+	requestUrl := params.TokenEndpoint
+
+	if opt.DataInQuery {
+		u, err := url.Parse(params.TokenEndpoint)
+		if err != nil {
+			return nil, err
+		}
+		rawQuery := u.RawQuery
+		if rawQuery != "" {
+			rawQuery += "&"
+		}
+		rawQuery += data.Encode()
+		u.RawQuery = rawQuery
+		requestUrl = u.String()
+	} else {
+		body = data.Encode()
+	}
+
+	request, err := http.NewRequest("POST", requestUrl, strings.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an HTTP client: %s", err.Error())
 	}
@@ -157,7 +198,9 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 	}
 
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	if !opt.DataInQuery {
+		request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	}
 
 	client :=  &http.Client{}
 	if params.Client != nil {
