@@ -179,8 +179,51 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 	}
 
 	if parsed.Status != "ok" {
-		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
-		return fmt.Errorf(e)
+		return fmt.Errorf("Non-OK response received from Token service: %s", parsed.Message)
+	}
+
+	return nil
+}
+// SetConnectionSetting updates connection setting by ID from the designated Token service instance
+func (ctx Context) SetConnectionSetting(id string, settings types.Document) error {
+
+	if settings == nil {
+		return fmt.Errorf("The new settings provided is empty")
+	}
+
+	url := fmt.Sprintf("%s/connections/%s/settings", ctx.URL, id)
+
+	newSettings, err := json.Marshal(settings)
+	if err != nil {
+		return err
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+		Body:        newSettings,
+	}.Post()
+
+	if err != nil {
+		return err
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		return fmt.Errorf("Non-OK response received from Token service: %s", parsed.Message)
 	}
 
 	return nil
