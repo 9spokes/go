@@ -26,7 +26,7 @@ type OAuth2 struct {
 // Options are a set of flags & modifiers to the OAuth2 implementation
 type Options struct {
 	AuthInHeader bool `default:"false"`
-	DataInQuery bool `default:"false"`
+	DataInQuery  bool `default:"false"`
 }
 
 func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]interface{}, error) {
@@ -81,7 +81,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		request.Header.Set(k, v)
 	}
 
-	client :=  &http.Client{}
+	client := &http.Client{}
 	if params.Client != nil {
 		client = params.Client
 	}
@@ -144,7 +144,7 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 
 // Refresh implements an OAuth2 token refresh methods.  Parameters are sent via the OAuth2 struct
 func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
-	
+
 	if params.RefreshToken == "" {
 		return nil, fmt.Errorf("the refresh token is missing")
 	}

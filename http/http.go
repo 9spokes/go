@@ -83,7 +83,7 @@ func (request Request) http() (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if request.ContentType == "" {
 		req.Header.Set("Content-type", "application/json")
 	} else {
