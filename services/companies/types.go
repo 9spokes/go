@@ -32,9 +32,11 @@ type Company struct {
 
 // Users represent the user details of the company
 type Users struct {
-	User     string `json:"user"`
-	Role     string `json:"role"`
-	Position string `json:"position"`
+	User     	string `json:"user"`
+	Firstname 	string `json:"firstname"`
+	Lastname 	string `json:"lastname"`
+	Role     	string `json:"role"`
+	Position 	string `json:"position"`
 }
 
 // BusinessHours represent the working days & hours for a company

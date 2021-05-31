@@ -118,3 +118,36 @@ func (ctx Context) GetOption(user string, option string) (interface{}, error) {
 
 	return ret.Details, nil
 }
+
+//GetProfile get user's profile by userId
+func (ctx Context) GetProfile(user string) (interface{}, error) {
+	profileURL := fmt.Sprintf("%s/%s", ctx.URL, user)
+
+	response, err := http.Request{
+		URL: profileURL,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		Headers: map[string]string{
+			"x-9sp-user": user,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting user profile %s: %s", user, err.Error())
+	}
+
+	var ret api.Response
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling user profile %s: %s", user, err.Error())
+	}
+
+	if ret.Status != "ok" {
+		return nil, fmt.Errorf(ret.Message)
+	}
+
+	return ret.Details, nil
+}
