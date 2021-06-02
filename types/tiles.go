@@ -16,6 +16,13 @@ type ListTileSubheaderDropDownOption struct {
 	Label string `json:"label"`
 }
 
+type ListTileSubheaderDropDownOpt struct {
+	LabelLeft  string `json:"labelLeft,omitempty"`
+	ValueLeft  ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
+	LabelRight string `json:"labelRight,omitempty"`
+	ValueRight string `json:"valueRight,omitempty"`
+}
+
 // ListTile is a 9 Spokes V2 "List" tile data format
 type ListTile struct {
 	SubHeader ListTileSubheader `json:"subheader,omitempty"`
