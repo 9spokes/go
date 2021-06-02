@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// Response is an HTTP response, optionally parsed if the `json=true` parameter is supplied to httpGet()
+// Response is an HTTP response
 type Response struct {
 	StatusCode int
 	Body       []byte
