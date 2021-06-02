@@ -2,6 +2,7 @@ package types
 
 // ListTileSubheader represents a list tile subheader
 type ListTileSubheader struct {
+	Title 	   string `json:"title,omitempty"`
 	LabelLeft  string `json:"labelLeft,omitempty"`
 	ValueLeft  string `json:"valueLeft,omitempty"`
 	LabelRight string `json:"labelRight,omitempty"`
