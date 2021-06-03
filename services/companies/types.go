@@ -35,6 +35,7 @@ type Users struct {
 	User     string `json:"user"`
 	Role     string `json:"role"`
 	Position string `json:"position"`
+	Title    string `json:"title"`
 }
 
 // BusinessHours represent the working days & hours for a company
