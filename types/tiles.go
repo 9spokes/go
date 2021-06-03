@@ -17,6 +17,7 @@ type ListTileSubheaderDropDownOption struct {
 }
 
 type ListTileSubheaderDropDownOpt struct {
+	Title 	   string `json:"title,omitempty"`
 	LabelLeft  string `json:"labelLeft,omitempty"`
 	ValueLeft  ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
 	LabelRight string `json:"labelRight,omitempty"`
@@ -26,6 +27,13 @@ type ListTileSubheaderDropDownOpt struct {
 // ListTile is a 9 Spokes V2 "List" tile data format
 type ListTile struct {
 	SubHeader ListTileSubheader `json:"subheader,omitempty"`
+	List      []ListTileEntry   `json:"list,omitempty"`
+	SyncedAt  string            `json:"lastSyncAt,omitempty"`
+}
+
+// The same as the ListTile but the subheader has Title property
+type ListTileWithSubheaderTitle struct {
+	SubHeader ListTileSubheaderDropDownOpt `json:"subheader,omitempty"`
 	List      []ListTileEntry   `json:"list,omitempty"`
 	SyncedAt  string            `json:"lastSyncAt,omitempty"`
 }
