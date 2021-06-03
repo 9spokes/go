@@ -19,7 +19,7 @@ type ListTileSubheaderDropDownOption struct {
 type ListTileSubheaderDropDownOpt struct {
 	Title 	   string `json:"title,omitempty"`
 	LabelLeft  string `json:"labelLeft,omitempty"`
-	ValueLeft  ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
+	ValueLeft  []ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
 	LabelRight string `json:"labelRight,omitempty"`
 	ValueRight string `json:"valueRight,omitempty"`
 }
