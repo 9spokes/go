@@ -20,7 +20,7 @@ func GenerateNonce() string {
 }
 
 // GenerateCode a random code having the specified lenght. Supported code types are:
-// "numeric" for numeric only codes, "alpha" for alphabetic only codes and 
+// "numeric" for numeric only codes, "alpha" for alphabetic only codes and
 // "alphanumeric" for alphanumeric codes. Supported encodings are "base32" and "none"
 func GenerateCode(length uint, codeType string, encoding string) string {
 	var runes = []rune(alphanumeric)

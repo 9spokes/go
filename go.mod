@@ -11,6 +11,7 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/satori/go.uuid v1.2.0
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20200602180216-279210d13fed
 	gopkg.in/square/go-jose.v2 v2.5.1
 )

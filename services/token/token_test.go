@@ -95,7 +95,6 @@ func TestCreateConnection(t *testing.T) {
 	}
 }
 
-
 func TestManageConnection(t *testing.T) {
 
 	stage := "token.ManageConnection"
@@ -115,7 +114,7 @@ func TestManageConnection(t *testing.T) {
 			return
 		}
 
-		api.SuccessResponse(w, "Action " + action + " completed successfully", http.StatusOK)
+		api.SuccessResponse(w, "Action "+action+" completed successfully", http.StatusOK)
 	}))
 	defer ts.Close()
 
