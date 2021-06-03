@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+
 	"github.com/9spokes/go/http"
 )
 
@@ -68,7 +69,7 @@ func (ctx Context) GetAvailableDatapoints() (*MetricServiceResponse, error) {
 	var response *http.Response
 
 	response, err = http.Request{
-		URL:            ctx.URL + "/datapoints",
+		URL: ctx.URL + "/datapoints",
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
@@ -77,7 +78,7 @@ func (ctx Context) GetAvailableDatapoints() (*MetricServiceResponse, error) {
 		ContentType: "application/json",
 	}.Get()
 
-    if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

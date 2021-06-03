@@ -15,7 +15,7 @@ type Context struct {
 	Logger *goLogging.Logger
 }
 
-var ( 
+var (
 	ErrTooManyRequests = errors.New("failed to acquire token")
 )
 
