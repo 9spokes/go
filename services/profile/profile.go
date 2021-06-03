@@ -7,7 +7,6 @@ import (
 
 	"github.com/9spokes/go/api"
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/types"
 )
 
 // Context represents a company object into the profile service
@@ -15,7 +14,7 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	User		 string
+	User         string
 }
 
 //UpdateProfile updates the user profile based on the contents of the session
@@ -139,12 +138,12 @@ func (ctx Context) GetProfile(user string) (interface{}, error) {
 	}.Get()
 
 	if err != nil {
-		return nil, fmt.Errorf("error getting user profile %s: %s", user, err.Error())
+		return nil, fmt.Errorf("error getting user profile %s: %v", user, err)
 	}
 
 	var ret api.Response
 	if err := json.Unmarshal(response.Body, &ret); err != nil {
-		return nil, fmt.Errorf("while unmarshalling user profile %s: %s", user, err.Error())
+		return nil, fmt.Errorf("while unmarshalling user profile %s: %v", user, err)
 	}
 
 	if ret.Status != "ok" {
@@ -152,14 +151,4 @@ func (ctx Context) GetProfile(user string) (interface{}, error) {
 	}
 
 	return ret.Details, nil
-}
-
-// New takes as parameters and returns a context for subsequent method calls.
-func New(url string, creds *types.Credentials) *Context {
-
-	return &Context{
-		URL:      url,
-		ClientID: creds.Username,
-		ClientSecret: creds.Password,
-	}
 }
