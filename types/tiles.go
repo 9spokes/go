@@ -76,3 +76,12 @@ type GroupedDataEntry struct {
 	Key  string   `json:"key,omitempty"`
 	Data ListTile `json:"data,omitempty"`
 }
+
+type CompositeListTileWithSubTitle struct {
+	GroupedData []GroupedDataEntryWithSubTitle `json:"groupedData,omitempty"`
+}
+
+type GroupedDataEntryWithSubTitle struct {
+	Key  string   `json:"key,omitempty"`
+	Data ListTileWithSubheaderTitle `json:"data,omitempty"`
+}
