@@ -121,7 +121,7 @@ func (ctx Context) GetOption(option string) (interface{}, error) {
 }
 
 //GetProfile get user's profile by userId
-func (ctx Context) GetProfile(user string) (interface{}, error) {
+func (ctx Context) GetProfile(user string) (*Profile, error) {
 	profileURL := fmt.Sprintf("%s/users/%s", ctx.URL, user)
 
 	response, err := http.Request{
@@ -141,7 +141,12 @@ func (ctx Context) GetProfile(user string) (interface{}, error) {
 		return nil, fmt.Errorf("error getting user profile %s: %v", user, err)
 	}
 
-	var ret api.Response
+	var ret struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Details Profile
+	}
+
 	if err := json.Unmarshal(response.Body, &ret); err != nil {
 		return nil, fmt.Errorf("while unmarshalling user profile %s: %v", user, err)
 	}
@@ -150,5 +155,5 @@ func (ctx Context) GetProfile(user string) (interface{}, error) {
 		return nil, fmt.Errorf(ret.Message)
 	}
 
-	return ret.Details, nil
+	return &ret.Details, nil
 }
