@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// Response is an HTTP response, optionally parsed if the `json=true` parameter is supplied to httpGet()
+// Response is an HTTP response
 type Response struct {
 	StatusCode int
 	Body       []byte
@@ -80,6 +80,9 @@ func (request Request) http() (*Response, error) {
 	}
 
 	req, err := http.NewRequest(request.Method, request.URL, bytes.NewBuffer(request.Body))
+	if err != nil {
+		return nil, err
+	}
 
 	if request.ContentType == "" {
 		req.Header.Set("Content-type", "application/json")

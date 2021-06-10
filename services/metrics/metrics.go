@@ -60,3 +60,32 @@ func (ctx Context) GetTimeSeriesMetric(category string, metric string, q Query) 
 
 	return &ret.Details, nil
 }
+
+//GetAvailableDatapoints get all the available datapoints configured in the metric service.
+func (ctx Context) GetAvailableDatapoints() (*MetricServiceResponse, error) {
+
+	var metricRes MetricServiceResponse
+	var err error
+	var response *http.Response
+
+	response, err = http.Request{
+		URL: ctx.URL + "/datapoints",
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(response.Body, &metricRes)
+	if err != nil {
+		return nil, fmt.Errorf("while unmarshaling response: %s", err.Error())
+	}
+
+	return &metricRes, nil
+}

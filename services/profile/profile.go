@@ -14,10 +14,11 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
+	User         string
 }
 
 //UpdateProfile updates the user profile based on the contents of the session
-func (ctx Context) UpdateProfile(user string, form *url.Values) error {
+func (ctx Context) UpdateProfile(form *url.Values) error {
 
 	response, err := http.Request{
 		URL:         ctx.URL,
@@ -27,7 +28,7 @@ func (ctx Context) UpdateProfile(user string, form *url.Values) error {
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
-		Headers: map[string]string{"x-9sp-user": user},
+		Headers: map[string]string{"x-9sp-user": ctx.User},
 		Body:    []byte(form.Encode()),
 	}.Put()
 
@@ -48,7 +49,7 @@ func (ctx Context) UpdateProfile(user string, form *url.Values) error {
 }
 
 // GetOptions retrieves all options for the specified user
-func (ctx Context) GetOptions(user string) (map[string]interface{}, error) {
+func (ctx Context) GetOptions() (map[string]interface{}, error) {
 
 	optionsURL := fmt.Sprintf("%s/options", ctx.URL)
 
@@ -60,7 +61,7 @@ func (ctx Context) GetOptions(user string) (map[string]interface{}, error) {
 			Password: ctx.ClientSecret,
 		},
 		Headers: map[string]string{
-			"x-9sp-user": user,
+			"x-9sp-user": ctx.User,
 		},
 		ContentType: "application/json",
 	}.Get()
@@ -86,7 +87,7 @@ func (ctx Context) GetOptions(user string) (map[string]interface{}, error) {
 }
 
 // GetOption looksup one user option by key
-func (ctx Context) GetOption(user string, option string) (interface{}, error) {
+func (ctx Context) GetOption(option string) (interface{}, error) {
 
 	optionsURL := fmt.Sprintf("%s/options/%s", ctx.URL, option)
 
@@ -98,7 +99,7 @@ func (ctx Context) GetOption(user string, option string) (interface{}, error) {
 			Password: ctx.ClientSecret,
 		},
 		Headers: map[string]string{
-			"x-9sp-user": user,
+			"x-9sp-user": ctx.User,
 		},
 		ContentType: "application/json",
 	}.Get()
@@ -110,6 +111,39 @@ func (ctx Context) GetOption(user string, option string) (interface{}, error) {
 	var ret api.Response
 	if err := json.Unmarshal(response.Body, &ret); err != nil {
 		return nil, fmt.Errorf("while unmarshalling option %s: %s", option, err.Error())
+	}
+
+	if ret.Status != "ok" {
+		return nil, fmt.Errorf(ret.Message)
+	}
+
+	return ret.Details, nil
+}
+
+//GetProfile get user's profile by userId
+func (ctx Context) GetProfile(user string) (interface{}, error) {
+	profileURL := fmt.Sprintf("%s/users/%s", ctx.URL, user)
+
+	response, err := http.Request{
+		URL: profileURL,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		Headers: map[string]string{
+			"x-9sp-user": ctx.User,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("error getting user profile %s: %v", user, err)
+	}
+
+	var ret api.Response
+	if err := json.Unmarshal(response.Body, &ret); err != nil {
+		return nil, fmt.Errorf("while unmarshalling user profile %s: %v", user, err)
 	}
 
 	if ret.Status != "ok" {
