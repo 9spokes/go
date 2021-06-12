@@ -11,6 +11,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -139,13 +140,34 @@ func SignHMAC(message []byte, key string) (string, error) {
 
 // GenerateCallbackURL is used to generate an encrypted URL where a user-agent can be directed.
 // It leverages the cb.9spokes.io/redirect callback handler which is used to decouple environments from callback URLs
-func GenerateCallbackURL(url, callback, secret, iv string) (string, error) {
+func GenerateCallbackURL(url, callback, secret, iv string, timeout bool) (string, error) {
 
-	unencrypted := fmt.Sprintf("{\"url\":\"%s\",\"timestamp\":%d,\"callback\":\"%s\"}", url, time.Now().UnixNano()/1e6, callback)
-	decoded, _ := base64.StdEncoding.DecodeString(secret)
+	type payload struct {
+		URL       string `json:"url"`
+		Timestamp int64  `json:"timestamp,omitempty"`
+		Callback  string `json:"callback"`
+	}
+
+	body := payload{
+		URL:      url,
+		Callback: callback,
+	}
+
+	if timeout {
+		body.Timestamp = time.Now().UnixNano() / 1e6
+	}
+
+	unencrypted, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+	decoded, err := base64.StdEncoding.DecodeString(secret)
+	if err != nil {
+		return "", err
+	}
 	key := []byte(decoded)
 	plainText := []byte(unencrypted)
-	plainText, err := pkcs7.Pad(plainText, aes.BlockSize)
+	plainText, err = pkcs7.Pad(plainText, aes.BlockSize)
 	if err != nil {
 		return "", fmt.Errorf(`plainText: "%s" has error`, plainText)
 	}
@@ -165,6 +187,6 @@ func GenerateCallbackURL(url, callback, secret, iv string) (string, error) {
 	mode := cipher.NewCBCEncrypter(block, ivBytes)
 	mode.CryptBlocks(cipherText, plainText)
 
-	return fmt.Sprintf("%s", base64.StdEncoding.EncodeToString(cipherText)), nil
+	return base64.StdEncoding.EncodeToString(cipherText), nil
 
 }
