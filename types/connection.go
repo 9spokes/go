@@ -8,7 +8,7 @@ type Document map[string]interface{}
 // Connection represents a Connection document object as stored in the database
 type Connection struct {
 	ID            string    `json:"id" bson:"connection"`               // The unique connection ID
-	Source        string    `json:"source" bson:"source"`               // Either "tracker" or "odp"
+	Platform        string    `json:"platform" bson:"platform"`         // Either "tracker" or "odp"
 	Credentials   Document  `bson:"credentials" json:"credentials"`     // A map of key/value pairs representing OSP credentials
 	Demo          bool      `bson:"demo" json:"demo" default:"false"`   // Whether this is a demo connection or not, determines how to render tiles
 	Token         Document  `bson:"token" json:"token"`                 // Contains the encrypted and decrypted access & refresh tokens
