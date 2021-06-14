@@ -98,7 +98,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if strings.Contains(contentType, "application/json") {
 		parsed, ok := response.JSON.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("failed to deserialise the response: %s (%s)", response.Body, err.Error())
+			return nil, fmt.Errorf("failed to deserialise the response: %s", response.Body)
 		}
 		return parsed, nil
 	}
