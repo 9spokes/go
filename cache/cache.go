@@ -78,7 +78,7 @@ func (ctx *Context) Get(id string) (string, error) {
 				ctx.Clear(id)
 				break
 			}
-			ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", Wait, id)
+			ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", id, Wait)
 			time.Sleep(time.Second * Wait)
 		} else {
 			break
