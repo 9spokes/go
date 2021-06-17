@@ -130,6 +130,10 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 		"redirect_uri": {params.RedirectURI},
 	}
 
+	for k, v := range params.Extras {
+		data.Set(k, v)
+	}
+
 	return params.oauthRequest(opt, data)
 }
 

@@ -105,6 +105,19 @@ func TestAuthorize(t *testing.T) {
 			options: auth.Options{AuthInHeader: true, DataInQuery: true},
 			server:  ts(200, map[string]string{"access_token": "bogus", "refresh_token": "bogus-refresh-token"}),
 		},
+		{
+			name: "Extra params",
+			ctx: &auth.OAuth2{
+				TokenEndpoint: "http://bogus",
+				Code:          "bogus",
+				ClientID:      "bogus",
+				ClientSecret:  "bogus",
+				Extras: map[string]string{
+					"grant_type": "client_credentials",
+				},
+			},
+			server:  ts(200, map[string]string{"access_token": "bogus", "refresh_token": "bogus-refresh-token"}),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -140,7 +153,12 @@ func TestAuthorize(t *testing.T) {
 
 			assert.Equal(tt.ctx.RedirectURI, data.Get("redirect_uri"), "incorrect redirect_uri sent in auth request")
 
-			assert.Equal("authorization_code", data.Get("grant_type"), "incorrect grant_type sent in auth request")
+			grantType := "authorization_code"
+			if tt.ctx.Extras["grant_type"] != "" {
+				grantType = tt.ctx.Extras["grant_type"]
+			} 
+			assert.Equal(grantType, data.Get("grant_type"), "incorrect grant_type sent in auth request")
+			
 
 			if tt.options.AuthInHeader {
 				authHeader, ok := ret["auth"].(string)
