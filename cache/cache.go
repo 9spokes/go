@@ -55,33 +55,37 @@ func New(url string, logger *goLogging.Logger) (*Context, error) {
 
 	_, err = ctx.Redis.Ping().Result()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to Redis: %s", err.Error())
+		return nil, fmt.Errorf("failed to connect to Redis: %s", err.Error())
 	}
 
 	return &ctx, nil
 }
 
-// Get grabs an entry from the Redis cache matching the key identified by the "id" parameter and returns the associated unmarkshaled document
-func (ctx *Context) Get(id string) (string, error) {
+// Get grabs an entry from the Redis cache matching the key identified by the "id" parameter and returns the associated
+// unmarkshaled document. If lock is true it first checks if there is a lock on the entry and if found waits until the
+// lock is released.
+func (ctx *Context) Get(id string, lock bool) (string, error) {
 
-	for i := 0; i < ctx.MaxRetries; i++ {
-		ctx.Logger.Debugf("[%s] Checking if entry has a cache lock, attempt #%d", id, i+1)
-		if ret, err := ctx.Redis.HGet(id, "lock").Result(); err != redis.Nil {
-			expiry, err := time.Parse(time.RFC3339, ret)
-			if err != nil {
-				ctx.Logger.Errorf("[%s] Could not parse expiry of cache entry %s: %s", id, expiry, err.Error())
-				ctx.Clear(id)
+	if (lock) {
+		for i := 0; i < ctx.MaxRetries; i++ {
+			ctx.Logger.Debugf("[%s] Checking if entry has a cache lock, attempt #%d", id, i+1)
+			if ret, err := ctx.Redis.HGet(id, "lock").Result(); err != redis.Nil {
+				expiry, err := time.Parse(time.RFC3339, ret)
+				if err != nil {
+					ctx.Logger.Errorf("[%s] Could not parse expiry of cache entry %s: %s", id, expiry, err.Error())
+					ctx.Clear(id)
+					break
+				}
+				if expiry.Before(time.Now()) {
+					ctx.Logger.Errorf("[%s] The lock for this entry has expired")
+					ctx.Clear(id)
+					break
+				}
+				ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", id, Wait)
+				time.Sleep(time.Second * Wait)
+			} else {
 				break
 			}
-			if expiry.Before(time.Now()) {
-				ctx.Logger.Errorf("[%s] The lock for this entry has expired")
-				ctx.Clear(id)
-				break
-			}
-			ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", id, Wait)
-			time.Sleep(time.Second * Wait)
-		} else {
-			break
 		}
 	}
 
@@ -89,7 +93,7 @@ func (ctx *Context) Get(id string) (string, error) {
 	cached, err := ctx.Redis.HGet(id, "data").Result()
 	if err == redis.Nil {
 		ctx.Logger.Debugf("[%s] Entry not found in cache", id)
-		return "", errors.New("Not found")
+		return "", errors.New("not found")
 	}
 
 	ctx.Logger.Debugf("[%s] Entry found in cache", id)
