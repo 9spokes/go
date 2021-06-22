@@ -36,7 +36,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	var auth Http.Authentication
 	if opt.AuthInHeader {
 		auth = Http.Authentication{
-			Scheme:   "basic",
+			Scheme:   "Basic",
 			Username: params.ClientID,
 			Password: params.ClientSecret,
 		}
