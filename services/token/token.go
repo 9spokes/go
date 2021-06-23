@@ -184,6 +184,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 
 	return nil
 }
+
 // SetConnectionSetting updates connection setting by ID from the designated Token service instance
 func (ctx Context) SetConnectionSetting(id string, settings types.Document) error {
 
@@ -242,7 +243,7 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 
 	// sanitizing parameters
 	params := url.Values{}
-	for _, p := range []string{"osp", "user", "company", "status", "action"} {
+	for _, p := range []string{"osp", "user", "company", "status", "action", "redirect_url", "client_id", "client_secret", "platform"} {
 		if form[p] != "" {
 			params.Add(p, form[p])
 		}
