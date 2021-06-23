@@ -184,6 +184,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 
 	return nil
 }
+
 // SetConnectionSetting updates connection setting by ID from the designated Token service instance
 func (ctx Context) SetConnectionSetting(id string, settings types.Document) error {
 
@@ -242,7 +243,7 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 
 	// sanitizing parameters
 	params := url.Values{}
-	for _, p := range []string{"osp", "user", "company", "status", "action"} {
+	for _, p := range []string{"osp", "user", "company", "status", "action", "redirect_url", "client_id", "client_secret", "platform"} {
 		if form[p] != "" {
 			params.Add(p, form[p])
 		}
@@ -285,6 +286,46 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 	}
 
 	return &parsed.Details, nil
+}
+
+// RemoveConnection requests the designated Token service instance to remove a connection
+func (ctx Context) RemoveConnection(id string) error {
+
+	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Delete()
+
+	if err != nil {
+		return err
+	}
+
+	var parsed struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		return fmt.Errorf(e)
+	}
+
+	return nil
 }
 
 // ManageConnection asks the designated Token service instance to perform an action on the specified connection
