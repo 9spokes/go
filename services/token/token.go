@@ -27,6 +27,46 @@ type Context struct {
 	Logger       *goLogging.Logger
 }
 
+func (ctx Context) InitiateETL(id string) error {
+
+	url := fmt.Sprintf("%s/connections/%s?action=etl", ctx.URL, id)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return err
+	}
+
+	var parsed struct {
+		Status  string           `json:"status"`
+		Message string           `json:"message"`
+		Details types.Connection `json:"details"`
+	}
+
+	if json.Unmarshal(response.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
+		return fmt.Errorf(e)
+	}
+
+	return nil
+}
+
 // GetConnection returns a connection by ID from the designated Token service instance
 func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 
