@@ -2,7 +2,7 @@ package types
 
 // ListTileSubheader represents a list tile subheader
 type ListTileSubheader struct {
-	Title 	   string `json:"title,omitempty"`
+	Title      string `json:"title,omitempty"`
 	LabelLeft  string `json:"labelLeft,omitempty"`
 	ValueLeft  string `json:"valueLeft,omitempty"`
 	LabelRight string `json:"labelRight,omitempty"`
@@ -17,11 +17,11 @@ type ListTileSubheaderDropDownOption struct {
 }
 
 type ListTileSubheaderDropDownOpt struct {
-	Title 	   string `json:"title,omitempty"`
-	LabelLeft  string `json:"labelLeft,omitempty"`
+	Title      string                            `json:"title,omitempty"`
+	LabelLeft  string                            `json:"labelLeft,omitempty"`
 	ValueLeft  []ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
-	LabelRight string `json:"labelRight,omitempty"`
-	ValueRight string `json:"valueRight,omitempty"`
+	LabelRight string                            `json:"labelRight,omitempty"`
+	ValueRight string                            `json:"valueRight,omitempty"`
 }
 
 // ListTile is a 9 Spokes V2 "List" tile data format
@@ -34,8 +34,9 @@ type ListTile struct {
 // The same as the ListTile but the subheader has Title property
 type ListTileWithSubheaderTitle struct {
 	SubHeader ListTileSubheaderDropDownOpt `json:"subheader,omitempty"`
-	List      []ListTileEntry   `json:"list,omitempty"`
-	SyncedAt  string            `json:"lastSyncAt,omitempty"`
+	List      []ListTileEntry              `json:"list,omitempty"`
+	Graph     GraphTile                    `json:"graph,omitempty"`
+	SyncedAt  string                       `json:"lastSyncAt,omitempty"`
 }
 
 // ListTileEntry is an entry in a ListTile
@@ -82,6 +83,6 @@ type CompositeListTileWithSubTitle struct {
 }
 
 type GroupedDataEntryWithSubTitle struct {
-	Key  string   `json:"key,omitempty"`
+	Key  string                     `json:"key,omitempty"`
 	Data ListTileWithSubheaderTitle `json:"data,omitempty"`
 }
