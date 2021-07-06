@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	Http "github.com/9spokes/go/http"
+	"github.com/9spokes/go/services/throttler"
 )
 
 // OAuth2 represents the minimum fields required to perform an OAuth2 token exchange or token refresh.
@@ -85,12 +86,17 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	}
 
 	response, err := request.Post()
+
+	if response.StatusCode == http.StatusTooManyRequests {
+		return nil, throttler.ErrTooManyRequests
+	}
+
 	if err != nil {
-		return nil, fmt.Errorf("statusCode:%d, error while connecting to %s: %w", response.StatusCode, params.TokenEndpoint, err)
+		return nil, fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)
 	}
 
 	if response.Headers["Content-Type"] == nil {
-		return nil, fmt.Errorf("statusCode:%d, content-type header missing in response: %s", response.StatusCode, response.Body)
+		return nil, fmt.Errorf("content-type header missing in response: %s", response.Body)
 	}
 
 	contentType := response.Headers["Content-Type"][0]
@@ -98,7 +104,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if strings.Contains(contentType, "application/json") {
 		parsed, ok := response.JSON.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("statusCode:%d, failed to deserialise the response: %s", response.StatusCode, response.Body)
+			return nil, fmt.Errorf("failed to deserialise the response: %s", response.Body)
 		}
 		return parsed, nil
 	}
@@ -114,7 +120,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		return ret, nil
 	}
 
-	return nil, fmt.Errorf("statusCode:%d, could not determine content type encoding from response", response.StatusCode)
+	return nil, fmt.Errorf("could not determine content type encoding from response", response.StatusCode)
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
