@@ -47,6 +47,7 @@ type ListTileEntry struct {
 	Left      string `json:"left,omitempty"`
 	Right     string `json:"right,omitempty"`
 	IsSubRow  bool   `json:"isSubRow,omitempty"`
+	Direction string `json:"direction,omitempty"`
 	Footer    struct {
 		Label string `json:"label,omitempty"`
 		Value string `json:"value,omitempty"`
