@@ -33,3 +33,20 @@ func New(category, level string) *logging.Logger {
 	}
 
 }
+
+// Update 9 Spokes logger level.
+func UpdateLevel(level string, category string) {
+
+	level = strings.ToUpper(level)
+	switch level {
+	case "DEBUG":
+		logging.SetLevel(logging.DEBUG, category)
+	case "ERROR":
+		logging.SetLevel(logging.ERROR, category)
+	case "CRITICAL":
+		logging.SetLevel(logging.CRITICAL, category)
+	default:
+		logging.SetLevel(logging.INFO, category)
+	}
+
+}
