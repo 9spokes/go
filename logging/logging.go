@@ -16,20 +16,24 @@ func New(category, level string) *logging.Logger {
 	)
 	logging.SetBackend(logging.NewBackendFormatter(logging.NewLogBackend(os.Stdout, "", 0), format))
 
+	SetLogLevel(category, level)
+	return logger
+
+}
+
+// Update 9 Spokes logger level.
+func SetLogLevel(category string, level string) {
+
 	level = strings.ToUpper(level)
 	switch level {
 	case "DEBUG":
 		logging.SetLevel(logging.DEBUG, category)
-		return logger
 	case "ERROR":
 		logging.SetLevel(logging.ERROR, category)
-		return logger
 	case "CRITICAL":
 		logging.SetLevel(logging.CRITICAL, category)
-		return logger
 	default:
 		logging.SetLevel(logging.INFO, category)
-		return logger
 	}
 
 }
