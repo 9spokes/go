@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -16,24 +17,26 @@ func New(category, level string) *logging.Logger {
 	)
 	logging.SetBackend(logging.NewBackendFormatter(logging.NewLogBackend(os.Stdout, "", 0), format))
 
-	SetLogLevel(category, level)
+	SetLogLevel(level)
 	return logger
 
 }
 
 // Update 9 Spokes logger level.
-func SetLogLevel(category string, level string) {
+func SetLogLevel(level string) error {
 
 	level = strings.ToUpper(level)
 	switch level {
+	case "INFO":
+		logging.SetLevel(logging.INFO, "")
 	case "DEBUG":
-		logging.SetLevel(logging.DEBUG, category)
+		logging.SetLevel(logging.DEBUG, "")
 	case "ERROR":
-		logging.SetLevel(logging.ERROR, category)
+		logging.SetLevel(logging.ERROR, "")
 	case "CRITICAL":
-		logging.SetLevel(logging.CRITICAL, category)
+		logging.SetLevel(logging.CRITICAL, "")
 	default:
-		logging.SetLevel(logging.INFO, category)
+		return fmt.Errorf("unsupported log level %s", level)
 	}
-
+	return nil
 }
