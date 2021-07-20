@@ -48,12 +48,14 @@ func (ctx Context) UpdateProfile(form *url.Values) error {
 	return nil
 }
 
-// GetOptions retrieves all options for the specified user
-func (ctx Context) GetOptions() (map[string]interface{}, error) {
+// GetOptions retrieves all options for the specified user. If a filter is specified
+// only those options whose names match the filter get returned. The filter can be
+// a plain string or a regex.
+func (ctx Context) GetOptions(filter string) (map[string]interface{}, error) {
 
 	optionsURL := fmt.Sprintf("%s/options", ctx.URL)
-
-	response, err := http.Request{
+	
+	request := http.Request{
 		URL: optionsURL,
 		Authentication: http.Authentication{
 			Scheme:   "basic",
@@ -64,10 +66,17 @@ func (ctx Context) GetOptions() (map[string]interface{}, error) {
 			"x-9sp-user": ctx.User,
 		},
 		ContentType: "application/json",
-	}.Get()
+	}
+	
+	if filter != "" {
+		request.Query = map[string]string{
+			"q": filter,
+		}
+	}
 
+	response, err := request.Get()
 	if err != nil {
-		return nil, fmt.Errorf("Error getting user options %s", err.Error())
+		return nil, fmt.Errorf("error getting user options %s", err.Error())
 	}
 
 	var ret api.Response
@@ -105,7 +114,7 @@ func (ctx Context) GetOption(option string) (interface{}, error) {
 	}.Get()
 
 	if err != nil {
-		return nil, fmt.Errorf("Error getting user option %s: %s", option, err.Error())
+		return nil, fmt.Errorf("error getting user option %s: %s", option, err.Error())
 	}
 
 	var ret api.Response
