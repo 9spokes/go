@@ -17,11 +17,12 @@ type ListTileSubheaderDropDownOption struct {
 }
 
 type ListTileSubheaderDropDownOpt struct {
-	Title      string                            `json:"title,omitempty"`
-	LabelLeft  string                            `json:"labelLeft,omitempty"`
-	ValueLeft  []ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
-	LabelRight string                            `json:"labelRight,omitempty"`
-	ValueRight string                            `json:"valueRight,omitempty"`
+	Title       string                            `json:"title,omitempty"`
+	LabelLeft   string                            `json:"labelLeft,omitempty"`
+	ValueLeft   []ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
+	LabelRight  string                            `json:"labelRight,omitempty"`
+	ValueRight  string                            `json:"valueRight,omitempty"`
+	MultiSelect string                            `json:"multiSelect,omitempty"`
 }
 
 // ListTile is a 9 Spokes V2 "List" tile data format
