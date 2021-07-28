@@ -87,12 +87,12 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 
 	response, err := request.Post()
 
-	if response.StatusCode == http.StatusTooManyRequests {
-		return nil, throttler.ErrTooManyRequests
-	}
-
 	if err != nil {
 		return nil, fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)
+	}
+
+	if response.StatusCode == http.StatusTooManyRequests {
+		return nil, throttler.ErrTooManyRequests
 	}
 
 	if response.Headers["Content-Type"] == nil {
