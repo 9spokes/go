@@ -22,7 +22,7 @@ type ListTileSubheaderDropDownOpt struct {
 	ValueLeft   []ListTileSubheaderDropDownOption `json:"valueLeft,omitempty"`
 	LabelRight  string                            `json:"labelRight,omitempty"`
 	ValueRight  string                            `json:"valueRight,omitempty"`
-	MultiSelect string                            `json:"multiSelect,omitempty"`
+	MultiSelect bool                              `json:"multiSelect,omitempty"`
 }
 
 // ListTile is a 9 Spokes V2 "List" tile data format
