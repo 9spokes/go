@@ -131,10 +131,10 @@ func TestAuthorize(t *testing.T) {
 			ret, err := tt.ctx.Authorize(tt.options)
 
 			if tt.errorMsg == "" {
-				require.NoError(err)
+				require.Nil(err)
 			} else {
-				require.Error(err)
-				require.Contains(err.Error(), tt.errorMsg)
+				require.Error(err.Error)
+				require.Contains(err.Error.Error(), tt.errorMsg)
 				return
 			}
 
@@ -165,7 +165,7 @@ func TestAuthorize(t *testing.T) {
 				require.True(ok, "Authorization header must be string")
 				require.NotEmpty(authHeader, "Authorization header")
 
-				assert.Regexp("^basic ", authHeader, "incorrect auth header")
+				assert.Regexp("^Basic ", authHeader, "incorrect auth header")
 				got, _ := base64.StdEncoding.DecodeString(strings.Split(authHeader, " ")[1])
 				want := fmt.Sprintf(
 					"%s:%s",
@@ -289,9 +289,9 @@ func TestRefresh(t *testing.T) {
 
 			if err != nil {
 				if tt.errorMsg == "" {
-					t.Errorf("unexpected error: %s", err.Error())
-				} else if !strings.Contains(err.Error(), tt.errorMsg) {
-					t.Errorf("incorrect error, got=(%s), want=(%s)", err.Error(), tt.errorMsg)
+					t.Errorf("unexpected error: %s", err.Error.Error())
+				} else if !strings.Contains(err.Error.Error(), tt.errorMsg) {
+					t.Errorf("incorrect error, got=(%s), want=(%s)", err.Error.Error(), tt.errorMsg)
 				}
 				return
 			} else if tt.errorMsg != "" {
@@ -330,7 +330,7 @@ func TestRefresh(t *testing.T) {
 				if authHeader, _ := ret["auth"].(string); authHeader == "" {
 					t.Errorf("Authorization header not set")
 				} else {
-					if !strings.HasPrefix(authHeader, "basic ") {
+					if !strings.HasPrefix(authHeader, "Basic ") {
 						t.Errorf("incorrect auth header, got=(%s) wanted with pefix=(basic )", authHeader)
 					}
 					got, _ := base64.StdEncoding.DecodeString(strings.Split(authHeader, " ")[1])

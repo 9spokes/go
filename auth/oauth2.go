@@ -8,6 +8,7 @@ import (
 
 	Http "github.com/9spokes/go/http"
 	"github.com/9spokes/go/services/throttler"
+	"github.com/9spokes/go/types"
 )
 
 // OAuth2 represents the minimum fields required to perform an OAuth2 token exchange or token refresh.
@@ -29,9 +30,9 @@ type Options struct {
 	DataInQuery  bool `default:"false"`
 }
 
-func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]interface{}, error) {
+func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]interface{}, *types.ErrorResponse) {
 	if params.ClientID == "" {
-		return nil, fmt.Errorf("client_id cannot be empty")
+		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("client_id cannot be empty")}
 	}
 
 	var auth Http.Authentication
@@ -54,7 +55,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if opt.DataInQuery {
 		u, err := url.Parse(params.TokenEndpoint)
 		if err != nil {
-			return nil, err
+			return nil, &types.ErrorResponse{Error: err}
 		}
 		rawQuery := u.RawQuery
 		if rawQuery != "" {
@@ -88,15 +89,15 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	response, err := request.Post()
 
 	if err != nil {
-		return nil, fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)
+		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)}
 	}
 
 	if response.StatusCode == http.StatusTooManyRequests {
-		return nil, throttler.ErrTooManyRequests
+		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: throttler.ErrTooManyRequests}
 	}
 
 	if response.Headers["Content-Type"] == nil {
-		return nil, fmt.Errorf("content-type header missing in response: %s", response.Body)
+		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("content-type header missing in response: %s", response.Body)}
 	}
 
 	contentType := response.Headers["Content-Type"][0]
@@ -104,7 +105,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if strings.Contains(contentType, "application/json") {
 		parsed, ok := response.JSON.(map[string]interface{})
 		if !ok {
-			return nil, fmt.Errorf("failed to deserialise the response: %s", response.Body)
+			return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("failed to deserialise the response: %s", response.Body)}
 		}
 		return parsed, nil
 	}
@@ -120,14 +121,14 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		return ret, nil
 	}
 
-	return nil, fmt.Errorf("could not determine content type encoding from response", response.StatusCode)
+	return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("could not determine content type encoding from response")}
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
-func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
+func (params OAuth2) Authorize(opt Options) (map[string]interface{}, *types.ErrorResponse) {
 
 	if params.Code == "" {
-		return nil, fmt.Errorf("the authorization code is missing")
+		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("the authorization code is missing")}
 	}
 
 	data := url.Values{
@@ -144,10 +145,10 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 }
 
 // Refresh implements an OAuth2 token refresh methods.  Parameters are sent via the OAuth2 struct
-func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
+func (params OAuth2) Refresh(opt Options) (map[string]interface{}, *types.ErrorResponse) {
 
 	if params.RefreshToken == "" {
-		return nil, fmt.Errorf("the refresh token is missing")
+		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("the refresh token is missing")}
 	}
 
 	data := url.Values{
