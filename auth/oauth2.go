@@ -32,7 +32,7 @@ type Options struct {
 
 func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]interface{}, *types.ErrorResponse) {
 	if params.ClientID == "" {
-		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("client_id cannot be empty")}
+		return nil, &types.ErrorResponse{Severity: types.SeverityFatal, DataCode: types.DataCodeMissingClientID, Error: fmt.Errorf("client_id cannot be empty")}
 	}
 
 	var auth Http.Authentication
@@ -55,7 +55,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if opt.DataInQuery {
 		u, err := url.Parse(params.TokenEndpoint)
 		if err != nil {
-			return nil, &types.ErrorResponse{Error: err}
+			return nil, &types.ErrorResponse{Error: err, DataCode: types.DataCodeError}
 		}
 		rawQuery := u.RawQuery
 		if rawQuery != "" {
@@ -89,15 +89,15 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	response, err := request.Post()
 
 	if err != nil {
-		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)}
+		return nil, &types.ErrorResponse{HttpCode: response.StatusCode, DataCode: types.DataCodeError, Error: fmt.Errorf("error while connecting to %s: %w", params.TokenEndpoint, err)}
 	}
 
 	if response.StatusCode == http.StatusTooManyRequests {
-		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: throttler.ErrTooManyRequests}
+		return nil, &types.ErrorResponse{HttpCode: response.StatusCode, DataCode: types.DataCodeTooManyRequest, Error: throttler.ErrTooManyRequests}
 	}
 
 	if response.Headers["Content-Type"] == nil {
-		return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("content-type header missing in response: %s", response.Body)}
+		return nil, &types.ErrorResponse{HttpCode: response.StatusCode, DataCode: types.DataCodeMissingContentTypeHeader, Error: fmt.Errorf("content-type header missing in response: %s", response.Body)}
 	}
 
 	contentType := response.Headers["Content-Type"][0]
@@ -105,7 +105,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	if strings.Contains(contentType, "application/json") {
 		parsed, ok := response.JSON.(map[string]interface{})
 		if !ok {
-			return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("failed to deserialise the response: %s", response.Body)}
+			return nil, &types.ErrorResponse{HttpCode: response.StatusCode, DataCode: types.DataCodeDeserialiseFailed, Error: fmt.Errorf("failed to deserialise the response: %s", response.Body)}
 		}
 		return parsed, nil
 	}
@@ -121,14 +121,14 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		return ret, nil
 	}
 
-	return nil, &types.ErrorResponse{Code: response.StatusCode, Error: fmt.Errorf("could not determine content type encoding from response")}
+	return nil, &types.ErrorResponse{HttpCode: response.StatusCode, DataCode: types.DataCodeResponseFormatUnknown, Error: fmt.Errorf("could not determine content type encoding from response")}
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
 func (params OAuth2) Authorize(opt Options) (map[string]interface{}, *types.ErrorResponse) {
 
 	if params.Code == "" {
-		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("the authorization code is missing")}
+		return nil, &types.ErrorResponse{Severity: types.SeverityFatal, DataCode: types.DataCodeMissingAuthorizationCode, Error: fmt.Errorf("the authorization code is missing")}
 	}
 
 	data := url.Values{
@@ -148,7 +148,7 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, *types.Erro
 func (params OAuth2) Refresh(opt Options) (map[string]interface{}, *types.ErrorResponse) {
 
 	if params.RefreshToken == "" {
-		return nil, &types.ErrorResponse{Fatal: true, Error: fmt.Errorf("the refresh token is missing")}
+		return nil, &types.ErrorResponse{Severity: types.SeverityFatal, DataCode: types.DataCodeMissingRefreshToken, Error: fmt.Errorf("the refresh token is missing")}
 	}
 
 	data := url.Values{
