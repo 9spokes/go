@@ -133,8 +133,8 @@ func TestAuthorize(t *testing.T) {
 			if tt.errorMsg == "" {
 				require.Nil(err)
 			} else {
-				require.Error(err.Error)
-				require.Contains(err.Error.Error(), tt.errorMsg)
+				require.Error(err)
+				require.Contains(err.Error(), tt.errorMsg)
 				return
 			}
 
@@ -289,9 +289,9 @@ func TestRefresh(t *testing.T) {
 
 			if err != nil {
 				if tt.errorMsg == "" {
-					t.Errorf("unexpected error: %s", err.Error.Error())
-				} else if !strings.Contains(err.Error.Error(), tt.errorMsg) {
-					t.Errorf("incorrect error, got=(%s), want=(%s)", err.Error.Error(), tt.errorMsg)
+					t.Errorf("unexpected error: %s", err.Error())
+				} else if !strings.Contains(err.Error(), tt.errorMsg) {
+					t.Errorf("incorrect error, got=(%s), want=(%s)", err.Error(), tt.errorMsg)
 				}
 				return
 			} else if tt.errorMsg != "" {
