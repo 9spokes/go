@@ -9,29 +9,33 @@ const (
 )
 
 const (
-	ErrDataCodeAccessTokenExpired string = "access token expired"
-	ErrDataCodeTooManyRequest     string = "too many request"
-	ErrDataCodeOK                 string = "ok"
+	ErrAccessTokenExpired string = "access token expired"
+	ErrTooManyRequests    string = "rate limit threshold exceeded"
+	ErrOK                 string = "ok"
 
-	ErrDataCodeMissingClientID          string = "missing client id"
-	ErrDataCodeMissingContentTypeHeader string = "content-type header missing"
-	ErrDataCodeMissingAuthorizationCode string = "authorization code missing"
-	ErrDataCodeMissingRefreshToken      string = "refresh token missing"
+	ErrMissingClientID          string = "missing client id"
+	ErrMissingContentTypeHeader string = "content-type header missing"
+	ErrMissingAuthorizationCode string = "authorization code missing"
+	ErrMissingRefreshToken      string = "refresh token missing"
 
-	ErrDataCodeDeserialiseFailed     string = "deserialise failed"
-	ErrDataCodeResponseFormatUnknown string = "response format unknown"
-	ErrDataCodeError                 string = "error"
+	ErrDeserialiseFailed     string = "deserialise failed"
+	ErrResponseFormatUnknown string = "response format unknown"
+	ErrError                 string = "error"
 )
 
 type ErrorResponse struct {
-	Error    error  `json:"message"`
-	Severity string `json:"severity"`
-	DataCode string `json:"dataCode"`
-	HttpCode int
+	Message    string `json:"message"`
+	Severity   string `json:"severity"`
+	ID         string `json:"id"`
+	HTTPStatus int
 }
 
-func (e *ErrorResponse) Message() string {
-	return fmt.Sprintf("data-code :%s, http-code: %d, err %s", e.DataCode, e.HttpCode, e.Error.Error())
+func (e *ErrorResponse) Error() string {
+	m := fmt.Sprintf("%s: %s", e.Message, e.ID)
+	if e.HTTPStatus > 0 {
+		return fmt.Sprintf("[HTTP %d] %s", e.HTTPStatus, m)
+	}
+	return m
 }
 
 func (e *ErrorResponse) IsFatal() bool {
