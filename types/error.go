@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 var (
 	SeverityFatal string = "fatal"
 	SeverityWarn  string = "warn"
@@ -29,7 +31,7 @@ type ErrorResponse struct {
 }
 
 func (e *ErrorResponse) Error() string {
-	return e.Err.Error()
+	return fmt.Sprintf("data-code :%s, http-code: %d, err %s", e.DataCode, e.HttpCode, e.Err.Error())
 }
 
 func (e *ErrorResponse) Fatal() bool {
