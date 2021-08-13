@@ -2,25 +2,25 @@ package types
 
 import "fmt"
 
-var (
-	SeverityFatal string = "fatal"
-	SeverityWarn  string = "warn"
-	SeverityError string = "error"
+const (
+	ErrSeverityFatal string = "fatal"
+	ErrSeverityWarn  string = "warn"
+	ErrSeverityError string = "error"
 )
 
-var (
-	DataCodeAccessTokenExpired string = "access token expired"
-	DataCodeTooManyRequest     string = "too many request"
-	DataCodeOK                 string = "ok"
+const (
+	ErrDataCodeAccessTokenExpired string = "access token expired"
+	ErrDataCodeTooManyRequest     string = "too many request"
+	ErrDataCodeOK                 string = "ok"
 
-	DataCodeMissingClientID          string = "missing client id"
-	DataCodeMissingContentTypeHeader string = "content-type header missing"
-	DataCodeMissingAuthorizationCode string = "authorization code missing"
-	DataCodeMissingRefreshToken      string = "refresh token missing"
+	ErrDataCodeMissingClientID          string = "missing client id"
+	ErrDataCodeMissingContentTypeHeader string = "content-type header missing"
+	ErrDataCodeMissingAuthorizationCode string = "authorization code missing"
+	ErrDataCodeMissingRefreshToken      string = "refresh token missing"
 
-	DataCodeDeserialiseFailed     string = "deserialise failed"
-	DataCodeResponseFormatUnknown string = "response format unknown"
-	DataCodeError                 string = "error"
+	ErrDataCodeDeserialiseFailed     string = "deserialise failed"
+	ErrDataCodeResponseFormatUnknown string = "response format unknown"
+	ErrDataCodeError                 string = "error"
 )
 
 type ErrorResponse struct {
@@ -35,5 +35,5 @@ func (e *ErrorResponse) Error() string {
 }
 
 func (e *ErrorResponse) Fatal() bool {
-	return e.Severity == SeverityFatal
+	return e.Severity == ErrSeverityFatal
 }
