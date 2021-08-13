@@ -24,14 +24,14 @@ const (
 )
 
 type ErrorResponse struct {
-	Err      error  `json:"message"`
+	Error    error  `json:"message"`
 	Severity string `json:"severity"`
 	DataCode string `json:"dataCode"`
 	HttpCode int
 }
 
-func (e *ErrorResponse) Error() string {
-	return fmt.Sprintf("data-code :%s, http-code: %d, err %s", e.DataCode, e.HttpCode, e.Err.Error())
+func (e *ErrorResponse) Message() string {
+	return fmt.Sprintf("data-code :%s, http-code: %d, err %s", e.DataCode, e.HttpCode, e.Error.Error())
 }
 
 func (e *ErrorResponse) IsFatal() bool {
