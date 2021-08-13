@@ -34,6 +34,6 @@ func (e *ErrorResponse) Error() string {
 	return fmt.Sprintf("data-code :%s, http-code: %d, err %s", e.DataCode, e.HttpCode, e.Err.Error())
 }
 
-func (e *ErrorResponse) Fatal() bool {
+func (e *ErrorResponse) IsFatal() bool {
 	return e.Severity == ErrSeverityFatal
 }
