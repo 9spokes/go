@@ -145,7 +145,7 @@ func (params OAuth2) Authorize(opt Options) (map[string]interface{}, error) {
 }
 
 // Refresh implements an OAuth2 token refresh methods.  Parameters are sent via the OAuth2 struct
-func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
+func (params OAuth2) Refresh(opt Options) (map[string]interface{}, *types.ErrorResponse) {
 
 	if params.RefreshToken == "" {
 		return nil, &types.ErrorResponse{Severity: types.ErrSeverityFatal, ID: types.ErrMissingRefreshToken, Message: fmt.Sprintf("the refresh token is missing")}
@@ -156,5 +156,9 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, error) {
 		"refresh_token": {params.RefreshToken},
 	}
 
-	return params.oauthRequest(opt, data)
+	res, err :=  params.oauthRequest(opt, data)
+	if err != nil {
+		return res, err.(*types.ErrorResponse)
+	}
+	return res, nil
 }
