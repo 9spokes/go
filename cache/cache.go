@@ -1,12 +1,13 @@
 package cache
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis"
+	redis "github.com/go-redis/redis/v8"
 	goLogging "github.com/op/go-logging"
 )
 
@@ -53,7 +54,7 @@ func New(url string, logger *goLogging.Logger) (*Context, error) {
 		Wait:       Wait,
 	}
 
-	_, err = ctx.Redis.Ping().Result()
+	_, err = ctx.Redis.Ping(context.Background()).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Redis: %s", err.Error())
 	}
@@ -64,21 +65,21 @@ func New(url string, logger *goLogging.Logger) (*Context, error) {
 // Get grabs an entry from the Redis cache matching the key identified by the "id" parameter and returns the associated
 // unmarkshaled document. If lock is true it first checks if there is a lock on the entry and if found waits until the
 // lock is released.
-func (ctx *Context) Get(id string, lock bool) (string, error) {
+func (ctx *Context) Get(cCtx context.Context, id string, lock bool) (string, error) {
 
 	if (lock) {
 		for i := 0; i < ctx.MaxRetries; i++ {
 			ctx.Logger.Debugf("[%s] Checking if entry has a cache lock, attempt #%d", id, i+1)
-			if ret, err := ctx.Redis.HGet(id, "lock").Result(); err != redis.Nil {
+			if ret, err := ctx.Redis.HGet(cCtx, id, "lock").Result(); err != redis.Nil {
 				expiry, err := time.Parse(time.RFC3339, ret)
 				if err != nil {
 					ctx.Logger.Errorf("[%s] Could not parse expiry of cache entry %s: %s", id, expiry, err.Error())
-					ctx.Clear(id)
+					ctx.Clear(cCtx, id)
 					break
 				}
 				if expiry.Before(time.Now()) {
 					ctx.Logger.Errorf("[%s] The lock for this entry has expired")
-					ctx.Clear(id)
+					ctx.Clear(cCtx, id)
 					break
 				}
 				ctx.Logger.Warningf("[%s] a lock was found in the cache for document, sleeping for %d seconds", id, Wait)
@@ -90,7 +91,7 @@ func (ctx *Context) Get(id string, lock bool) (string, error) {
 	}
 
 	ctx.Logger.Debugf("[%s] Retrieving cache entry", id)
-	cached, err := ctx.Redis.HGet(id, "data").Result()
+	cached, err := ctx.Redis.HGet(cCtx, id, "data").Result()
 	if err == redis.Nil {
 		ctx.Logger.Debugf("[%s] Entry not found in cache", id)
 		return "", errors.New("not found")
@@ -102,7 +103,7 @@ func (ctx *Context) Get(id string, lock bool) (string, error) {
 }
 
 // Save commits a key/value pair into Redis
-func (ctx *Context) Save(id string, data interface{}) error {
+func (ctx *Context) Save(cCtx context.Context, id string, data interface{}) error {
 
 	ctx.Logger.Debugf("[%s] Saving cache entry", id)
 	str, err := json.Marshal(data)
@@ -112,7 +113,7 @@ func (ctx *Context) Save(id string, data interface{}) error {
 	}
 
 	ctx.Logger.Debugf("[%s] Writing to Redis", id)
-	if _, err = ctx.Redis.HSet(id, "data", str).Result(); err != nil {
+	if _, err = ctx.Redis.HSet(cCtx, id, "data", str).Result(); err != nil {
 		ctx.Logger.Errorf("[%s] Failed to write to Redis: %s", id, err.Error())
 		return fmt.Errorf("failed to save document in cache: %s", err.Error())
 	}
@@ -121,10 +122,10 @@ func (ctx *Context) Save(id string, data interface{}) error {
 }
 
 // Lock puts a special marker into a redis hash entry preventing future access
-func (ctx *Context) Lock(id string) error {
+func (ctx *Context) Lock(cCtx context.Context, id string) error {
 
 	ctx.Logger.Debugf("[%s] Locking cache entry", id)
-	if _, err := ctx.Redis.HSet(id, "lock", time.Now().Add(time.Duration(1*time.Minute)).Format(time.RFC3339)).Result(); err != nil {
+	if _, err := ctx.Redis.HSet(cCtx, id, "lock", time.Now().Add(time.Duration(1*time.Minute)).Format(time.RFC3339)).Result(); err != nil {
 		ctx.Logger.Debugf("[%s] Failed to lock cache entry: %s", id, err.Error())
 		return fmt.Errorf("failed to lock document in cache: %s", err.Error())
 	}
@@ -133,10 +134,10 @@ func (ctx *Context) Lock(id string) error {
 }
 
 // Unlock removes a special marker from a redis hash entry that was put there by Lock()
-func (ctx *Context) Unlock(id string) error {
+func (ctx *Context) Unlock(cCtx context.Context, id string) error {
 
 	ctx.Logger.Debugf("[%s] Unlocking cache entry", id)
-	if _, err := ctx.Redis.HDel(id, "lock").Result(); err != nil {
+	if _, err := ctx.Redis.HDel(cCtx, id, "lock").Result(); err != nil {
 		ctx.Logger.Errorf("[%s] Failed to unlock cache entry: %s", id, err.Error())
 		return fmt.Errorf("failed to unlock document in cache: %s", err.Error())
 	}
@@ -145,10 +146,10 @@ func (ctx *Context) Unlock(id string) error {
 }
 
 // Clear removes a Redis cache entry identified by the "id" parameter
-func (ctx *Context) Clear(id string) error {
+func (ctx *Context) Clear(cCtx context.Context, id string) error {
 
 	ctx.Logger.Debugf("[%s] Removing cache entry", id)
-	if _, err := ctx.Redis.Del(id).Result(); err != nil {
+	if _, err := ctx.Redis.Del(cCtx, id).Result(); err != nil {
 		ctx.Logger.Errorf("[%s] Failed to remove cache entry: %s", id, err.Error())
 		return fmt.Errorf("failed to remove document in cache: %s", err.Error())
 	}
