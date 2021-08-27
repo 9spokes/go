@@ -51,9 +51,9 @@ func (ctx Context) UpdateProfile(form *url.Values) error {
 // GetOptions retrieves all options for the specified user. If a filter is specified
 // only those options whose names match the filter get returned. The filter can be
 // a plain string or a regex.
-func (ctx Context) GetOptions(filter string) (map[string]interface{}, error) {
+func (ctx Context) GetUserOptions(filter string) (map[string]interface{}, error) {
 
-	optionsURL := fmt.Sprintf("%s/options", ctx.URL)
+	optionsURL := fmt.Sprintf("%s/user/options", ctx.URL)
 	
 	request := http.Request{
 		URL: optionsURL,
@@ -95,10 +95,10 @@ func (ctx Context) GetOptions(filter string) (map[string]interface{}, error) {
 	return ret.Details.(map[string]interface{}), nil
 }
 
-// GetOption looksup one user option by key
-func (ctx Context) GetOption(option string) (interface{}, error) {
+// GetOption retrieves a single user option
+func (ctx Context) GetUserOption(option string) (interface{}, error) {
 
-	optionsURL := fmt.Sprintf("%s/options/%s", ctx.URL, option)
+	optionsURL := fmt.Sprintf("%s/user/options/%s", ctx.URL, option)
 
 	response, err := http.Request{
 		URL: optionsURL,
