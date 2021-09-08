@@ -182,7 +182,7 @@ func (ctx Context) GetOSP(osp string) (types.Document, error) {
 }
 
 // SetConnectionStatus returns a connection by ID from the designated Token service instance
-func (ctx Context) SetConnectionStatus(id string, status string) error {
+func (ctx Context) SetConnectionStatus(id string, status string, reason string) error {
 
 	if status != StatusNotConnected {
 		return fmt.Errorf("cannot set status to %s. %s != %s", status, status, StatusNotConnected)
@@ -194,6 +194,10 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 		ctx.Logger.Debugf("Invoking Token service at: %s", url)
 	}
 
+	body := url.Values{}
+	body.Add("status", status)
+	body.Add("reason", reason)
+
 	response, err := http.Request{
 		URL: url,
 		Authentication: http.Authentication{
@@ -202,7 +206,7 @@ func (ctx Context) SetConnectionStatus(id string, status string) error {
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/x-www-form-urlencoded",
-		Body:        []byte(status),
+		Body:        []byte(body),
 	}.Post()
 
 	if err != nil {
