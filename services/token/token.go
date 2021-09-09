@@ -188,10 +188,10 @@ func (ctx Context) SetConnectionStatus(id string, status string, reason string) 
 		return fmt.Errorf("cannot set status to %s. %s != %s", status, status, StatusNotConnected)
 	}
 
-	url := fmt.Sprintf("%s/connections/%s/status", ctx.URL, id)
+	link := fmt.Sprintf("%s/connections/%s/status", ctx.URL, id)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+		ctx.Logger.Debugf("Invoking Token service at: %s", link)
 	}
 
 	body := url.Values{}
@@ -199,7 +199,7 @@ func (ctx Context) SetConnectionStatus(id string, status string, reason string) 
 	body.Add("reason", reason)
 
 	response, err := http.Request{
-		URL: url,
+		URL: link,
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
