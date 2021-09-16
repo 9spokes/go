@@ -209,7 +209,7 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	return nil
 }
 
-func (ctx *Context) GetStatus(conn, datasource string) (*IndexStatus, error) {
+func (ctx *Context) GetDatasourceStatus(conn, datasource string) (*IndexStatus, error) {
 
 	url := fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
 
