@@ -208,3 +208,42 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 
 	return nil
 }
+
+func (ctx *Context) GetStatus(conn, datasource string) (*IndexStatus, error) {
+
+	url := fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
+
+	if ctx.Logger != nil {
+		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
+	}
+
+	response, err := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}.Get()
+
+	if err != nil {
+		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", url, err.Error())
+	}
+
+	var parsed struct {
+		Status  string       `json:"status"`
+		Message string       `json:"message"`
+		Details *IndexStatus `json:"details"`
+	}
+
+	if err := json.Unmarshal(response.Body, &parsed); err != nil {
+		return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
+	}
+
+	if parsed.Status != "ok" {
+		return nil, fmt.Errorf("non-OK response received from Indexer service: %s", parsed.Message)
+	}
+
+	return parsed.Details, nil
+}

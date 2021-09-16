@@ -37,3 +37,11 @@ type Index struct {
 	Dependencies []string    `json:"depends,omitempty"`
 	Data         interface{} `json:"data,omitempty"`
 }
+
+// IndexStatus is the response type for getting index status
+type IndexStatus struct {
+	Total       int       `json:"total"`
+	Completed   int       `json:"completed"`
+	Percent     float64   `json:"percent"`
+	LastUpdated time.Time `json:"last_updated"`
+}
