@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/9spokes/go/logging/v2"
 	"github.com/bsm/redislock"
 	redis "github.com/go-redis/redis/v8"
-	goLogging "github.com/op/go-logging"
 )
 
 // Context is the runtime context for access Redis
 type Context struct {
 	URL        string
-	Logger     *goLogging.Logger
+	Logger     *logging.Logger
 	Redis      *redis.Client
 	MaxRetries int
 	Wait       int
@@ -36,7 +36,7 @@ const (
 )
 
 // New creates a new instance of a Redis cache and returns a context for future use
-func New(url string, logger *goLogging.Logger) (*Context, error) {
+func New(url string, logger *logging.Logger) (*Context, error) {
 	redisOpts, err := redis.ParseURL(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse Redis URL: %s", err.Error())
