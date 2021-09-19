@@ -6,8 +6,8 @@ import (
 	"net/url"
 
 	"github.com/9spokes/go/http"
+	"github.com/9spokes/go/logging/v2"
 	"github.com/9spokes/go/types"
-	goLogging "github.com/op/go-logging"
 )
 
 // StatusActive is an ACTIVE connection document
@@ -24,7 +24,7 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *goLogging.Logger
+	Logger       *logging.Logger
 }
 
 func (ctx Context) InitiateETL(id string) error {

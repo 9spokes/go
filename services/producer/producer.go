@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/9spokes/go/http"
-	goLogging "github.com/op/go-logging"
+	"github.com/9spokes/go/logging/v2"
 )
 
 // Context represents a connection object into the token service
@@ -13,7 +13,7 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *goLogging.Logger
+	Logger       *logging.Logger
 }
 
 // ImmediateETL takes a connection ID and notifies the producer to kick off the Immediate ETL cycle for that particular connection.

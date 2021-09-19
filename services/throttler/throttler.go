@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	goLogging "github.com/op/go-logging"
+	"github.com/9spokes/go/logging/v2"
 )
 
 // Context represents a connection object into the token service
 type Context struct {
 	URL    string
-	Logger *goLogging.Logger
+	Logger *logging.Logger
 }
 
 var (

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/9spokes/go/http"
-	goLogging "github.com/op/go-logging"
+	"github.com/9spokes/go/logging/v2"
 )
 
 // Context represents a connection object into the token service
@@ -16,7 +16,7 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *goLogging.Logger
+	Logger       *logging.Logger
 }
 
 // NewIndex creates a new index for a given connection and datasource.  It returns the new index document

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/9spokes/go/http"
-	goLogging "github.com/op/go-logging"
+	"github.com/9spokes/go/logging/v2"
 )
 
 // Context represents a connection object into the webhooks service
@@ -12,7 +12,7 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *goLogging.Logger
+	Logger       *logging.Logger
 }
 
 // CreateWebhook creates a new Webhook listener
