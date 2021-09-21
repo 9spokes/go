@@ -7,9 +7,10 @@ import (
 
 //Response is an API response message envelope
 type Response struct {
-	Status  string      `json:"status,omitempty"`
-	Message string      `json:"message,omitempty"`
-	Details interface{} `json:"details,omitempty"`
+	Status        string      `json:"status,omitempty"`
+	CorrelationId string      `json:"correlationId,omitempty"`
+	Message       string      `json:"message,omitempty"`
+	Details       interface{} `json:"details,omitempty"`
 }
 
 // ErrorResponse sends a standardised error message body to the caller
@@ -23,7 +24,6 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 	e, _ := json.Marshal(response)
 	w.WriteHeader(code)
 	w.Write(e)
-	return
 }
 
 // SuccessResponse sends a standardised success message body to the caller
@@ -36,5 +36,4 @@ func SuccessResponse(w http.ResponseWriter, data interface{}, code int) {
 
 	o, _ := json.Marshal(response)
 	w.Write(o)
-	return
 }
