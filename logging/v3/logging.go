@@ -32,6 +32,10 @@ type provider interface {
 	do(int, string)
 }
 
+func init() {
+	New("debug", "", "")
+}
+
 var (
 	log Logger
 )
