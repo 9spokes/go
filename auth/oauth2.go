@@ -89,7 +89,16 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	response, err := request.Post()
 
 	if err != nil {
-		return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrError, Message: fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error())}
+		var errResponse = &types.ErrorResponse{
+			ID: types.ErrError, 
+			Message: fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error()),
+		}
+
+		if (response != nil) {
+			errResponse.HTTPStatus = response.StatusCode
+		}
+		
+		return nil, errResponse
 	}
 
 	if response.StatusCode == http.StatusTooManyRequests {
