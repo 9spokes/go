@@ -89,16 +89,15 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	response, err := request.Post()
 
 	if err != nil {
-		errResponse := &types.ErrorResponse{
-			ID: types.ErrError, 
-			Message: fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error()),
+		var code int
+		if response != nil {
+			code = response.StatusCode
 		}
-
-		if (response != nil) {
-			errResponse.HTTPStatus = response.StatusCode
+		return nil, &types.ErrorResponse{
+			ID:         types.ErrError,
+			Message:    fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error()),
+			HTTPStatus: code,
 		}
-		
-		return nil, errResponse
 	}
 
 	if response.StatusCode == http.StatusTooManyRequests {
@@ -165,7 +164,7 @@ func (params OAuth2) Refresh(opt Options) (map[string]interface{}, *types.ErrorR
 		"refresh_token": {params.RefreshToken},
 	}
 
-	res, err :=  params.oauthRequest(opt, data)
+	res, err := params.oauthRequest(opt, data)
 	if err != nil {
 		return res, err.(*types.ErrorResponse)
 	}
