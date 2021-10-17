@@ -37,7 +37,7 @@ func init() {
 }
 
 var (
-	log Logger
+	logger Logger
 )
 
 func New(level string, syslogd, env string) {
@@ -59,14 +59,14 @@ func New(level string, syslogd, env string) {
 
 	if syslogd != "" {
 		fmt.Printf("\n\n*** Live logs from this service are being sent to https://my.papertrailapp.com ***\n\n")
-		log = Logger{
+		logger = Logger{
 			provider: NewSyslog(syslogd, env),
 			level:    l,
 		}
 		return
 	}
 
-	log = Logger{
+	logger = Logger{
 		provider: NewOplogging("", level),
 		level:    l,
 	}
@@ -74,65 +74,65 @@ func New(level string, syslogd, env string) {
 }
 
 func Debug(e string) {
-	if log.level > LevelDebug {
+	if logger.level > LevelDebug {
 		return
 	}
-	log.provider.do(LevelDebug, e)
+	logger.provider.do(LevelDebug, e)
 }
 
 func Debugf(e string, args ...interface{}) {
-	if log.level > LevelDebug {
+	if logger.level > LevelDebug {
 		return
 	}
-	log.provider.do(LevelDebug, fmt.Sprintf(e, args...))
+	logger.provider.do(LevelDebug, fmt.Sprintf(e, args...))
 }
 
 func Info(e string) {
-	if log.level > LevelInfo {
+	if logger.level > LevelInfo {
 		return
 	}
-	log.provider.do(LevelInfo, e)
+	logger.provider.do(LevelInfo, e)
 }
 
 func Infof(e string, args ...interface{}) {
-	if log.level > LevelInfo {
+	if logger.level > LevelInfo {
 		return
 	}
-	log.provider.do(LevelInfo, fmt.Sprintf(e, args...))
+	logger.provider.do(LevelInfo, fmt.Sprintf(e, args...))
 }
 
 func Error(e string) {
-	if log.level > LevelError {
+	if logger.level > LevelError {
 		return
 	}
-	log.provider.do(LevelError, e)
+	logger.provider.do(LevelError, e)
 }
 
 func Errorf(e string, args ...interface{}) {
-	if log.level > LevelError {
+	if logger.level > LevelError {
 		return
 	}
-	log.provider.do(LevelError, fmt.Sprintf(e, args...))
+	logger.provider.do(LevelError, fmt.Sprintf(e, args...))
 }
 
 func Warning(e string) {
-	if log.level > LevelWarning {
+	if logger.level > LevelWarning {
 		return
 	}
-	log.provider.do(LevelWarning, e)
+	logger.provider.do(LevelWarning, e)
 }
 
 func Warningf(e string, args ...interface{}) {
-	if log.level > LevelWarning {
+	if logger.level > LevelWarning {
 		return
 	}
-	log.provider.do(LevelWarning, fmt.Sprintf(e, args...))
+	logger.provider.do(LevelWarning, fmt.Sprintf(e, args...))
 }
 
 func Fatal(e string) {
-	log.provider.do(LevelFatal, e)
+	logger.provider.do(LevelFatal, e)
 }
 
 func Fatalf(e string, args ...interface{}) {
-	log.provider.do(LevelFatal, fmt.Sprintf(e, args...))
+	logger.provider.do(LevelFatal, fmt.Sprintf(e, args...))
 }

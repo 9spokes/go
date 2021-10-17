@@ -26,7 +26,7 @@ func NewSyslog(host, tag string) *LoggerSyslog {
 	}
 
 }
-func (p *LoggerSyslog) log(l int, m string) {
+func (p *LoggerSyslog) do(l int, m string) {
 
 	pc, _, _, _ := runtime.Caller(2)
 	funcName := runtime.FuncForPC(pc).Name()
