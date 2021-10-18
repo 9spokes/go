@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/logging/v2"
+	"github.com/9spokes/go/logging/v3"
 )
 
 // Context represents a connection object into the token service
@@ -72,7 +72,7 @@ func (ds *Index) updateData() (*Index, error) {
 
 			for _, key := range []string{"index", "outcome", "period", "retry", "status", "updated"} {
 				if _, ok := e.(map[string]interface{})[key]; !ok {
-					//ctx.Logger.Errorf("Failed to parsed '%s' as a string", key)
+					//logging.Errorf("Failed to parsed '%s' as a string", key)
 					skip = true
 				}
 			}
@@ -117,7 +117,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 		if r := recover(); r != nil {
 			err := fmt.Sprintf("%s", r)
 			if ctx.Logger != nil {
-				ctx.Logger.Errorf("An error occured parsing the response from the Indexer service: %s", err)
+				logging.Errorf("An error occured parsing the response from the Indexer service: %s", err)
 			}
 		}
 	}()
@@ -125,7 +125,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 	url := fmt.Sprintf("%s/connections/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
+		logging.Debugf("Invoking Indexer service at: %s", url)
 	}
 
 	response, err := http.Request{
@@ -165,7 +165,7 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	location := fmt.Sprintf("%s/connections/%s/%s?cycle=%s&index=%s", ctx.URL, conn, datasource, cycle, index)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Indexer service at: %s", location)
+		logging.Debugf("Invoking Indexer service at: %s", location)
 	}
 
 	status := "ok"
@@ -214,7 +214,7 @@ func (ctx *Context) GetDatasourceStatus(conn, datasource string) (*IndexStatus, 
 	url := fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Indexer service at: %s", url)
+		logging.Debugf("Invoking Indexer service at: %s", url)
 	}
 
 	response, err := http.Request{

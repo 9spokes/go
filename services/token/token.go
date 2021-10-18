@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/logging/v2"
+	"github.com/9spokes/go/logging/v3"
 	"github.com/9spokes/go/types"
 )
 
@@ -32,7 +32,7 @@ func (ctx Context) InitiateETL(id string) error {
 	url := fmt.Sprintf("%s/connections/%s?action=etl", ctx.URL, id)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+		logging.Debugf("Invoking Token service at: %s", url)
 	}
 
 	response, err := http.Request{
@@ -73,7 +73,7 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+		logging.Debugf("Invoking Token service at: %s", url)
 	}
 
 	response, err := http.Request{
@@ -191,7 +191,7 @@ func (ctx Context) SetConnectionStatus(id string, status string, reason string) 
 	link := fmt.Sprintf("%s/connections/%s/status", ctx.URL, id)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", link)
+		logging.Debugf("Invoking Token service at: %s", link)
 	}
 
 	body := url.Values{}
@@ -296,7 +296,7 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 	url := fmt.Sprintf("%s/connections", ctx.URL)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+		logging.Debugf("Invoking Token service at: %s", url)
 	}
 
 	response, err := http.Request{
@@ -338,7 +338,7 @@ func (ctx Context) RemoveConnection(id string) error {
 	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", url)
+		logging.Debugf("Invoking Token service at: %s", url)
 	}
 
 	response, err := http.Request{
@@ -394,7 +394,7 @@ func (ctx Context) ManageConnection(id string, action string, params map[string]
 	u.RawQuery = q.Encode()
 
 	if ctx.Logger != nil {
-		ctx.Logger.Debugf("Invoking Token service at: %s", u.String())
+		logging.Debugf("Invoking Token service at: %s", u.String())
 	}
 
 	response, err := http.Request{

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/9spokes/go/http"
-	"github.com/9spokes/go/logging/v2"
+	"github.com/9spokes/go/logging/v3"
 )
 
 // Context represents a connection object into the token service
