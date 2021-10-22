@@ -7,8 +7,6 @@ import (
 	"log"
 	"log/syslog"
 	"os"
-	"runtime"
-	"strings"
 )
 
 type LoggerSyslog struct {
@@ -27,28 +25,18 @@ func NewSyslog(host, tag string) *LoggerSyslog {
 
 }
 func (p *LoggerSyslog) do(l int, m string) {
-
-	pc, _, _, _ := runtime.Caller(2)
-	funcName := runtime.FuncForPC(pc).Name()
-	lastSlash := strings.LastIndexByte(funcName, '/')
-	if lastSlash < 0 {
-		lastSlash = 0
-	}
-	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
-
-	m = fmt.Sprintf("[%s.%s()] ▶ %s", funcName[:lastDot], funcName[lastDot+1:], m)
-
+	logContent := fmtLogContent(1, m)
 	switch l {
 	case LevelDebug:
-		p.writer.Debug(fmt.Sprintf(ColorDebug, m))
+		p.writer.Debug(fmt.Sprintf(ColorDebug, logContent))
 	case LevelError:
-		p.writer.Err(fmt.Sprintf(ColorError, m))
+		p.writer.Err(fmt.Sprintf(ColorError, logContent))
 	case LevelWarning:
-		p.writer.Warning(fmt.Sprintf(ColorWarning, m))
+		p.writer.Warning(fmt.Sprintf(ColorWarning, logContent))
 	case LevelFatal:
-		p.writer.Emerg(fmt.Sprintf(ColorFatal, m))
+		p.writer.Emerg(fmt.Sprintf(ColorFatal, logContent))
 		os.Exit(1)
 	default:
-		p.writer.Info(fmt.Sprintf(ColorInfo, m))
+		p.writer.Info(fmt.Sprintf(ColorInfo, logContent))
 	}
 }

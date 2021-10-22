@@ -1,7 +1,9 @@
 package logging
 
 import (
+	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/op/go-logging"
@@ -43,17 +45,29 @@ func NewOplogging(category, level string) *LoggerLocal {
 }
 
 func (p *LoggerLocal) do(l int, m string) {
-
+	logContent := fmtLogContent(1, m)
 	switch l {
 	case LevelDebug:
-		p.logger.Debug(m)
+		p.logger.Debug(logContent)
 	case LevelError:
-		p.logger.Error(m)
+		p.logger.Error(logContent)
 	case LevelFatal:
-		p.logger.Fatal(m)
+		p.logger.Fatal(logContent)
 	case LevelWarning:
-		p.logger.Warning(m)
+		p.logger.Warning(logContent)
 	default:
-		p.logger.Info(m)
+		p.logger.Info(logContent)
 	}
+}
+
+func fmtLogContent(skip int, m string) string {
+	pc, _, _, _ := runtime.Caller(skip + 2)
+	funcName := runtime.FuncForPC(pc).Name()
+	lastSlash := strings.LastIndexByte(funcName, '/')
+	if lastSlash < 0 {
+		lastSlash = 0
+	}
+	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
+
+	return fmt.Sprintf("[%s.%s()] ▶ %s", funcName[:lastDot], funcName[lastDot+1:], m)
 }
