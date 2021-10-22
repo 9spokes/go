@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/9spokes/go/api"
-	"github.com/9spokes/go/logging"
 	"github.com/9spokes/go/types"
 )
 
@@ -54,27 +53,27 @@ func TestCreateConnection(t *testing.T) {
 	}{
 		{
 			description: "Missing OSP field",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			form:        map[string]string{"user": "test"},
 			e:           "the field osp is required",
 		},
 		{
 			description: "Missing User field",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			form:        map[string]string{"osp": "9spokes"},
 			e:           "the field user is required",
 		},
 		{
 			description: "Non-OK response",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			form:        map[string]string{"osp": "10spokes", "user": "test"},
 			e:           "Non-OK response received from Token service: invalid OSP",
 		},
 		{
 			description: "OK response",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			form:        map[string]string{"osp": "9spokes", "user": "test", "company": "dummy", "status": "NEW", "action": "initiate"},
-			response:    `{"id":"","credentials":null,"demo":false,"token":null,"settings":null,"user":"test","config":null,"osp":"9spokes","company":"dummy","created":"0001-01-01T00:00:00Z","modified":"0001-01-01T00:00:00Z","status":"NEW"}`,
+			response:    `{"id":"","platform":"","credentials":null,"demo":false,"token":null,"settings":null,"user":"test","config":null,"osp":"9spokes","company":"dummy","created":"0001-01-01T00:00:00Z","modified":"0001-01-01T00:00:00Z","status":"NEW"}`,
 		},
 	}
 
@@ -128,21 +127,21 @@ func TestManageConnection(t *testing.T) {
 	}{
 		{
 			description: "Missing action",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			action:      "",
 			form:        map[string]string{},
 			e:           "the action must be specified",
 		},
 		{
 			description: "Non-OK response",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			action:      "sing",
 			form:        map[string]string{},
 			e:           "Non-OK response received from Token service: unsupported action",
 		},
 		{
 			description: "OK response",
-			ctx:         Context{URL: ts.URL, Logger: logging.New("bogus", "INFO")},
+			ctx:         Context{URL: ts.URL},
 			action:      "authorize",
 			form:        map[string]string{"code": "12345"},
 			response:    "Action authorize completed successfully",

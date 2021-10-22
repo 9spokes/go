@@ -115,18 +115,14 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			err := fmt.Sprintf("%s", r)
-			if ctx.Logger != nil {
-				logging.Errorf("An error occured parsing the response from the Indexer service: %s", err)
-			}
+			logging.Errorf("An error occured parsing the response from the Indexer service: %s", r)
 		}
+
 	}()
 
 	url := fmt.Sprintf("%s/connections/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
 
-	if ctx.Logger != nil {
-		logging.Debugf("Invoking Indexer service at: %s", url)
-	}
+	logging.Debugf("Invoking Indexer service at: %s", url)
 
 	response, err := http.Request{
 		URL: url,
@@ -164,9 +160,7 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 
 	location := fmt.Sprintf("%s/connections/%s/%s?cycle=%s&index=%s", ctx.URL, conn, datasource, cycle, index)
 
-	if ctx.Logger != nil {
-		logging.Debugf("Invoking Indexer service at: %s", location)
-	}
+	logging.Debugf("Invoking Indexer service at: %s", location)
 
 	status := "ok"
 	if !ok {
@@ -213,9 +207,7 @@ func (ctx *Context) GetDatasourceStatus(conn, datasource string) (*IndexStatus, 
 
 	url := fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
 
-	if ctx.Logger != nil {
-		logging.Debugf("Invoking Indexer service at: %s", url)
-	}
+	logging.Debugf("Invoking Indexer service at: %s", url)
 
 	response, err := http.Request{
 		URL: url,
