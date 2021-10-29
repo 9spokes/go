@@ -7,6 +7,7 @@ type OSP struct {
 	Tiles       []OSPTile         `json:"tiles"`
 	Proxy       string            `json:"proxy,omitempty"`
 	Unique      bool              `json:"unique,omitempty"`
+	Usage       []string          `json:"usage,omitempty"`
 }
 
 // OSPTile is a tile definition for an OSP
