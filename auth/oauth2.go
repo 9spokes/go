@@ -13,15 +13,16 @@ import (
 
 // OAuth2 represents the minimum fields required to perform an OAuth2 token exchange or token refresh.
 type OAuth2 struct {
+	Client        *http.Client
 	ClientID      string
 	ClientSecret  string
-	RefreshToken  string
-	RedirectURI   string
 	Code          string
-	TokenEndpoint string
 	Extras        map[string]string
 	Headers       map[string]string
-	Client        *http.Client
+	Method        string
+	RedirectURI   string
+	RefreshToken  string
+	TokenEndpoint string
 }
 
 // Options are a set of flags & modifiers to the OAuth2 implementation
@@ -86,8 +87,15 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		request.Headers[k] = v
 	}
 
-	response, err := request.Post()
+	var response *Http.Response
+	var err error
+	if params.Method == http.MethodGet {
+		response, err = request.Get()
 
+	} else {
+		// default http method is Post
+		response, err = request.Post()
+	}
 	if err != nil {
 		var code int
 		if response != nil {
