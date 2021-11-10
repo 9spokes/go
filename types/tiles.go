@@ -40,31 +40,48 @@ type ListTileWithSubheaderTitle struct {
 	SyncedAt  string                       `json:"lastSyncAt,omitempty"`
 }
 
+type ListTileFooter struct {
+	Label string `json:"label,omitempty"`
+	Value string `json:"value,omitempty"`
+}
+
 // ListTileEntry is an entry in a ListTile
 type ListTileEntry struct {
-	Label     string `json:"label,omitempty"`
-	Value     string `json:"value,omitempty"`
-	Indicator string `json:"indicator,omitempty"`
-	Left      string `json:"left,omitempty"`
-	Right     string `json:"right,omitempty"`
-	IsSubRow  bool   `json:"isSubRow,omitempty"`
-	Direction string `json:"direction,omitempty"`
-	Footer    struct {
-		Label string `json:"label,omitempty"`
-		Value string `json:"value,omitempty"`
-	} `json:"footer,omitempty"`
+	Label     string         `json:"label,omitempty"`
+	Value     string         `json:"value,omitempty"`
+	Indicator string         `json:"indicator,omitempty"`
+	Left      string         `json:"left,omitempty"`
+	Right     string         `json:"right,omitempty"`
+	IsSubRow  bool           `json:"isSubRow,omitempty"`
+	Direction string         `json:"direction,omitempty"`
+	Footer    ListTileFooter `json:"footer,omitempty"`
 }
 
 // GraphTile is a 9 Spokes V2 area chart tile data format
 type GraphTile struct {
-	XUnit  string   `json:"xUnit,omitempty"`
-	YUnit  string   `json:"yUnit,omitempty"`
-	Labels []string `json:"labels,omitempty"`
-	Series []struct {
-		Key  string    `json:"key,omitempty"`
-		Data []float64 `json:"data,omitempty"`
-	} `json:"series,omitempty"`
-	SyncedAt string `json:"lastSyncAt,omitempty"`
+	XUnit    string            `json:"xUnit,omitempty"`
+	YUnit    string            `json:"yUnit,omitempty"`
+	Labels   []string          `json:"labels,omitempty"`
+	Series   []GraphTileSeries `json:"series,omitempty"`
+	XGroups  []string          `json:"xGroups,omitempty"`
+	Values   []GraphTileData   `json:"values,omitempty"`
+	SyncedAt string            `json:"lastSyncAt,omitempty"`
+}
+
+type GraphTileSeries struct {
+	Key  string    `json:"key,omitempty"`
+	Data []float64 `json:"data,omitempty"`
+}
+type GraphTileData struct {
+	Key      string           `json:"key,omitempty"`
+	Category string           `json:"category,omitempty"`
+	Values   []GraphTileValue `json:"values,omitempty"`
+}
+
+type GraphTileValue struct {
+	Group string  `json:"group,omitempty"`
+	Stack string  `json:"stack,omitempty"`
+	Value float64 `json:"value"`
 }
 
 // CompositeListTile is a 9 Spokes V2 special "List" tile data format
