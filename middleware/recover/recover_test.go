@@ -24,6 +24,6 @@ func Test_Recoverer(t *testing.T) {
 	r.ServeHTTP(rr, req)
 
 	if rr.Code != HTTP.StatusInternalServerError {
-		t.Error("error not recovered")
+		t.Error("panic error not recovered")
 	}
 }
