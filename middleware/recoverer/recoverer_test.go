@@ -1,4 +1,4 @@
-package recover
+package recoverer
 
 import (
 	HTTP "net/http"
