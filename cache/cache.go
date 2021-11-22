@@ -36,14 +36,10 @@ const (
 )
 
 // New creates a new instance of a Redis cache and returns a context for future use
-func New(url string, logger *logging.Logger) (*Context, error) {
+func New(url string) (*Context, error) {
 	redisOpts, err := redis.ParseURL(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse Redis URL: %s", err.Error())
-	}
-
-	if logger == nil {
-		return nil, fmt.Errorf("a logger is required")
 	}
 
 	ctx := Context{
