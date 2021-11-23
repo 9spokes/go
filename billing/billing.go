@@ -108,6 +108,10 @@ func (ctx *Context) GetSubscriptionWithPlan(id string) (*Subscription, error) {
 		Currency: subscription.Plan.Currency,
 	}
 
+	if ret.Name == "" {
+		return &ret, nil
+	}
+
 	product, err := ctx.GetProduct(subscription.Plan.Product)
 	if err != nil {
 		logging.Warningf("failed to retrieve product '%s': %s", subscription.Plan.Product, err.Error())
