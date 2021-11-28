@@ -281,7 +281,7 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 
 	// sanitizing parameters
 	params := url.Values{}
-	for _, p := range []string{"osp", "user", "company", "status", "action", "redirect_url", "client_id", "client_secret", "platform"} {
+	for _, p := range []string{"osp", "user", "company", "status", "action", "redirect_url", "client_id", "client_secret", "platform", "storename"} {
 		if form[p] != "" {
 			params.Add(p, form[p])
 		}
