@@ -279,12 +279,9 @@ func (ctx Context) CreateConnection(form map[string]string) (*types.Connection, 
 		return nil, fmt.Errorf("the field user is required")
 	}
 
-	// sanitizing parameters
 	params := url.Values{}
-	for _, p := range []string{"osp", "user", "company", "status", "action", "redirect_url", "client_id", "client_secret", "platform", "storename"} {
-		if form[p] != "" {
-			params.Add(p, form[p])
-		}
+	for k, v := range form {
+		params.Add(k, v)
 	}
 
 	url := fmt.Sprintf("%s/connections", ctx.URL)
