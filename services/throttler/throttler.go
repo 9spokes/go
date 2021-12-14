@@ -45,6 +45,7 @@ func (ctx Context) GetToken(osp string, retries int) error {
 			// logging.Errorf("[%s] Error retrieving the list of documents from %s: %s", osp, url, err.Error())
 			return fmt.Errorf("error retrieving the list of documents from %s: %s", url, err.Error())
 		}
+		defer response.Body.Close()
 
 		if response.StatusCode == 200 {
 			logging.Debugf("[%s] Successfully acquired rate-limiting token", osp)
