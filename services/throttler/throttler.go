@@ -46,11 +46,7 @@ func (ctx Context) GetToken(osp string, retries int) error {
 
 	for i := 0; i < retries; i++ {
 		logging.Debugf("[%s] Attempt #%d", osp, i+1)
-		response, err := request.Get()
-		if err != nil {
-			return err
-		}
-
+		response, _ := request.Get()
 		if response.StatusCode == 200 {
 			logging.Debugf("[%s] Successfully acquired rate-limiting token", osp)
 			return nil
