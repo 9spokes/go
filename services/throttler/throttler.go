@@ -3,16 +3,19 @@ package throttler
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
+
+	"github.com/9spokes/go/http"
 
 	"github.com/9spokes/go/logging/v3"
 )
 
 // Context represents a connection object into the token service
 type Context struct {
-	URL    string
-	Logger *logging.Logger
+	URL          string
+	ClientID     string
+	ClientSecret string
+	Logger       *logging.Logger
 }
 
 var (
@@ -27,25 +30,26 @@ var (
 func (ctx Context) GetToken(osp string, retries int) error {
 
 	logging.Debugf("[%s] Getting rate-limiting token", osp)
-	client := &http.Client{}
 
 	url := fmt.Sprintf("%s/token/%s", ctx.URL, osp)
 	logging.Debugf("[%s] URL is: %s", osp, ctx.URL)
 
+	request := http.Request{
+		URL: url,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+		ContentType: "application/json",
+	}
+
 	for i := 0; i < retries; i++ {
 		logging.Debugf("[%s] Attempt #%d", osp, i+1)
-		request, err := http.NewRequest("GET", url, nil)
+		response, err := request.Get()
 		if err != nil {
-			// logging.Errorf("[%s] Error retrieving the list of documents from %s: %s", osp, url, err.Error())
-			return fmt.Errorf("error retrieving the list of documents from %s: %s", url, err.Error())
+			return err
 		}
-
-		response, err := client.Do(request)
-		if err != nil {
-			// logging.Errorf("[%s] Error retrieving the list of documents from %s: %s", osp, url, err.Error())
-			return fmt.Errorf("error retrieving the list of documents from %s: %s", url, err.Error())
-		}
-		defer response.Body.Close()
 
 		if response.StatusCode == 200 {
 			logging.Debugf("[%s] Successfully acquired rate-limiting token", osp)
