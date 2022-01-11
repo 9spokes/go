@@ -155,7 +155,7 @@ func (ctx *Context) Lock(id string) (func(), error) {
 
 	return func() {
 		if ok, err := mutex.Unlock(); !ok || err != nil {
-			logging.Errorf("failed to unlock, %s", err.Error())
+			logging.Errorf("failed to unlock, ok: %d, err: %w",ok, err)
 		}
 	}, nil
 }
