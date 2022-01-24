@@ -32,19 +32,24 @@ type Context struct {
 }
 
 // New creates a new JWT context
-func New(jwksURL, trustStorePath, privateKeyPath, privateKeyPwd string) (*Context, error) {
+func New(jwksURLs, trustStorePath, privateKeyPath, privateKeyPwd string) (*Context, error) {
 	ctx := Context{
 		TrustedKeys:  make(map[string]rsa.PublicKey),
 		TrustedCerts: make([]x509.Certificate, 0),
 		PrivateKey:   nil,
 	}
 
-	if jwksURL != "" {
-		keys, err := fetchJWKS(jwksURL)
-		if err != nil {
-			return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
+	if jwksURLs != "" {
+		for _, jwksURL := range strings.Split(jwksURLs, ",") {
+			keys, err := fetchJWKS(jwksURL)
+			if err != nil {
+				return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
+			}
+
+			for kid, key := range keys {
+				ctx.TrustedKeys[kid] = key
+			}
 		}
-		ctx.TrustedKeys = keys
 	}
 
 	if trustStorePath != "" {
