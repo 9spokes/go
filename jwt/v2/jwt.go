@@ -40,7 +40,7 @@ func New(jwksURLs, trustStorePath, privateKeyPath, privateKeyPwd string) (*Conte
 	}
 
 	if jwksURLs != "" {
-		for _, jwksURL := range strings.Split(jwksURLs, ",") {
+		for _, jwksURL := range strings.Split(jwksURLs, " ") {
 			keys, err := fetchJWKS(jwksURL)
 			if err != nil {
 				return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
