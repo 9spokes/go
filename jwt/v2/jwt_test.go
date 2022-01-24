@@ -1,10 +1,13 @@
 package jwt
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -245,23 +248,30 @@ OtVXHzT1h0vTJUNXv1xIUfAx9tqqKMtPmyyaZhQkep7jWiec2ZCfxJ6eRmEo46eI
 `
 )
 
-func Test_ValidateJWS(t *testing.T) {
-
+func newTestContext(mode string) (*Context, error) {
 	trustStore, err := ioutil.TempFile(".", "*.crt")
 	if err != nil {
-		t.Fatalf("failed to load the test trust store: %s", err.Error())
+		return nil, fmt.Errorf("failed to load the test trust store: %s", err.Error())
 	}
 	defer os.Remove(trustStore.Name())
 	trustStore.WriteString(TRUST_STORE)
 
 	privateKey, err := ioutil.TempFile(".", "*.key")
 	if err != nil {
-		t.Fatalf("failed to load the test private key: %s", err.Error())
+		return nil, fmt.Errorf("failed to load the test private key: %s", err.Error())
 	}
 	defer os.Remove(privateKey.Name())
+	if mode == "jwe" {
+		privateKey.WriteString(PRIVATE_KEY_JWE)
+	}
 	privateKey.WriteString(PRIVATE_KEY_JWS)
 
-	ctx, err := New("", "./"+trustStore.Name(), "./"+privateKey.Name(), "secret")
+	return New("https://nsp-dev.9spokes.io/dex/keys", "./"+trustStore.Name(), "./"+privateKey.Name(), "secret")
+}
+
+func Test_ValidateJWS(t *testing.T) {
+
+	ctx, err := newTestContext("jws")
 	if err != nil {
 		t.Fatalf("failed to create the test context: %s", err.Error())
 	}
@@ -324,21 +334,7 @@ func Test_ValidateJWS(t *testing.T) {
 
 func Test_ValidateJWE(t *testing.T) {
 
-	trustStore, err := ioutil.TempFile(".", "*.crt")
-	if err != nil {
-		t.Fatalf("failed to load the test trust store: %s", err.Error())
-	}
-	defer os.Remove(trustStore.Name())
-	trustStore.WriteString(TRUST_STORE)
-
-	privateKey, err := ioutil.TempFile(".", "*.key")
-	if err != nil {
-		t.Fatalf("failed to load the test private key: %s", err.Error())
-	}
-	defer os.Remove(privateKey.Name())
-	privateKey.WriteString(PRIVATE_KEY_JWE)
-
-	ctx, err := New("", "./"+trustStore.Name(), "./"+privateKey.Name(), "secret")
+	ctx, err := newTestContext("jwe")
 	if err != nil {
 		t.Fatalf("failed to create the test context: %s", err.Error())
 	}
@@ -409,6 +405,58 @@ func Test_fetchJWKS(t *testing.T) {
 
 			if !tt.err && len(got) == 0 {
 				t.Fatalf("expecting non empty key map")
+			}
+		})
+	}
+}
+
+func Test_getSigningKey(t *testing.T) {
+
+	ctx, err := newTestContext("jws")
+	if err != nil {
+		t.Fatalf("failed to create the test context: %s", err.Error())
+	}
+
+	tests := []struct {
+		name  string
+		token string
+		err   string
+	}{
+		{
+			name:  "x5c not trusted",
+			token: JWS_X5C_A,
+			err:   "certificate is not trusted",
+		},
+		{
+			name:  "x5c success",
+			token: JWS_X5C_B,
+			err:   "",
+		},
+		{
+			name:  "kid success",
+			token: JWS_KID,
+			err:   "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			token, _, err := new(jwt.Parser).ParseUnverified(tt.token, jwt.MapClaims{})
+			if err != nil {
+				t.Fatalf("failed to parse token: %s", err.Error())
+			}
+
+			key, err := ctx.getSigningKey(token)
+			if err != nil && (tt.err == "" || !regexp.MustCompile(tt.err).MatchString(err.Error())) {
+				t.Fatalf("unexpected error: got [%s], expecting [%s]", err.Error(), tt.err)
+			}
+
+			if err == nil && tt.err != "" {
+				t.Fatalf("expecting error [%s], got none", tt.err)
+			}
+
+			if tt.err == "" && key == nil {
+				t.Fatalf("expecting signing key, got none")
 			}
 		})
 	}

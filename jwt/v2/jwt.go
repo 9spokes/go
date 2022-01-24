@@ -19,6 +19,11 @@ import (
 	"gopkg.in/square/go-jose.v2"
 )
 
+const (
+	KID = "kid"
+	X5C = "x5c"
+)
+
 // Context holds the config required to parse and validate a token
 type Context struct {
 	TrustedKeys  map[string]rsa.PublicKey
@@ -116,20 +121,20 @@ func (ctx *Context) getSigningKey(token *jwt.Token) (interface{}, error) {
 	}
 
 	switch keyType {
-	case "kid":
-		kid := token.Header["kid"].(string)
+	case KID:
+		kid := token.Header[KID].(string)
 		publicKey, ok := ctx.TrustedKeys[kid]
 		if !ok {
 			return nil, fmt.Errorf("no key found for kid [%s]", kid)
 		}
 		return &publicKey, nil
 
-	case "x5c":
+	case X5C:
 		var certificate string
 
-		if x5c, ok := token.Header["x5c"].([]interface{}); ok {
+		if x5c, ok := token.Header[X5C].([]interface{}); ok {
 			certificate = x5c[0].(string)
-		} else if x5c, ok := token.Header["x5c"].(string); ok {
+		} else if x5c, ok := token.Header[X5C].(string); ok {
 			certificate = x5c
 		} else {
 			return nil, fmt.Errorf("invalid x5c header, not string and not array of strings")
@@ -187,17 +192,17 @@ func getKeyType(joseHeader map[string]interface{}) (string, error) {
 	var keyType string
 
 	// KID ?
-	_, ok := joseHeader["kid"]
+	_, ok := joseHeader[KID]
 	if ok {
 		// logger.Debug("JOSE Key type KID")
-		keyType = "kid"
+		keyType = KID
 	}
 
 	// X5c ?
-	_, ok = joseHeader["x5c"]
+	_, ok = joseHeader[X5C]
 	if ok {
 		// logger.Debug("JOSE Key type X5C")
-		keyType = "x5c"
+		keyType = X5C
 	}
 
 	// Unknown key type !
