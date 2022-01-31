@@ -12,3 +12,10 @@ type ETLMessage struct {
 	Immediate  bool   `json:"immediate,omitempty"`
 	Completed  string `json:"completed,omitempty"`
 }
+
+type IndexerETLMessages struct {
+	IndexerMessages []ETLMessage `json:"indexer_messages"`
+	Outcome         string       `json:"outcome"`
+	Status          bool         `json:"status"`
+	Retry           bool         `json:"retry"`
+}
