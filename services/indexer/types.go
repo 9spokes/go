@@ -1,6 +1,8 @@
 package indexer
 
-import "time"
+import (
+	"time"
+)
 
 // DatasourceRolling is an indexing data entry for a "rolling" datasource
 type DatasourceRolling struct {
@@ -44,4 +46,16 @@ type IndexStatus struct {
 	Completed   int       `json:"completed"`
 	Percent     float64   `json:"percent"`
 	LastUpdated time.Time `json:"last_updated"`
+}
+
+type ETLMessage struct {
+	Connection string `json:"connection"`
+	Datasource string `json:"datasource"`
+	Cycle      string `json:"cycle"`
+	Index      string `json:"index"`
+	Type       string `json:"type"`
+	OSP        string `json:"osp"`
+	Outcome    string `json:"outcome"`
+	Status     string `json:"status"`
+	Retry      string `json:"retry"`
 }

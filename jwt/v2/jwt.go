@@ -26,6 +26,7 @@ const (
 
 // Context holds the config required to parse and validate a token
 type Context struct {
+	JWKSURLs     string
 	TrustedKeys  map[string]rsa.PublicKey
 	TrustedCerts []x509.Certificate
 	PrivateKey   *rsa.PrivateKey
@@ -34,22 +35,20 @@ type Context struct {
 // New creates a new JWT context
 func New(jwksURLs, trustStorePath, privateKeyPath, privateKeyPwd string) (*Context, error) {
 	ctx := Context{
+		JWKSURLs:     jwksURLs,
 		TrustedKeys:  make(map[string]rsa.PublicKey),
 		TrustedCerts: make([]x509.Certificate, 0),
 		PrivateKey:   nil,
 	}
 
 	if jwksURLs != "" {
-		for _, jwksURL := range strings.Split(jwksURLs, " ") {
-			keys, err := fetchJWKS(jwksURL)
-			if err != nil {
-				return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
-			}
 
-			for kid, key := range keys {
-				ctx.TrustedKeys[kid] = key
-			}
+		keys, err := fetchJWKS(jwksURLs)
+		if err != nil {
+			return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
 		}
+
+		ctx.TrustedKeys = keys
 	}
 
 	if trustStorePath != "" {
@@ -129,9 +128,22 @@ func (ctx *Context) getSigningKey(token *jwt.Token) (interface{}, error) {
 	case KID:
 		kid := token.Header[KID].(string)
 		publicKey, ok := ctx.TrustedKeys[kid]
+		// If key is missing, refresh the keyMap just in case the keys were
+		// rotated since we last read them
 		if !ok {
-			return nil, fmt.Errorf("no key found for kid [%s]", kid)
+			keys, err := fetchJWKS(ctx.JWKSURLs)
+			if err != nil {
+				return nil, fmt.Errorf("while retrieving web keys: %s", err.Error())
+			}
+
+			ctx.TrustedKeys = keys
+			publicKey, ok = ctx.TrustedKeys[kid]
 		}
+
+		if !ok {
+			return nil, fmt.Errorf("no key found for id [%s]", kid)
+		}
+
 		return &publicKey, nil
 
 	case X5C:
@@ -220,24 +232,27 @@ func getKeyType(joseHeader map[string]interface{}) (string, error) {
 }
 
 // fetchJWKS retrieves a JSON Web Key Set
-func fetchJWKS(jwksURL string) (map[string]rsa.PublicKey, error) {
+func fetchJWKS(jwksURLs string) (map[string]rsa.PublicKey, error) {
 	keys := make(map[string]rsa.PublicKey)
 
-	// Get open id connect configuration
-	response, err := http.Get(jwksURL)
-	if err != nil {
-		return keys, fmt.Errorf("while connecting to remote endpoint '%s': %s", jwksURL, err.Error())
-	}
-	data, _ := ioutil.ReadAll(response.Body)
+	for _, jwksURL := range strings.Split(jwksURLs, " ") {
 
-	var set jose.JSONWebKeySet
-	if err := json.Unmarshal(data, &set); err != nil {
-		return keys, err
-	}
+		// Get open id connect configuration
+		response, err := http.Get(jwksURL)
+		if err != nil {
+			return keys, fmt.Errorf("while connecting to remote endpoint '%s': %s", jwksURL, err.Error())
+		}
+		data, _ := ioutil.ReadAll(response.Body)
 
-	// Copy key to key map
-	for _, key := range set.Keys {
-		keys[key.KeyID] = *(key.Key.(*rsa.PublicKey))
+		var set jose.JSONWebKeySet
+		if err := json.Unmarshal(data, &set); err != nil {
+			return keys, err
+		}
+
+		// Copy key to key map
+		for _, key := range set.Keys {
+			keys[key.KeyID] = *(key.Key.(*rsa.PublicKey))
+		}
 	}
 
 	return keys, nil
