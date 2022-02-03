@@ -1,7 +1,6 @@
 package indexer
 
 import (
-	"github.com/9spokes/go/types"
 	"time"
 )
 
@@ -49,9 +48,14 @@ type IndexStatus struct {
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-type ETLMessages struct {
-	IndexerMessages []types.ETLMessage `json:"indexer_messages"`
-	Outcome         string             `json:"outcome"`
-	IsOK            bool               `json:"is_ok"`
-	Retry           bool               `json:"retry"`
+type ETLMessage struct {
+	Connection string `json:"connection"`
+	Datasource string `json:"datasource"`
+	Cycle      string `json:"cycle"`
+	Index      string `json:"index"`
+	Type       string `json:"type"`
+	OSP        string `json:"osp"`
+	Outcome    string `json:"outcome"`
+	Status     string `json:"status"`
+	Retry      string `json:"retry"`
 }
