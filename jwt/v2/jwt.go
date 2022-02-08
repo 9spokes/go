@@ -103,6 +103,10 @@ func (ctx *Context) decrypt(tokenString string) (string, error) {
 		return "", fmt.Errorf("failed to parse token: %s", err.Error())
 	}
 
+	if ctx.PrivateKey == nil {
+		return "", fmt.Errorf("missing private key")
+	}
+
 	payload, err := token.Decrypt(ctx.PrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to decrypt token: %s", err.Error())
