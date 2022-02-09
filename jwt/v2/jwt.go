@@ -299,15 +299,26 @@ func loadPrivateKey(path, secret string) (*rsa.PrivateKey, error) {
 		return nil, fmt.Errorf("while decoding private key '%s'", path)
 	}
 
-	der, err := x509.DecryptPEMBlock(block, []byte(secret))
-	if err != nil {
-		return nil, fmt.Errorf("while decrypting private key '%s': %s", path, err.Error())
+	var der []byte
+	if secret != "" {
+		if der, err = x509.DecryptPEMBlock(block, []byte(secret)); err != nil {
+			return nil, fmt.Errorf("cannot decrypt key: %s", err.Error())
+		}
+	} else {
+		der = block.Bytes
 	}
 
-	priv, err := x509.ParsePKCS1PrivateKey(der)
-	if err != nil {
-		return nil, fmt.Errorf("while parsing private key '%s': %s", path, err.Error())
+	var parsedKey interface{}
+	if parsedKey, err = x509.ParsePKCS1PrivateKey(der); err != nil {
+		if parsedKey, err = x509.ParsePKCS8PrivateKey(der); err != nil {
+			return nil, fmt.Errorf("while parsing private key '%s': %s", path, err.Error())
+		}
 	}
 
-	return priv, nil
+	key, ok := parsedKey.(*rsa.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("unable to parse RSA private key")
+	}
+
+	return key, nil
 }
