@@ -49,13 +49,14 @@ type IndexStatus struct {
 }
 
 type ETLMessage struct {
-	Connection string `json:"connection"`
-	Datasource string `json:"datasource"`
-	Cycle      string `json:"cycle"`
-	Index      string `json:"index"`
-	Type       string `json:"type"`
-	OSP        string `json:"osp"`
-	Outcome    string `json:"outcome"`
-	Status     string `json:"status"`
-	Retry      string `json:"retry"`
+	Connection   string `json:"connection"`
+	Datasource   string `json:"datasource"`
+	Cycle        string `json:"cycle"`
+	Index        string `json:"index"`
+	Type         string `json:"type"`
+	OSP          string `json:"osp"`
+	Outcome      string `json:"outcome"`
+	Status       string `json:"status"`
+	Retry        string `json:"retry"`
+	ImmediateETL bool   `json:"immediate_etl"`
 }
