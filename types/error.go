@@ -30,7 +30,7 @@ type ErrorResponse struct {
 	HTTPStatus int
 }
 
-func (e *ErrorResponse) Error() string {
+func (e ErrorResponse) Error() string {
 	m := fmt.Sprintf("%s: %s", e.Message, e.ID)
 	if e.HTTPStatus > 0 {
 		return fmt.Sprintf("[HTTP %d] %s", e.HTTPStatus, m)
@@ -38,6 +38,6 @@ func (e *ErrorResponse) Error() string {
 	return m
 }
 
-func (e *ErrorResponse) IsFatal() bool {
+func (e ErrorResponse) IsFatal() bool {
 	return e.Severity == ErrSeverityFatal
 }
