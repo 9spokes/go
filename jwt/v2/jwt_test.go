@@ -85,36 +85,34 @@ K0JhWqlH4WXEc9DedcgqBIkB55c+upvqO3kKyWwnxODPlInSpoetWr0grPZyQ3AS
 `
 
 	PRIVATE_KEY_JWE = `
------BEGIN RSA PRIVATE KEY-----
-Proc-Type: 4,ENCRYPTED
-DEK-Info: DES-EDE3-CBC,08BF618653A2C11C
-
-hFJpUtRmm5qt42DcuxubnAs6trZdhtPRupX4qLF5k9pUBDjJl/G4OQW18sTWcGK8
-djBR0R/aEhYScLRlgYdsW85gNNo/tHtNI3zKcw7Sytknt9y9n3zrfiJLj/mwotC/
-dv1dcqQxCl3odjRvFfxbm1/9LapiAc/QR778idxUPHJOVypZJ2yBmDK8tj0l+5xP
-Q+xTYlqdV7xWED1IZCtN3kjOrOPSWPBzWGc1beBlq9ANGH6v9MeBOD3qYFL1S7Fo
-v/2mD75WqQqrVx5DinFPCAAeMHevPDNZiMRlOMjQ0e7ARvBN5U66sf91x56vi0mx
-7z89UQzVXPc24I6s8uYa3+UIzGcfEKT53y3syZfwyEYJ2CMBUb2C2+OTpNgIXnh2
-ErIPGvuahpQvSzU7cXnNuXcx7eQeCkzXal6oczzmViCTmW+aUULOlv8k2vf+O1T0
-XBQXUFpWDIDow7ODUkiUJjzvuacQ+UsCD5Lj8SjSsGqnCrNz3PEODQLe0MmEVLz6
-5pyZ2NVN+q0uIE4K+crEi8wtAUBYeEiJ1lFlxGeeNJSBTkg1r8YW0+ieQ6Ag73g1
-rhWGOwitcaNLR9W3etAfzXBrrJthGRgsQs/4g6Gkv+XR3THkzzFVlKhyqMGx2V1d
-gneWuRSUmb0vlJ9fnbSUE6mm71up7VSWegh+N+tpgYnk+qolwL5F99jEKk7rkvMz
-TVGQo7efRDmfD16IW4ZEiZMqcYEw77nc2T8xGmjfoAW5/rmLxnPxoVBOHArBsorc
-FUeHV5gjTWEl/wO96avvByDD7DSCv0Mqp08ag+5KNTK+M10tPiO2+F2mZ30E4GcV
-WNO8KjYfvQOCu13IiW8OCQrCb1DldSxWkSBEQaLBSnTQORjfLvKaa3kprLHbs/yN
-QN8DGmx+415qb5SZkdETiF81cnIjdiAvrsLHNcq0TWQRrwbypWH8O3KTlN9evxkh
-IxTmKJZsv5LmVLtFaUz39bHMz4nnFBZ7wYsxi+e4nMzSMoe3Qm5H5ZAg+lQIzYH+
-du5UFSQQXRuntnou73AcgAVCw4HMDyJ2vma1PDMIewkyXPf2RpuUg5z6nERIUi/a
-s2WiqfnoJwk6uWhbg3aTBxwPI8ThDRVUrdAQB38tAZb6oqbB2T1vnOtyN5gbR1mj
-9Koq8o9dsijguv4LcT7PtNYX4Lz9AOrxjUet8O5nEdIMZJcEVMKrmw2krrfFdEKa
-cI3YT9F+4upho7wipjjlq8UQYmGWR0YlECDAth74gOLBSyl8/uGXpABkYIOWEJg8
-ri7YkAutAb35lqhkKNWh/ddF1fBhcEHdGzzod/OCFaTsVpp3nz1y+egRMDUO9a1e
-CfxchywXK05SXEghjJJarvyWouA3SDsJivPP3YHqPF5SOcS5zAskYYihGfeOCC3h
-GG/nnt7iJFDOYxADeYfP9BTWvZz7ESRy/US0ObqJaTAfJ5qOed32ricjMrfCvE5d
-DB3sCjHShVvtgr34OII8mmd/mPGnSKW7czl47HUfhMjvdI00q7/URFwK/msJ3Ixr
-AOWba83Xk86DKFmfi5QYs3DTrsSs+9MawlihbC5b19/WfaoZsyKO2e0R6TXWrYBc
------END RSA PRIVATE KEY-----
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCaLICvAjZTz6dZ
+GHzifkT02Ogqv91d4CYzH9lDnPxZArqdaMOLjYB87bPmW1HgMsSJxQ29iXXt79h0
+nZ1ieiyhiPZTOtpgWjIpTlC2GgCvKoU0VmtspHsNHBV+7c79jY8pQyKhnESNkMwm
+D5o4ttZ0vo94JYLIcHPUQVGFmqYywpIhtsCa9sYL2X3SIMULJ6Cq+YRrIcYvkT5O
+ERmf78LWAvuyzk3KtjfKvgbNK/PVMd4Qlt4JlhDVhw9D/BY08Noj4HQcmvRr0OHv
+RazIUNnkWc/yljQXEGcjiogjEhffrb489GK2WinPIe3dUhzB2l01NFAtl5CCmIq4
+oUxjbL/xAgMBAAECggEAEDrNFR9DftEmSb/FLcajFa9byVxHPmGhQ9J/eZmmCuy5
+nmZv51nvA7e2L3K/jL1raSFgT+qPiousGqKY9cvstNiJLbvNT0VPcH+5CWJ1Xfs4
+6IiMaHRsK7YgISuBlbl4L5zMoXykzs5GX19XGc9Nhh6lVb2FJfqIhviVT143TrJ5
+AQCz2unFKanbRDbf4kM57HsmaUwhRneNp/clp4VP+WP18HqqXRrid3QwfiPjah/x
+ZKn52TeG4fYkaObsZt6eH7IMKnYIQy6eiFr9x+o3sGASyIoe6Atnomc+9qHcEQVH
+fUDcgktkeP8/dgxxbKp5EUWmn8xKUnuZ7lPnuxZw0QKBgQDJJ21pHwOr9EuB4GL/
+cLzVRXsiFlXG8k4aViGDppCkCWbvIO7gISr8Jz/GEmm41uUulwN7XYVfqOXp5/JA
+kM4+PKg7h4M59VilX1UdyFTh2VhTXJxhrZr9DmrdOl5UW4hiMArIaFkG9q5xDLqj
+gl1bCgV/UY8UqW9DxeGZP/fkBQKBgQDENdqVSAOTFM7ZeCyRuQa14qb7o9n3Dbwa
+rCvJhx7xubl/6yqc1WUaYNyxE6cMM39aqc0HylSYCO6JeNupkOBDIc4QQ/hFpHyN
+MkM6QF1aGCaDbYhxqxbNy7GYXC9qNFp6RdJFeQPRArBmZCtKJ8fmYpgEftxu+wro
+jRULFPp7/QKBgQCY09vMgkPH4VN82X5dlMnjP2bN/yosfOvaFpZf76z09C/AfsT+
+hDSkXy2Uz2iDhsGZJCMBF4y9oRUNIaxsYZhQsMUgdVS+NCmle0iv2ASlkvwIWdR2
+Ye/fU5Tdf/srHGACOX33xU/eeo0OVx12HRXQlUyX7t9GU3S1iSJdzLwKAQKBgGxk
+x+2CTB879o3jOtQCIHfoz5Di0u4N02X0yXfawriNfrHxS6g6p1DsQ987WSR/apK+
+jXsJRrR68rRVZRyG4a2Uhk8sDYMDvJ8QLl2G40t7XgNrRl5tQvrL1b+y5arJY1Z7
+Lg+dLAOSdbsLCXM9CMz4mLybDNHus/cGwaJOo5ZNAoGBAIVxS3sgC6HO06sKjyah
+GnNp6Aa0ycG7mz7sprvXUhR3cwE8vUBwuDou3cDI9ojM/j2DxTp6XrK6Mpbyx686
+WggiLmmjHyzYtNl8B2kFFKDY5f5yEn6jGxIbq3/2t5H9FmcP5EV7lh31qrJYMSc7
+s/pi8RDMGUU5KCBEOJBvidP4
+-----END PRIVATE KEY-----
 `
 
 	PUBLIC_KEY = `
@@ -261,12 +259,14 @@ func newTestContext(mode string) (*Context, error) {
 		return nil, fmt.Errorf("failed to load the test private key: %s", err.Error())
 	}
 	defer os.Remove(privateKey.Name())
+	secret := "secret"
 	if mode == "jwe" {
 		privateKey.WriteString(PRIVATE_KEY_JWE)
+		secret = ""
 	}
 	privateKey.WriteString(PRIVATE_KEY_JWS)
 
-	return New("https://nsp-dev.9spokes.io/dex/keys", "./"+trustStore.Name(), "./"+privateKey.Name(), "secret")
+	return New("https://nsp-dev.9spokes.io/dex/keys", "./"+trustStore.Name(), "./"+privateKey.Name(), secret)
 }
 
 func Test_ValidateJWS(t *testing.T) {
@@ -347,11 +347,11 @@ func Test_ValidateJWE(t *testing.T) {
 		err   string
 	}{
 		{
-			name:  "Valid token",
+			name:  "Token is expired",
 			ctx:   ctx,
 			token: JWE,
-			want:  "C9E79D4CD516A97D34E358E91E898633",
-			err:   "",
+			want:  "",
+			err:   "Token is expired",
 		},
 	}
 	for _, tt := range tests {
@@ -433,9 +433,9 @@ func Test_getSigningKey(t *testing.T) {
 			err:   "",
 		},
 		{
-			name:  "kid success",
+			name:  "invalid kid",
 			token: JWS_KID,
-			err:   "",
+			err:   "no key found",
 		},
 	}
 	for _, tt := range tests {
