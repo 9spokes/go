@@ -24,6 +24,7 @@ const (
 )
 
 type ErrorResponse struct {
+	Err        error
 	Message    string `json:"message"`
 	Severity   string `json:"severity"`
 	ID         string `json:"id"`
@@ -33,7 +34,10 @@ type ErrorResponse struct {
 func (e ErrorResponse) Error() string {
 	m := fmt.Sprintf("%s: %s", e.Message, e.ID)
 	if e.HTTPStatus > 0 {
-		return fmt.Sprintf("[HTTP %d] %s", e.HTTPStatus, m)
+		m = fmt.Sprintf("[HTTP %d] %s", e.HTTPStatus, m)
+	}
+	if e.Err != nil {
+		m = fmt.Sprintf("%s, Error: %s", m, e.Err.Error())
 	}
 	return m
 }
