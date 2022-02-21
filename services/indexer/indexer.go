@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -18,6 +19,10 @@ type Context struct {
 	ClientSecret string
 	Logger       *logging.Logger
 }
+
+var (
+	ErrNotFound = errors.New("not found")
+)
 
 // NewIndex creates a new index for a given connection and datasource.  It returns the new index document
 func (ctx *Context) NewIndex(index *Index) (*Index, error) {
@@ -146,6 +151,10 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
 		return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
+	}
+
+	if response.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
 	}
 
 	if parsed.Status != "ok" {
