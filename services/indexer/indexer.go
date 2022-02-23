@@ -139,6 +139,10 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 		ContentType: "application/json",
 	}.Get()
 
+	if response != nil && response.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", url, err.Error())
 	}
@@ -151,10 +155,6 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
 		return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
-	}
-
-	if response.StatusCode == http.StatusNotFound {
-		return nil, ErrNotFound
 	}
 
 	if parsed.Status != "ok" {
