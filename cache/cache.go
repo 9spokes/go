@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"github.com/9spokes/go/logging/v3"
-	"github.com/bsm/redislock"
+
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
+
 	redis "github.com/go-redis/redis/v8"
 )
 
@@ -19,7 +22,7 @@ type Context struct {
 	Redis      *redis.Client
 	MaxRetries int
 	Wait       int
-	Locker     *redislock.Client
+	RedSync    *redsync.Redsync
 }
 
 // MaxRetries is the number of times we re-attempt to access the cache when it is locked
@@ -42,23 +45,28 @@ func New(url string) (*Context, error) {
 		return nil, fmt.Errorf("failed to parse Redis URL: %s", err.Error())
 	}
 
+	client := redis.NewClient(&redis.Options{
+		Addr:         redisOpts.Addr,
+		Password:     redisOpts.Password,
+		DB:           redisOpts.DB,
+		DialTimeout:  10 * time.Second,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		PoolSize:     100,
+		PoolTimeout:  30 * time.Second,
+	})
+
+	pool := goredis.NewPool(client)
+
+	rs := redsync.New(pool)
+
 	ctx := Context{
-		Redis: redis.NewClient(&redis.Options{
-			Addr:         redisOpts.Addr,
-			Password:     redisOpts.Password,
-			DB:           redisOpts.DB,
-			DialTimeout:  10 * time.Second,
-			ReadTimeout:  30 * time.Second,
-			WriteTimeout: 30 * time.Second,
-			PoolSize:     10,
-			PoolTimeout:  30 * time.Second,
-		}),
+		Redis:      client,
 		URL:        url,
 		MaxRetries: MaxRetries,
 		Wait:       Wait,
+		RedSync:    rs,
 	}
-
-	ctx.Locker = redislock.New(ctx.Redis)
 
 	_, err = ctx.Redis.Ping(context.Background()).Result()
 	if err != nil {
@@ -127,13 +135,29 @@ func (ctx *Context) Save(lckCtx context.Context, id string, data interface{}) er
 	return nil
 }
 
-// Lock puts a special marker into a redis hash entry preventing future access
-func (ctx *Context) Lock(lckCtx context.Context, id string) (*redislock.Lock, error) {
+func (ctx *Context) Lock(id string) (func(), error) {
 
-	logging.Debugf("[%s] Locking cache entry", id)
-	retryStrategy := redislock.LimitRetry(redislock.ExponentialBackoff(LckRetryTTLMin*time.Millisecond, LckRetryTTLMax*time.Millisecond), LckRetryCount)
-	// Try to obtain lock for the connection for 300 ms
-	return ctx.Locker.Obtain(lckCtx, id, LckLockTTL*time.Second, &redislock.Options{RetryStrategy: retryStrategy})
+	mutex := ctx.RedSync.NewMutex(id)
+
+	for i := 0; i < ctx.MaxRetries; i++ {
+		err := mutex.Lock()
+		//Failed to acquire lock after exhausting all retries, keep try until its unlocked
+		if err == redsync.ErrFailed {
+			logging.Debugf("failed to acquire lock after exhausting all retries, sleeping for %d seconds before retrying", Wait)
+			time.Sleep(time.Second * Wait)
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		break
+	}
+
+	return func() {
+		if ok, err := mutex.Unlock(); !ok || err != nil {
+			logging.Errorf("failed to unlock, ok: %d, err: %w",ok, err)
+		}
+	}, nil
 }
 
 // Clear removes a Redis cache entry identified by the "id" parameter
