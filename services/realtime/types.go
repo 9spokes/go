@@ -1,6 +1,6 @@
-package types
+package realtime
 
-type Account struct {
+type BankingAccount struct {
 	AccountID       string  `json:"account_id,omitempty"`
 	AccountActive   bool    `json:"account_active,omitempty"`
 	AccountBalance  float64 `json:"account_balance,omitempty"`
