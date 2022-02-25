@@ -27,8 +27,9 @@ type OAuth2 struct {
 
 // Options are a set of flags & modifiers to the OAuth2 implementation
 type Options struct {
-	AuthInHeader bool `default:"false"`
-	DataInQuery  bool `default:"false"`
+	AuthInHeader           bool `default:"false"`
+	DataInQuery            bool `default:"false"`
+	IncludeResponseCookies bool `default:"false"`
 }
 
 func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]interface{}, error) {
@@ -118,26 +119,37 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 
 	contentType := response.Headers["Content-Type"][0]
 
+	var ret map[string]interface{}
+
 	if strings.Contains(contentType, "application/json") {
 		parsed, ok := response.JSON.(map[string]interface{})
 		if !ok {
 			return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrDeserialiseFailed, Message: fmt.Sprintf("failed to deserialise the response: %s", response.Body)}
 		}
-		return parsed, nil
+
+		ret = parsed
 	}
 
 	if strings.Contains(contentType, "application/x-www-form-urlencoded") || strings.Contains(contentType, "text/html") {
 
 		m, _ := url.ParseQuery(string(response.Body))
-		ret := make(map[string]interface{})
+		ret = make(map[string]interface{})
 		for k, v := range m {
 			ret[k] = v[0]
 		}
-
-		return ret, nil
 	}
 
-	return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrResponseFormatUnknown, Message: "could not determine content type encoding from response"}
+	if ret == nil {
+		return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrResponseFormatUnknown, Message: "could not determine content type encoding from response"}
+	}
+
+	if opt.IncludeResponseCookies {
+		for _, cookie := range response.Cookies {
+			ret[cookie.Name] = cookie.Value
+		}
+	}
+
+	return ret, nil
 }
 
 // Authorize implements an OAuth2 authorization using the parameters defined in the OAuth2 struct
