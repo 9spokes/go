@@ -106,6 +106,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 			ID:         types.ErrError,
 			Message:    fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error()),
 			HTTPStatus: code,
+			Severity:   types.ErrSeverityFatal,
 		}
 	}
 
