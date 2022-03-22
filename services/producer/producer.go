@@ -18,8 +18,8 @@ type Context struct {
 	Logger       *logging.Logger
 }
 
-// ImmediateETL takes a connection ID and notifies the producer to kick off the Immediate ETL cycle for that particular connection.
-func (ctx Context) ImmediateETL(conn, osp string) error {
+// ImmediateETL takes a connection ID and notifies the producer to kick off the Immediate ETL cycle for that particular connection. If datasource and cycle is not provided, it will trigger extraction for all datasources in the configuration.
+func (ctx Context) ImmediateETL(conn, osp, ds, cycle string) error {
 
 	response, err := http.Request{
 		URL: ctx.URL,
@@ -29,7 +29,7 @@ func (ctx Context) ImmediateETL(conn, osp string) error {
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/json",
-		Body:        []byte(fmt.Sprintf("{\"connection\":\"%s\", \"osp\":\"%s\"}", conn, osp)),
+		Body:        []byte(fmt.Sprintf("{\"connection\":\"%s\", \"osp\":\"%s\", \"datasource\":\"%s\", \"cycle\":\"%s\"}", conn, osp, ds, cycle)),
 	}.Post()
 
 	if err != nil {
