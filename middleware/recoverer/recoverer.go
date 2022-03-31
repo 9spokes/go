@@ -25,3 +25,15 @@ func Recoverer(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func RecoverGoroutinePanic(logDetail string, cleanup func(err interface{}), finally func()) {
+	if err := recover(); err != nil {
+		logging.Errorf("Unhandled panic in goroutine %s: %v, \nstack: %s", logDetail, err, debug.Stack())
+		if cleanup != nil {
+			cleanup(err)
+		}
+	}
+	if finally != nil {
+		finally()
+	}
+}
