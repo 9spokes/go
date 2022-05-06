@@ -15,7 +15,11 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *logging.Logger
+}
+
+type ThrottlerOptions struct {
+	Retries       int
+	CorrelationID string
 }
 
 var (
@@ -27,12 +31,12 @@ var (
 // You must call this function before initiating any outbound connection which enforces a rate limiting policy.
 //
 // The function will block until a valid token is returned from the throttling service hence you may wish to implement a timeout
-func (ctx Context) GetToken(osp string, retries int) error {
+func (ctx Context) GetToken(osp string, opt ThrottlerOptions) error {
 
-	logging.Debugf("[%s] Getting rate-limiting token", osp)
+	logging.Debugf("[CorrID:%s][%s] Getting rate-limiting token", opt.CorrelationID, osp)
 
 	url := fmt.Sprintf("%s/token/%s", ctx.URL, osp)
-	logging.Debugf("[%s] URL is: %s", osp, ctx.URL)
+	logging.Debugf("[CorrID:%s][%s] URL is: %s", opt.CorrelationID, osp, ctx.URL)
 
 	request := http.Request{
 		URL: url,
@@ -41,29 +45,32 @@ func (ctx Context) GetToken(osp string, retries int) error {
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
+		Headers: map[string]string{
+			"x-correlation-id": opt.CorrelationID,
+		},
 		ContentType: "application/json",
 	}
 
-	for i := 0; i < retries; i++ {
-		logging.Debugf("[%s] Attempt #%d", osp, i+1)
+	for i := 0; i < opt.Retries; i++ {
+		logging.Debugf("[CorrID:%s][%s] Attempt #%d", opt.CorrelationID, osp, i+1)
 		response, err := request.Get()
 		if err != nil {
 			return fmt.Errorf("failed to issue request: %w", err)
 		}
 
 		if response.StatusCode == 200 {
-			logging.Debugf("[%s] Successfully acquired rate-limiting token", osp)
+			logging.Debugf("[CorrID:%s][%s] Successfully acquired rate-limiting token", opt.CorrelationID, osp)
 			return nil
 		}
 
 		if response.StatusCode != 429 {
-			logging.Debugf("[%s] Unexpected response from throttling service: %d", osp, response.StatusCode)
+			logging.Debugf("[CorrID:%s][%s] Unexpected response from throttling service: %d", opt.CorrelationID, osp, response.StatusCode)
 			return fmt.Errorf("unexpected response from throttling service: %d", response.StatusCode)
 		}
 
 		time.Sleep(5 * time.Second)
 	}
 
-	logging.Errorf("[%s] Failed to acquire rate-limtiing token after %d attempts", osp, retries)
+	logging.Errorf("[CorrID:%s][%s] Failed to acquire rate-limtiing token after %d attempts", opt.CorrelationID, osp, opt.Retries)
 	return ErrTooManyRequests
 }
