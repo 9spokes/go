@@ -38,10 +38,10 @@ func (ctx Context) WithCID(correlationID string) Context {
 // The function will block until a valid token is returned from the throttling service hence you may wish to implement a timeout
 func (ctx Context) GetToken(osp string, retries int) error {
 
-	logging.Debugf("[%s] Getting rate-limiting token", osp)
+	logging.Debugf("[CID: %s][%s] Getting rate-limiting token", ctx.CorrelationID, osp)
 
 	url := fmt.Sprintf("%s/token/%s", ctx.URL, osp)
-	logging.Debugf("[%s] URL is: %s", osp, ctx.URL)
+	logging.Debugf("[CID: %s][%s] URL is: %s", ctx.CorrelationID, osp, ctx.URL)
 
 	request := http.Request{
 		URL: url,
@@ -50,33 +50,32 @@ func (ctx Context) GetToken(osp string, retries int) error {
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
+		Headers: map[string]string{
+			"x-correlation-id": ctx.CorrelationID,
+		},
 		ContentType: "application/json",
 	}
 
-	if ctx.CorrelationID != "" {
-		request.Headers["x-correlation-id"] = ctx.CorrelationID
-	}
-
 	for i := 0; i < retries; i++ {
-		logging.Debugf("[%s] Attempt #%d", osp, i+1)
+		logging.Debugf("[CID: %s][%s] Attempt #%d", ctx.CorrelationID, osp, i+1)
 		response, err := request.Get()
 		if err != nil {
 			return fmt.Errorf("failed to issue request: %w", err)
 		}
 
 		if response.StatusCode == 200 {
-			logging.Debugf("[%s] Successfully acquired rate-limiting token", osp)
+			logging.Debugf("[CID: %s][%s] Successfully acquired rate-limiting token", ctx.CorrelationID, osp)
 			return nil
 		}
 
 		if response.StatusCode != 429 {
-			logging.Debugf("[%s] Unexpected response from throttling service: %d", osp, response.StatusCode)
+			logging.Debugf("[CID: %s][%s] Unexpected response from throttling service: %d", ctx.CorrelationID, osp, response.StatusCode)
 			return fmt.Errorf("unexpected response from throttling service: %d", response.StatusCode)
 		}
 
 		time.Sleep(5 * time.Second)
 	}
 
-	logging.Errorf("[%s] Failed to acquire rate-limtiing token after %d attempts", osp, retries)
+	logging.Errorf("[CID: %s][%s] Failed to acquire rate-limtiing token after %d attempts", ctx.CorrelationID, osp, retries)
 	return ErrTooManyRequests
 }
