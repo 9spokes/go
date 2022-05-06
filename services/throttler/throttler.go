@@ -17,7 +17,7 @@ type Context struct {
 	ClientSecret string
 }
 
-type Options struct {
+type ThrottlerOptions struct {
 	Retries       int
 	CorrelationID string
 }
@@ -31,7 +31,7 @@ var (
 // You must call this function before initiating any outbound connection which enforces a rate limiting policy.
 //
 // The function will block until a valid token is returned from the throttling service hence you may wish to implement a timeout
-func (ctx Context) GetToken(osp string, opt Options) error {
+func (ctx Context) GetToken(osp string, opt ThrottlerOptions) error {
 
 	logging.Debugf("[CorrID:%s][%s] Getting rate-limiting token", opt.CorrelationID, osp)
 
