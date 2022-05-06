@@ -12,15 +12,24 @@ import (
 
 // Context represents a connection object into the token service
 type Context struct {
-	URL          string
-	ClientID     string
-	ClientSecret string
-	Logger       *logging.Logger
+	URL           string
+	ClientID      string
+	ClientSecret  string
+	CorrelationID string
 }
 
 var (
 	ErrTooManyRequests = errors.New("failed to acquire token")
 )
+
+func (ctx Context) WithCID(correlationID string) Context {
+	return Context{
+		URL:           ctx.URL,
+		ClientID:      ctx.ClientID,
+		ClientSecret:  ctx.ClientSecret,
+		CorrelationID: correlationID,
+	}
+}
 
 // GetToken is a helper function that retrieves a token from the OSP rate limiting service `etl-throttler`.
 //
@@ -42,6 +51,10 @@ func (ctx Context) GetToken(osp string, retries int) error {
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/json",
+	}
+
+	if ctx.CorrelationID != "" {
+		request.Headers["x-correlation-id"] = ctx.CorrelationID
 	}
 
 	for i := 0; i < retries; i++ {
