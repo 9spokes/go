@@ -38,10 +38,10 @@ func (ctx Context) WithCID(correlationID string) Context {
 // The function will block until a valid token is returned from the throttling service hence you may wish to implement a timeout
 func (ctx Context) GetToken(osp string, retries int) error {
 
-	logging.Debugf("[CID: %s][%s] Getting rate-limiting token", ctx.CorrelationID, osp)
+	logging.Debugf("[CorrID:%s][%s] Getting rate-limiting token", ctx.CorrelationID, osp)
 
 	url := fmt.Sprintf("%s/token/%s", ctx.URL, osp)
-	logging.Debugf("[CID: %s][%s] URL is: %s", ctx.CorrelationID, osp, ctx.URL)
+	logging.Debugf("[CorrID:%s][%s] URL is: %s", ctx.CorrelationID, osp, ctx.URL)
 
 	request := http.Request{
 		URL: url,
@@ -57,25 +57,25 @@ func (ctx Context) GetToken(osp string, retries int) error {
 	}
 
 	for i := 0; i < retries; i++ {
-		logging.Debugf("[CID: %s][%s] Attempt #%d", ctx.CorrelationID, osp, i+1)
+		logging.Debugf("[CorrID:%s][%s] Attempt #%d", ctx.CorrelationID, osp, i+1)
 		response, err := request.Get()
 		if err != nil {
 			return fmt.Errorf("failed to issue request: %w", err)
 		}
 
 		if response.StatusCode == 200 {
-			logging.Debugf("[CID: %s][%s] Successfully acquired rate-limiting token", ctx.CorrelationID, osp)
+			logging.Debugf("[CorrID:%s][%s] Successfully acquired rate-limiting token", ctx.CorrelationID, osp)
 			return nil
 		}
 
 		if response.StatusCode != 429 {
-			logging.Debugf("[CID: %s][%s] Unexpected response from throttling service: %d", ctx.CorrelationID, osp, response.StatusCode)
+			logging.Debugf("[CorrID:%s][%s] Unexpected response from throttling service: %d", ctx.CorrelationID, osp, response.StatusCode)
 			return fmt.Errorf("unexpected response from throttling service: %d", response.StatusCode)
 		}
 
 		time.Sleep(5 * time.Second)
 	}
 
-	logging.Errorf("[CID: %s][%s] Failed to acquire rate-limtiing token after %d attempts", ctx.CorrelationID, osp, retries)
+	logging.Errorf("[CorrID:%s][%s] Failed to acquire rate-limtiing token after %d attempts", ctx.CorrelationID, osp, retries)
 	return ErrTooManyRequests
 }
