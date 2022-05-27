@@ -9,4 +9,5 @@ type BankingAccount struct {
 	AccountType     string  `json:"account_type,omitempty"`
 	AccountCategory string  `json:"account_category,omitempty"`
 	AccountStatus   string  `json:"account_status,omitempty"`
+	AccountNumber   string  `json:"account_number,omitempty"`
 }
