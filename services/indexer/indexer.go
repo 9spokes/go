@@ -212,9 +212,17 @@ func (ctx *Context) UpdateIndex(conn, datasource, cycle, index, outcome string, 
 	return nil
 }
 
-func (ctx *Context) GetDatasourceStatus(conn, datasource string) (*IndexStatus, error) {
+// GetIndex returns the datasource status from the designated indexer service
+// instance. If the datasource is not specified the statuses of all datasources
+// belonging to the specified connection are returned.
+func (ctx *Context) GetDatasourceStatus(conn, datasource string) ([]*IndexStatus, error) {
 
-	url := fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
+	var url string
+	if datasource == "" {
+		url = fmt.Sprintf("%s/connections/%s/status", ctx.URL, conn)
+	} else {
+		url = fmt.Sprintf("%s/connections/%s/%s/status", ctx.URL, conn, datasource)
+	}
 
 	logging.Debugf("Invoking Indexer service at: %s", url)
 
@@ -228,14 +236,36 @@ func (ctx *Context) GetDatasourceStatus(conn, datasource string) (*IndexStatus, 
 		ContentType: "application/json",
 	}.Get()
 
+	if response != nil && response.StatusCode == http.StatusNotFound {
+		return nil, ErrNotFound
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", url, err.Error())
 	}
 
+	if datasource != "" {
+		var parsed struct {
+			Status  string       `json:"status"`
+			Message string       `json:"message"`
+			Details *IndexStatus `json:"details"`
+		}
+
+		if err := json.Unmarshal(response.Body, &parsed); err != nil {
+			return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
+		}
+
+		if parsed.Status != "ok" {
+			return nil, fmt.Errorf("non-OK response received from Indexer service: %s", parsed.Message)
+		}
+
+		return []*IndexStatus{parsed.Details}, nil
+	}
+
 	var parsed struct {
-		Status  string       `json:"status"`
-		Message string       `json:"message"`
-		Details *IndexStatus `json:"details"`
+		Status  string         `json:"status"`
+		Message string         `json:"message"`
+		Details []*IndexStatus `json:"details"`
 	}
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
