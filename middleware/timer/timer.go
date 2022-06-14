@@ -19,7 +19,7 @@ func Timer(limit int64) func(next http.Handler) http.Handler {
 			elapsed := time.Since(startTime)
 
 			if elapsed.Milliseconds() > limit {
-				logging.Warningf("Slow request [URI: %s, duration: %s]", r.RequestURI, elapsed)
+				logging.Warningf("Slow response [URI: %s, duration: %s]", r.RequestURI, elapsed)
 			}
 		})
 	}
