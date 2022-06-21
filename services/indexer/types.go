@@ -42,6 +42,8 @@ type Index struct {
 
 // IndexStatus is the response type for getting index status
 type IndexStatus struct {
+	Datasource  string    `json:"datasource"`
+	Status      string    `json:"status"`
 	Total       int       `json:"total"`
 	Completed   int       `json:"completed"`
 	Percent     float64   `json:"percent"`
