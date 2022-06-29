@@ -12,9 +12,9 @@ type BankingAccount struct {
 	AccountNumber           string  `json:"account_number,omitempty"`
 	AccountNumberDisplay    string  `json:"account_number_display,omitempty"`
 	AccountNextPayDate      string  `json:"account_next_pay_date,omitempty"`
-	AccountMinPayAmount     string  `json:"account_min_pay_amount,omitempty"`
-	AccountLastPayAmount    string  `json:"account_last_pay_amount,omitempty"`
-	AccountCashAdvanceLimit string  `json:"account_cash_advance_limit,omitempty"`
+	AccountMinPayAmount     float64 `json:"account_min_pay_amount,omitempty"`
+	AccountLastPayAmount    float64 `json:"account_last_pay_amount,omitempty"`
+	AccountCashAdvanceLimit float64 `json:"account_cash_advance_limit,omitempty"`
 	AccountPointsAccrued    string  `json:"account_points_accrued,omitempty"`
-	AccountRewardsBalance   string  `json:"account_rewards_balance,omitempty"`
+	AccountRewardsBalance   float64 `json:"account_rewards_balance,omitempty"`
 }
