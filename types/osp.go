@@ -3,6 +3,7 @@ package types
 //OSP is an Online Service Provider definition
 type OSP struct {
 	Name        string            `json:"osp"`
+	NewETL      bool              `json:"new_etl"`
 	Credentials map[string]string `json:"credentials,omitempty"`
 	Tiles       []OSPTile         `json:"tiles"`
 	Proxy       string            `json:"proxy,omitempty"`
