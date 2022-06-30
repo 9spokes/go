@@ -16,7 +16,7 @@ type Context struct {
 }
 
 // ImmediateETL takes a connection ID and notifies the extractor to kick off the connection based Immediate ETL.
-func (ctx Context) ImmediateETL(conn, osp, ds, cycle string) error {
+func (ctx Context) ImmediateETL(conn string) error {
 
 	response, err := http.Request{
 		URL: ctx.URL,
