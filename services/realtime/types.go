@@ -18,3 +18,5 @@ type BankingAccount struct {
 	AccountPointsAccrued    string  `json:"account_points_accrued,omitempty"`
 	AccountRewardsBalance   float64 `json:"account_rewards_balance,omitempty"`
 }
+
+//
