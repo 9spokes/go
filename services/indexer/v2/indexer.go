@@ -24,6 +24,8 @@ var (
 // GetIndexes returns a connection by ID from the designated indexer service instance
 func (ctx *Context) GetIndexes(conn string) (map[string][]IndexEntry, error) {
 
+	indexes := make(map[string][]IndexEntry)
+
 	defer func() {
 		if r := recover(); r != nil {
 			logging.Errorf("An error occured parsing the response from the Indexer service: %s", r)
@@ -46,11 +48,11 @@ func (ctx *Context) GetIndexes(conn string) (map[string][]IndexEntry, error) {
 	}.Get()
 
 	if response != nil && response.StatusCode == http.StatusNotFound {
-		return nil, ErrNotFound
+		return indexes, ErrNotFound
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("error invoking Indexer service at: %s: %s", url, err.Error())
+		return indexes, fmt.Errorf("error invoking Indexer service at: %s: %s", url, err.Error())
 	}
 
 	var parsed struct {
@@ -60,14 +62,16 @@ func (ctx *Context) GetIndexes(conn string) (map[string][]IndexEntry, error) {
 	}
 
 	if err := json.Unmarshal(response.Body, &parsed); err != nil {
-		return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
+		return indexes, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
 	}
 
 	if parsed.Status != "ok" {
-		return nil, fmt.Errorf("non-OK response received from Indexer service: %s", parsed.Message)
+		return indexes, fmt.Errorf("non-OK response received from Indexer service: %s", parsed.Message)
 	}
 
-	return parsed.Details, nil
+	indexes = parsed.Details
+
+	return indexes, nil
 }
 
 // UpdateIndex updates an entry with the data provided
