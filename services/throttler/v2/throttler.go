@@ -5,27 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 )
 
 // Context represents a handle into the throttler service
 type Context struct {
 	URL string
-}
-
-func connect(url string) (net.Conn, error) {
-	for {
-		c, err := net.Dial("tcp", url)
-		if err != nil {
-			if strings.Contains(err.Error(), "too many open files") {
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return nil, err
-		}
-		return c, err
-	}
 }
 
 func get(c net.Conn, req Request) (*Response, error) {
@@ -66,7 +51,7 @@ func get(c net.Conn, req Request) (*Response, error) {
 // ticket.
 //
 // The following call requests a ticket for BAC and is willing to wait up to
-// 5 minutes for that ticket in case one is not available right away.
+// 5 minutes in case one is not available right away.
 //
 //	ctx.GetTicket(Request{
 //		Osp: "bac",
@@ -87,20 +72,22 @@ func get(c net.Conn, req Request) (*Response, error) {
 func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (net.Conn, error) {
 
 	for deadline := time.Now().Add(opt.MaxWait); time.Until(deadline) >= 0; {
-		c, err := connect(ctx.URL)
+		c, err := net.Dial("tcp", ctx.URL)
 		if err != nil {
-			return nil, err
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
 
 		resp, err := get(c, req)
 		if err != nil {
-			if resp.Retry.Before(deadline) {
+			c.Close()
+
+			if !resp.Retry.IsZero() && resp.Retry.Before(deadline) {
 				time.Sleep(time.Until(resp.Retry))
 				continue
 			}
 
-			c.Close()
-			return c, fmt.Errorf(resp.Message)
+			return nil, fmt.Errorf(resp.Message)
 		}
 
 		return c, nil
