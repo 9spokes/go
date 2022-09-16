@@ -44,9 +44,16 @@ func get(c net.Conn, req Request) (*Response, error) {
 	return resp, nil
 }
 
+// Returns a ticket after it has been used
+func (t Ticket) Return() {
+	if t.Conn != nil {
+		t.Conn.Close()
+	}
+}
+
 // Asks the Throttler Svc for permission to call an external API that is
 // protected by the rate limits specified in the request. It returns a
-// connection which should be closed by the caller after the ticket is used.
+// ticket which should be returned by the caller after it is used.
 // Closing the connection notifies the Throttler Svc that it can recycle the
 // ticket.
 //
@@ -69,7 +76,7 @@ func get(c net.Conn, req Request) (*Response, error) {
 //			"views-per-day": "051a1952-a10d-4ade-9e2f-92d8f2c4f390",
 //			"views-per-min": "132a531c-bf79-42ec-8a6b-a08c684a8e44",
 //	}}, ThrottlerOptions{MaxWait: time.Minute * 2})
-func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (net.Conn, error) {
+func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (*Ticket, error) {
 
 	for deadline := time.Now().Add(opt.MaxWait); time.Until(deadline) >= 0; {
 		c, err := net.Dial("tcp", ctx.URL)
@@ -90,7 +97,7 @@ func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (net.Conn, error
 			return nil, fmt.Errorf(resp.Message)
 		}
 
-		return c, nil
+		return &Ticket{Conn: c}, nil
 	}
 
 	return nil, fmt.Errorf("reached deadline")
