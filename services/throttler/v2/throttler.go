@@ -5,27 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 )
 
 // Context represents a handle into the throttler service
 type Context struct {
 	URL string
-}
-
-func connect(url string) (net.Conn, error) {
-	for {
-		c, err := net.Dial("tcp", url)
-		if err != nil {
-			if strings.Contains(err.Error(), "too many open files") {
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return nil, err
-		}
-		return c, err
-	}
 }
 
 func get(c net.Conn, req Request) (*Response, error) {
@@ -59,14 +44,21 @@ func get(c net.Conn, req Request) (*Response, error) {
 	return resp, nil
 }
 
+// Returns a ticket after it has been used
+func (t Ticket) Return() {
+	if t.Conn != nil {
+		t.Conn.Close()
+	}
+}
+
 // Asks the Throttler Svc for permission to call an external API that is
 // protected by the rate limits specified in the request. It returns a
-// connection which should be closed by the caller after the ticket is used.
+// ticket which should be returned by the caller after it is used.
 // Closing the connection notifies the Throttler Svc that it can recycle the
 // ticket.
 //
 // The following call requests a ticket for BAC and is willing to wait up to
-// 5 minutes for that ticket in case one is not available right away.
+// 5 minutes in case one is not available right away.
 //
 //	ctx.GetTicket(Request{
 //		Osp: "bac",
@@ -84,26 +76,28 @@ func get(c net.Conn, req Request) (*Response, error) {
 //			"views-per-day": "051a1952-a10d-4ade-9e2f-92d8f2c4f390",
 //			"views-per-min": "132a531c-bf79-42ec-8a6b-a08c684a8e44",
 //	}}, ThrottlerOptions{MaxWait: time.Minute * 2})
-func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (net.Conn, error) {
+func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (*Ticket, error) {
 
 	for deadline := time.Now().Add(opt.MaxWait); time.Until(deadline) >= 0; {
-		c, err := connect(ctx.URL)
+		c, err := net.Dial("tcp", ctx.URL)
 		if err != nil {
-			return nil, err
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
 
 		resp, err := get(c, req)
 		if err != nil {
-			if resp.Retry.Before(deadline) {
+			c.Close()
+
+			if !resp.Retry.IsZero() && resp.Retry.Before(deadline) {
 				time.Sleep(time.Until(resp.Retry))
 				continue
 			}
 
-			c.Close()
-			return c, fmt.Errorf(resp.Message)
+			return nil, fmt.Errorf(resp.Message)
 		}
 
-		return c, nil
+		return &Ticket{Conn: c}, nil
 	}
 
 	return nil, fmt.Errorf("reached deadline")
