@@ -23,6 +23,5 @@ type Response struct {
 }
 
 type Ticket struct {
-	CID  string
 	Conn net.Conn
 }
