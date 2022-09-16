@@ -21,6 +21,8 @@ type ThrottlerOptions struct {
 	MaxWait       time.Duration
 }
 
+var ErrTooManyRequests = v1.ErrTooManyRequests
+
 func (ctx Context) GetToken(osp string, opt ThrottlerOptions) (*v2.Ticket, error) {
 
 	if ctx.URL == "http://throttlerng" {
