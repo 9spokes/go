@@ -2,6 +2,7 @@ package throttler
 
 import (
 	"net/url"
+	"strings"
 	"time"
 
 	v1 "github.com/9spokes/go/services/throttler/v1"
@@ -25,7 +26,7 @@ var ErrTooManyRequests = v1.ErrTooManyRequests
 
 func (ctx Context) GetToken(osp string, opt ThrottlerOptions) (*v2.Ticket, error) {
 
-	if ctx.URL == "http://throttlerng" {
+	if strings.Contains(ctx.URL, "throttlerng") {
 		u, err := url.Parse(osp)
 		if err != nil {
 			return nil, err
