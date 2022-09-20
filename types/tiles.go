@@ -55,6 +55,18 @@ type ListTileEntry struct {
 	IsSubRow  bool           `json:"isSubRow,omitempty"`
 	Direction string         `json:"direction,omitempty"`
 	Footer    ListTileFooter `json:"footer,omitempty"`
+	Icon      string         `json:"icon,omitempty"`
+	Event     *ListTileEvent `json:"event,omitempty"`
+}
+
+type ListTileEvent struct {
+	OnClick *ListTileClickEvent `json:"onClick,omitempty"`
+}
+
+type ListTileClickEvent struct {
+	Action string `json:"action,omitempty"`
+	URL    string `json:"url,omitempty"`
+	Value  string `json:"value,omitempty"`
 }
 
 // GraphTile is a 9 Spokes V2 area chart tile data format
