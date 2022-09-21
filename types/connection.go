@@ -8,7 +8,7 @@ type Document map[string]interface{}
 // Connection represents a Connection document object as stored in the database
 type Connection struct {
 	ID            string    `json:"id" bson:"connection"`               // The unique connection ID
-	Platform        string    `json:"platform" bson:"platform"`         // Either "tracker" or "odp"
+	Platform      string    `json:"platform" bson:"platform"`           // Either "tracker" or "odp"
 	Credentials   Document  `bson:"credentials" json:"credentials"`     // A map of key/value pairs representing OSP credentials
 	Demo          bool      `bson:"demo" json:"demo" default:"false"`   // Whether this is a demo connection or not, determines how to render tiles
 	Token         Document  `bson:"token" json:"token"`                 // Contains the encrypted and decrypted access & refresh tokens
@@ -26,11 +26,11 @@ type Connection struct {
 
 // ConnectionSummary is a short-form connection object as returned by the token service, it excludes sensitive info and is meant as a summary
 type ConnectionSummary struct {
-	ID           string      `json:"id,omitempty"`
-	Created      time.Time   `json:"created" bson:"created,omitempty"`
-	Modified     time.Time   `json:"modified" bson:"modified,omitempty"`
-	OSP          string      `json:"osp" bson:"osp,omitempty"`
-	Status       string      `json:"status" bson:"status,omitempty"`
-	AuthorizeURL string      `json:"authorize_url,omitempty"`
-	Settings     interface{} `json:"settings"`
+	ID           string    `json:"id,omitempty"`
+	Created      time.Time `json:"created" bson:"created,omitempty"`
+	Modified     time.Time `json:"modified" bson:"modified,omitempty"`
+	OSP          string    `json:"osp" bson:"osp,omitempty"`
+	Status       string    `json:"status" bson:"status,omitempty"`
+	AuthorizeURL string    `json:"authorize_url,omitempty"`
+	Settings     Document  `json:"settings"`
 }
