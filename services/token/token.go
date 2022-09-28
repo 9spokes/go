@@ -65,23 +65,35 @@ func (ctx Context) InitiateETL(id string) error {
 	return nil
 }
 
-// GetConnection returns a connection by ID from the designated Token service instance
+// Returns a connection by ID from the designated Token service instance
 func (ctx Context) GetConnection(id string) (*types.Connection, error) {
+	return ctx.getConnection(id, false)
+}
 
-	url := fmt.Sprintf("%s/connections/%s", ctx.URL, id)
+// Returns a connection by ID from the designated Token service instance. Refreshes
+// the access token before returning the connection if necessary.
+func (ctx Context) GetConnectionWithRefresh(id string) (*types.Connection, error) {
+	return ctx.getConnection(id, true)
+}
 
-	logging.Debugf("Invoking Token service at: %s", url)
-
-	response, err := http.Request{
-		URL: url,
+func (ctx Context) getConnection(id string, refresh bool) (*types.Connection, error) {
+	req := http.Request{
+		URL: fmt.Sprintf("%s/connections/%s", ctx.URL, id),
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
 		ContentType: "application/json",
-	}.Get()
+	}
 
+	if refresh {
+		req.Query = map[string]string{"action": "refresh"}
+	}
+
+	logging.Debugf("Invoking Token service at: %s", req.URL)
+
+	response, err := req.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +116,7 @@ func (ctx Context) GetConnection(id string) (*types.Connection, error) {
 	return &parsed.Details, nil
 }
 
-//GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
+// GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
 func (ctx Context) GetConnections(filter string, limit int, selector string) ([]types.Connection, error) {
 
 	if selector == "" {
@@ -145,7 +157,7 @@ func (ctx Context) GetConnections(filter string, limit int, selector string) ([]
 	return ret.Details, nil
 }
 
-//GetOSP returns an OSP definition from the Token service
+// GetOSP returns an OSP definition from the Token service
 func (ctx Context) GetOSP(osp string) (types.Document, error) {
 
 	url := fmt.Sprintf("%s/osp/%s", ctx.URL, osp)
@@ -227,7 +239,7 @@ func (ctx Context) SetConnectionStatus(id string, status string, reason string) 
 func (ctx Context) SetConnectionSetting(id string, settings types.Document) error {
 
 	if settings == nil {
-		return fmt.Errorf("The new settings provided is empty")
+		return fmt.Errorf("the new settings provided is empty")
 	}
 
 	url := fmt.Sprintf("%s/connections/%s/settings", ctx.URL, id)
@@ -370,7 +382,7 @@ func (ctx Context) ManageConnection(id string, action string, params map[string]
 
 	u, err := url.Parse(rawurl)
 	if err != nil {
-		return fmt.Errorf("Failed to parse Token Svc URL")
+		return fmt.Errorf("failed to parse Token Svc URL")
 	}
 
 	q := u.Query()
