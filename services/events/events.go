@@ -22,10 +22,10 @@ func New(url string) (*Context, error) {
 	return svc, nil
 }
 
-// Post is a method that writes a new user-based event to a central logging database.  The target collection is determined by the `col` argument.  All other `fields` are written as-is to the doucment.
-func (svc *Context) Post(fields map[string]interface{}) error {
+// Post is a method that writes a new user-based event to a central logging database.
+func (svc *Context) Post(event Event) error {
 
-	encoded, err := json.Marshal(fields)
+	encoded, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("while marshaling fields: %s", err.Error())
 	}
