@@ -1,0 +1,21 @@
+steps:
+  - task: Bash@3
+    displayName: "Run Go Unit Tests"
+    inputs:
+      targetType: 'inline'
+      script: |
+        go get github.com/jstemmer/go-junit-report github.com/t-yuki/gocover-cobertura
+        go test -v -coverprofile=coverage.txt ./... 2>&1 | ~/go/bin/go-junit-report > go-unit-report.xml
+        ~/go/bin/gocover-cobertura < coverage.txt > coverage.xml
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: 'coverage.xml'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'go-unit-report.xml'
+      failTaskOnFailedTests: true
+      testRunTitle: 'Go Unit Tests'

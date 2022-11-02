@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"crypto/rsa"
-	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -197,10 +197,10 @@ func (ctx *Context) getSigningKey(token *jwt.Token) (interface{}, error) {
 
 // Checks whether this certificate (identified by thumbprint) is part of the trust keystore
 func isJWSAuthorized(cert *x509.Certificate, pool []x509.Certificate) bool {
-	thumbprint := sha1.Sum(cert.Raw)
+	thumbprint := sha256.Sum256(cert.Raw)
 
 	for _, c := range pool {
-		if sha1.Sum(c.Raw) == thumbprint {
+		if sha256.Sum256(c.Raw) == thumbprint {
 			return true
 		}
 	}
