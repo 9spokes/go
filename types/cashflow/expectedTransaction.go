@@ -1,4 +1,4 @@
-package types
+package cashflow
 
 import (
 	"time"
@@ -16,7 +16,7 @@ type ExpectedTransaction struct {
 	AccountID       string               `json:"accountId" bson:"account_id"`
 }
 
-//go:generate go run github.com/dmarkham/enumer -type=TransactionType -json
+//go:generate go run github.com/dmarkham/enumer@latest -type=TransactionType -json
 type TransactionType int
 
 const (
@@ -30,7 +30,7 @@ const (
 	Adjustment
 )
 
-//go:generate go run github.com/dmarkham/enumer -type=TransactionDirection -json
+//go:generate go run github.com/dmarkham/enumer@latest -type=TransactionDirection -json
 type TransactionDirection int
 
 const (
