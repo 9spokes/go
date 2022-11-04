@@ -1,12 +1,20 @@
 trigger:
-- main
+  - main
 
 pool:
   name: "Private-Ubuntu-1604"
 
-variables:
-  CGO_ENABLED: 0
-  GOOS: linux
+# variables:
+#   CGO_ENABLED: 0
+#   GOOS: linux
+steps:
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Write your commands here
+        
+        echo 'Hello world'
 
 # stages:
 #   - stage: Build & Test
