@@ -22,7 +22,7 @@ stages:
       - job: Build
         steps:
           - template: devops/build/main.yml
-          - template: devops/test/main.yml
+#          - template: devops/test/main.yml
     
   - stage: Deploy
     dependsOn: [ Build ]
