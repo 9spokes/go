@@ -17,7 +17,7 @@ pool:
 #         echo 'Hello world'
 
 stages:
-  - stage: Build & Test
+  - stage: BuildTest
     jobs:
       - job: Build
         steps:
