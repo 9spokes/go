@@ -2,7 +2,8 @@ package jwt
 
 import (
 	"fmt"
-	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"regexp"
 	"testing"
@@ -246,15 +247,34 @@ OtVXHzT1h0vTJUNXv1xIUfAx9tqqKMtPmyyaZhQkep7jWiec2ZCfxJ6eRmEo46eI
 `
 )
 
+const DEX_KEYS = `{
+	"keys": [
+		{
+			"use": "sig",
+			"kty": "RSA",
+			"kid": "d3467ed1c0518f3fd1b9e44e59354a902b878515",
+			"alg": "RS256",
+			"n": "ynoIb7pcIp9aV0cP-mmJfYj6OXHy3uULOUHtu14LsRLpSG5S2itgl1TWeCeF87ICc1wTPKl2yoti27iYWKX1tk6sUHpCDW2Fku5FP1SApQRiS7jGbN_QwXC9aFQlwaYk42FzzUar8EkPxn5cwdpe95qIq8Qz7Uhdgx47zMokZb2IBoTVIA1aPF3fUVhKrsa9UU2IYNfKb50-C87tQxkjcLrbMYgVveOB3xWUw8Cd9gwmPlHP8KTRx1UE4BYAMkm2HF9ZeA2NHhcJjc8ZM6lFMyQifyoAbGvjb5zE0i_HXnCekF4L35w51G57oeYIG4wFqeBmcmLe48prOzNZk22qkQ",
+			"e": "AQAB"
+		}
+	]
+}`
+
+var keysTestServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	w.Write([]byte(DEX_KEYS))
+}))
+
 func newTestContext(mode string) (*Context, error) {
-	trustStore, err := ioutil.TempFile(".", "*.crt")
+	trustStore, err := os.CreateTemp(".", "*.crt")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load the test trust store: %s", err.Error())
 	}
 	defer os.Remove(trustStore.Name())
 	trustStore.WriteString(TRUST_STORE)
+	trustStore.Close()
 
-	privateKey, err := ioutil.TempFile(".", "*.key")
+	privateKey, err := os.CreateTemp(".", "*.key")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load the test private key: %s", err.Error())
 	}
@@ -265,8 +285,9 @@ func newTestContext(mode string) (*Context, error) {
 		secret = ""
 	}
 	privateKey.WriteString(PRIVATE_KEY_JWS)
+	privateKey.Close()
 
-	return New("https://nsp-dev.9spokes.io/dex/keys", "./"+trustStore.Name(), "./"+privateKey.Name(), secret)
+	return New(keysTestServer.URL, "./"+trustStore.Name(), "./"+privateKey.Name(), secret)
 }
 
 func Test_ValidateJWS(t *testing.T) {
@@ -383,7 +404,7 @@ func Test_fetchJWKS(t *testing.T) {
 	}{
 		{
 			name:    "Successful fetch",
-			jwksURL: "https://nsp-dev.9spokes.io/dex/keys",
+			jwksURL: keysTestServer.URL,
 			err:     false,
 		},
 		{
@@ -402,9 +423,13 @@ func Test_fetchJWKS(t *testing.T) {
 			if err == nil && tt.err {
 				t.Fatalf("expecting error, got none")
 			}
-
-			if !tt.err && len(got) == 0 {
-				t.Fatalf("expecting non empty key map")
+			if !tt.err {
+				if err != nil {
+					t.Fatalf("unexpected err: %s", err.Error())
+				}
+				if len(got) == 0 {
+					t.Fatalf("expecting non empty key map")
+				}
 			}
 		})
 	}

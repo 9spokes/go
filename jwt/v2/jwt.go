@@ -250,7 +250,8 @@ func fetchJWKS(jwksURLs string) (map[string]rsa.PublicKey, error) {
 
 		var set jose.JSONWebKeySet
 		if err := json.Unmarshal(data, &set); err != nil {
-			return keys, err
+			logging.Debugf("failed unmarshalling body: %s", data)
+			return keys, fmt.Errorf("unmarshalling response from '%s': %w", jwksURL, err)
 		}
 
 		// Copy key to key map
