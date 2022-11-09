@@ -1,25 +1,49 @@
 trigger:
-- master
+  - master
 
-queue:
+pool:
   name: "Private-Ubuntu-1604"
 
-steps:
+# variables:
+#   CGO_ENABLED: 0
+#   GOOS: linux
+# steps:
+#   - task: Bash@3
+#     inputs:
+#       targetType: 'inline'
+#       script: |
+#         # Write your commands here
+        
+#         echo 'Hello world'
 
-- task: DownloadSecureFile@1
-  displayName: "Download SSH Private Key for GitHub"
-  name: "Github"
-  inputs:
-      secureFile: "Github"
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - template: devops/build/main.yml
+#          - template: devops/test/main.yml
+    
+  - stage: Deploy
+    dependsOn: [ Build ]
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    jobs:
+      - job: Deploy
+        steps:
+        - task: DownloadSecureFile@1
+          displayName: "Download SSH Private Key for GitHub"
+          name: "Github"
+          inputs:
+              secureFile: "Github"
 
-- script: |
-    git remote add github git@github.com:9spokes/go.git
-    git pull
-    test -d ~/.ssh || mkdir -p ~/.ssh
-    mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-    printf "Host github.com\n  StrictHostKeyChecking no" > ~/.ssh/config
-  displayName: 'Configure SSH'
+        - script: |
+            git remote add github git@github.com:9spokes/go.git
+            git pull
+            test -d ~/.ssh || mkdir -p ~/.ssh
+            mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+            printf "Host github.com\n  StrictHostKeyChecking no" > ~/.ssh/config
+          displayName: 'Configure SSH'
 
-- script: |
-    git push github master --force 
-  displayName: 'Sync to Github'
+        - script: |
+            git push github master --force 
+          displayName: 'Sync to Github'
