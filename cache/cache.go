@@ -92,7 +92,7 @@ func (ctx *Context) Get(lckCtx context.Context, id string, lock bool) (string, e
 					break
 				}
 				if expiry.Before(time.Now()) {
-					logging.Errorf("[%s] The lock for this entry has expired")
+					logging.Errorf("[%s] The lock for this entry has expired", id)
 					ctx.Clear(lckCtx, id)
 					break
 				}
@@ -155,7 +155,7 @@ func (ctx *Context) Lock(id string) (func(), error) {
 
 	return func() {
 		if ok, err := mutex.Unlock(); !ok || err != nil {
-			logging.Errorf("failed to unlock, ok: %d, err: %w",ok, err)
+			logging.Errorf("failed to unlock, ok: %t, err: %s", ok, err.Error())
 		}
 	}, nil
 }
