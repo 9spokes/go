@@ -8,8 +8,8 @@ type Event struct {
 	Service   string                 `json:"service"`
 	Timestamp time.Time              `json:"timestamp"`
 	User      string                 `json:"user"`
-	Email     string                 `json:"email,omitempty"`
-	Session   string                 `json:"session,omitempty"`
+	Email     string                 `json:"email" bson:"email,omitempty"`
+	Session   string                 `json:"session" bson:"session,omitempty"`
 	Data      map[string]interface{} `json:"data"`
 	Channel   string                 `json:"channel"`
 }
