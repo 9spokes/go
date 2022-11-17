@@ -120,7 +120,7 @@ func (ctx *Context) GetIndex(conn, datasource, cycle string) (idx *Index, err er
 
 	defer func() {
 		if r := recover(); r != nil {
-			logging.Errorf("An error occured parsing the response from the Indexer service: %s", r)
+			logging.Errorf("[ConnID: %s] An error occured parsing the response from the Indexer service: %s", conn, r)
 			err = fmt.Errorf("failed to get index: %s", r)
 		}
 	}()
