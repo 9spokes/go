@@ -4,6 +4,6 @@ package types
 type TransactionDirection int
 
 const (
-	Inbound TransactionDirection = iota
+	Inbound TransactionDirection = iota + 1
 	Outbound
 )
