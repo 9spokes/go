@@ -15,8 +15,9 @@ var _TransactionDirectionIndex = [...]uint8{0, 7, 15}
 const _TransactionDirectionLowerName = "inboundoutbound"
 
 func (i TransactionDirection) String() string {
+	i -= 1
 	if i < 0 || i >= TransactionDirection(len(_TransactionDirectionIndex)-1) {
-		return fmt.Sprintf("TransactionDirection(%d)", i)
+		return fmt.Sprintf("TransactionDirection(%d)", i+1)
 	}
 	return _TransactionDirectionName[_TransactionDirectionIndex[i]:_TransactionDirectionIndex[i+1]]
 }
@@ -25,8 +26,8 @@ func (i TransactionDirection) String() string {
 // Re-run the stringer command to generate them again.
 func _TransactionDirectionNoOp() {
 	var x [1]struct{}
-	_ = x[Inbound-(0)]
-	_ = x[Outbound-(1)]
+	_ = x[Inbound-(1)]
+	_ = x[Outbound-(2)]
 }
 
 var _TransactionDirectionValues = []TransactionDirection{Inbound, Outbound}
