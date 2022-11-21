@@ -55,11 +55,11 @@ func (ctx *Context) NewIndex(index *Index) (*Index, error) {
 		Details Index  `json:"details,omitempty"`
 	}
 	if err := json.Unmarshal(raw.Body, &response); err != nil {
-		return nil, fmt.Errorf("Error parsing response from indexer service: %s", err.Error())
+		return nil, fmt.Errorf("error parsing response from Indexer service: %s", err.Error())
 	}
 
 	if response.Status != "ok" {
-		return nil, fmt.Errorf("Received an error response from the indexer service: %s", response.Message)
+		return nil, fmt.Errorf("non-ok response from the Indexer service: %s", response.Message)
 	}
 
 	return response.Details.updateData()
@@ -99,7 +99,7 @@ func (ds *Index) updateData() (*Index, error) {
 		ds.Data = data
 
 	case "absolute":
-		e := ds.Data.(interface{})
+		e := ds.Data
 		updated, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["updated"].(string))
 		expires, _ := time.Parse(time.RFC3339, e.(map[string]interface{})["expires"].(string))
 
@@ -116,13 +116,13 @@ func (ds *Index) updateData() (*Index, error) {
 }
 
 // GetIndex returns a connection by ID from the designated indexer service instance
-func (ctx *Context) GetIndex(conn, datasource, cycle string) (*Index, error) {
+func (ctx *Context) GetIndex(conn, datasource, cycle string) (idx *Index, err error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			logging.Errorf("An error occured parsing the response from the Indexer service: %s", r)
+			logging.Errorf("[ConnID: %s] An error occured parsing the response from the Indexer service: %s", conn, r)
+			err = fmt.Errorf("failed to get index: %s", r)
 		}
-
 	}()
 
 	url := fmt.Sprintf("%s/connections/%s/%s?cycle=%s", ctx.URL, conn, datasource, cycle)
