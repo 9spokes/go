@@ -37,7 +37,7 @@ stages:
               secureFile: "Github"
 
         - script: |
-            git remote add github git@github.com:9spokes/go.git
+            git remote add github git@github.com:9spokes/go.git &> /dev/null 
           #  git pull
           #   test -d ~/.ssh || mkdir -p ~/.ssh
           #   mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
