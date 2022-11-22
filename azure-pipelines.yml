@@ -45,7 +45,5 @@ stages:
           displayName: 'Configure SSH'
 
         - script: |
-            pwd
-            ls -lrt
-            #git push github master --force 
+            git push github master --force 
           displayName: 'Sync to Github'
