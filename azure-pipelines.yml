@@ -47,7 +47,8 @@ stages:
         - script: |
             pwd 
             ls -lrt
-            git status
+            git remote set-url origin git@ssh.dev.azure.com:v3/9spokes/9Spokes/common.go
+            git pull origin
             git checkout master
             #git push github master  
           displayName: 'Sync to Github'
