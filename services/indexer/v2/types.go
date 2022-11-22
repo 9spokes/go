@@ -28,6 +28,7 @@ type IndexEntry struct {
 }
 
 type UpdateBody struct {
+	OSP        string       `json:"osp"`
 	Connection string       `json:"connection"`
 	Datasource string       `json:"datasource"`
 	Cycle      string       `json:"cycle"`
