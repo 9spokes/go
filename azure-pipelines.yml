@@ -45,5 +45,6 @@ stages:
           displayName: 'Configure SSH'
 
         - script: |
-            git push github master --force 
+            git checkout master
+            git push github master  
           displayName: 'Sync to Github'
