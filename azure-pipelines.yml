@@ -38,7 +38,7 @@ stages:
 
         - script: |
             git remote add github git@github.com:9spokes/go.git &> /dev/null; [ $? -gt 0 ]  || exit 0
-          #  git pull
+            git pull github
           #   test -d ~/.ssh || mkdir -p ~/.ssh
           #   mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
           #   printf "Host github.com\n  StrictHostKeyChecking no" > ~/.ssh/config
