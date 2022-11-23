@@ -75,13 +75,14 @@ func (ctx *Context) GetIndexes(conn string) (map[string][]IndexEntry, error) {
 }
 
 // UpdateIndex updates an entry with the data provided
-func (ctx *Context) UpdateIndex(connection string, datasource string, cycle string, updatedIndexes []IndexEntry) error {
+func (ctx *Context) UpdateIndex(connection, osp, datasource, cycle string, updatedIndexes []IndexEntry) error {
 
 	location := fmt.Sprintf("%s/connections", ctx.URL)
 
 	logging.Debugf("Invoking Indexer service at: %s", location)
 
 	update := UpdateBody{
+		OSP:        osp,
 		Connection: connection,
 		Datasource: datasource,
 		Cycle:      cycle,
