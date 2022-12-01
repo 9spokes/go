@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/9spokes/go/api"
 	"github.com/9spokes/go/http"
 	"github.com/9spokes/go/logging/v3"
 	"github.com/9spokes/go/types"
@@ -24,7 +25,6 @@ type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
-	Logger       *logging.Logger
 }
 
 func (ctx Context) InitiateETL(id string) error {
@@ -421,6 +421,40 @@ func (ctx Context) ManageConnection(id string, action string, params map[string]
 	if parsed.Status != "ok" {
 		e := fmt.Sprintf("Non-OK response received from Token service: %s", parsed.Message)
 		return fmt.Errorf(e)
+	}
+
+	return nil
+}
+
+// Triggers an extraction for the specified connection. "opts" can be used to
+// specify any parameters such as the extraction type (complete or partial).
+func (ctx Context) TriggerExtraction(conn string, opts map[string]string) error {
+
+	req := http.Request{
+		URL:   fmt.Sprintf("%s/connections/%s/extract", ctx.URL, conn),
+		Query: opts,
+		Authentication: http.Authentication{
+			Scheme:   "basic",
+			Username: ctx.ClientID,
+			Password: ctx.ClientSecret,
+		},
+	}
+
+	logging.Debugf("Calling %s with params %v", req.URL, opts)
+
+	res, err := req.Put()
+	if err != nil {
+		return err
+	}
+
+	var parsed api.Response
+	if json.Unmarshal(res.Body, &parsed); err != nil {
+		return err
+	}
+
+	if parsed.Status != "ok" {
+		err := fmt.Errorf(parsed.Message)
+		return fmt.Errorf("non-ok response received: %w", err)
 	}
 
 	return nil
