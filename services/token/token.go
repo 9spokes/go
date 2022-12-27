@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/9spokes/go/api"
 	"github.com/9spokes/go/http"
@@ -116,45 +117,68 @@ func (ctx Context) getConnection(id string, refresh bool) (*types.Connection, er
 	return &parsed.Details, nil
 }
 
-// GetConnections returns a list of documents from the Token service that match the criteria set forth in "filter"
-func (ctx Context) GetConnections(filter string, limit int, selector string) ([]types.Connection, error) {
+type GetConnectionsOptions struct {
+	Filter   map[string]interface{}
+	Selector []string
+	Limit    uint
+	Offset   uint
+}
 
-	if selector == "" {
-		selector = "osp"
+// Returns a list of documents from the Token service that match the criteria
+// specified in the `Filter` option. The `Selector` option can be used to
+// specify which fields should be included in each returned document. `Limit`
+// specifies the maximum number of documents to be returned and `Offset` can
+// be used together with `Limit` to break down the list into multiple pages.
+func (ctx Context) GetConnections(opts GetConnectionsOptions) ([]types.Connection, error) {
+
+	f, err := json.Marshal(opts.Filter)
+	if err != nil {
+		return nil, fmt.Errorf("invalid filter '%v': %w", opts.Filter, err)
 	}
 
-	url := fmt.Sprintf("%s/connections?filter=%s&limit=%d&selector=%s",
+	if len(opts.Selector) == 0 {
+		opts.Selector = []string{"osp"}
+	}
+
+	url := fmt.Sprintf("%s/connections?filter=%s&selector=%s&limit=%d&offset=%d",
 		ctx.URL,
-		filter,
-		limit,
-		selector,
+		f,
+		strings.Join(opts.Selector, ","),
+		opts.Limit,
+		opts.Offset,
 	)
 
-	response, err := http.Request{
+	req := http.Request{
 		URL: url,
 		Authentication: http.Authentication{
 			Scheme:   "basic",
 			Username: ctx.ClientID,
 			Password: ctx.ClientSecret,
 		},
-		ContentType: "application/json",
-	}.Get()
-
-	if err != nil {
-		return nil, fmt.Errorf("while interacting with Token service: %s", err.Error())
 	}
 
-	var ret struct {
+	logging.Debugf("Calling %s", req.URL)
+
+	res, err := req.Get()
+	if err != nil {
+		return nil, fmt.Errorf("while calling %s: %w", req.URL, err)
+	}
+
+	var parsed struct {
 		Status  string             `json:"status"`
 		Details []types.Connection `json:"details"`
 		Message string             `json:"message"`
 	}
-
-	if err := json.Unmarshal(response.Body, &ret); err != nil {
-		return nil, fmt.Errorf("while unmarshalling message: %s", err.Error())
+	if json.Unmarshal(res.Body, &parsed); err != nil {
+		return nil, fmt.Errorf("while unmarshalling response '%s': %w", res.Body, err)
 	}
 
-	return ret.Details, nil
+	if parsed.Status != "ok" {
+		err := fmt.Errorf(parsed.Message)
+		return nil, fmt.Errorf("non-ok response received: %w", err)
+	}
+
+	return parsed.Details, nil
 }
 
 // GetOSP returns an OSP definition from the Token service
