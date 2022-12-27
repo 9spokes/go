@@ -16,7 +16,6 @@ type Index struct {
 	NewETL     bool         `json:"new_etl"`
 	Data       []IndexEntry `json:"data,omitempty"`
 }
-
 type IndexEntry struct {
 	Period  string    `json:"period"`
 	Status  string    `json:"status"`
@@ -25,6 +24,10 @@ type IndexEntry struct {
 	Outcome string    `json:"outcome"`
 	Index   string    `json:"index"`
 	Cycle   string    `json:"cycle"`
+	Metrics struct {
+		NumCalls uint64        `json:"num_calls"`
+		Duration time.Duration `json:"duration"`
+	} `json:"metrics"`
 }
 
 type UpdateBody struct {
