@@ -13,9 +13,9 @@ type contextKey string
 
 const KEY = contextKey("ctx")
 
-// A Middleware is a function that receives the Request as input and returns
+// A middleware is a function that receives the Request as input and returns
 // the Response. It can modify the request before passing control to the
-// next Middleware in the call chain. It can also modify the response before
+// next middleware in the call chain. It can also modify the response before
 // returning it.
 type Middleware func(*Request) (*Response, error)
 
