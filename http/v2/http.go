@@ -7,8 +7,6 @@ import (
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/9spokes/go/logging/v3"
 )
 
 type contextKey string
@@ -161,7 +159,6 @@ func (request *Request) http() (*Response, error) {
 	req.URL.RawQuery = q.Encode()
 
 	// Call endpoint
-	logging.Debugf("http client do")
 	resp, err := request.Client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed while calling %v: %w ", req, err)
@@ -180,5 +177,5 @@ func (request *Request) http() (*Response, error) {
 // Returns the details of the HTTP request as a string. Useful for debugging or
 // logging errors.
 func (r *Request) String() string {
-	return fmt.Sprintf("URL: %s (Headers: %v)", r.URL, r.Headers)
+	return fmt.Sprintf("URL: %s (Params: %v)", r.URL, r.Query)
 }
