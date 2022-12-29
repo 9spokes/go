@@ -13,18 +13,20 @@ type contextKey string
 
 const KEY = contextKey("ctx")
 
-// A middleware is a function that receives a Request and Response as input and
-// can perform an action before or after the HTTP call is made.
-type middleware func(*Request, *Response) (*Response, error)
+// A Middleware is a function that receives the Request as input and returns
+// the Response. It can modify the request before passing control to the
+// next Middleware in the call chain. It can also modify the response before
+// returning it.
+type Middleware func(*Request) (*Response, error)
 
 // A middleware function is a function that receives a middleware instance and
 // produces a middleware instance. The input is the next middlware in the
 // execution chain.
-type middlewareFunc func(middleware) middleware
+type MiddlewareFunc func(Middleware) Middleware
 
 // Can be used to specify middlewares for the request. These blocks of code
 // will be executed in the order in which they are added.
-func (r *Request) Use(m middlewareFunc) {
+func (r *Request) Use(m MiddlewareFunc) {
 	r.Middlewares = append(r.Middlewares, m)
 }
 
@@ -76,7 +78,7 @@ type Request struct {
 	Authorization Authorization
 	Client        *http.Client
 
-	Middlewares []middlewareFunc
+	Middlewares []MiddlewareFunc
 	Context     any
 }
 
@@ -113,7 +115,7 @@ func (request *Request) Delete() (*Response, error) {
 // Wraps the request making `http` method with the available middlewares and
 // starts the execution chain.
 func (request *Request) httpWithMiddleware() (*Response, error) {
-	var next middleware = func(*Request, *Response) (*Response, error) {
+	var next Middleware = func(*Request) (*Response, error) {
 		return request.http()
 	}
 
@@ -121,7 +123,7 @@ func (request *Request) httpWithMiddleware() (*Response, error) {
 		next = request.Middlewares[i](next)
 	}
 
-	return next(request, nil)
+	return next(request)
 }
 
 // Makes an HTTP request and, if successful, reads the response body.
