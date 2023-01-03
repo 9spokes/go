@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-type contextKey string
-
-const KEY = contextKey("ctx")
-
 // A middleware is a function that receives the Request as input and returns
 // the Response. It can modify the request before passing control to the
 // next middleware in the call chain. It can also modify the response before
@@ -82,41 +78,46 @@ type Request struct {
 	Context     any
 }
 
-// Send an HTTP POST request
-func (request *Request) Post() (*Response, error) {
+// Send an HTTP POST request. The context can be used to set a timeout or
+// cancel the request.
+func (request *Request) Post(ctx context.Context) (*Response, error) {
 	request.Method = "POST"
-	return request.httpWithMiddleware()
+	return request.httpWithMiddleware(ctx)
 }
 
-// Send an HTTP GET request
-func (request *Request) Get() (*Response, error) {
+// Send an HTTP GET request. The context can be used to set a timeout or
+// cancel the request.
+func (request *Request) Get(ctx context.Context) (*Response, error) {
 	request.Method = "GET"
-	return request.httpWithMiddleware()
+	return request.httpWithMiddleware(ctx)
 }
 
-// Send an HTTP PUT request
-func (request *Request) Put() (*Response, error) {
+// Send an HTTP PUT request. The context can be used to set a timeout or
+// cancel the request.
+func (request *Request) Put(ctx context.Context) (*Response, error) {
 	request.Method = "PUT"
-	return request.httpWithMiddleware()
+	return request.httpWithMiddleware(ctx)
 }
 
-// Send an HTTP PATCH request
-func (request *Request) Patch() (*Response, error) {
+// Send an HTTP PATCH request. The context can be used to set a timeout or
+// cancel the request.
+func (request *Request) Patch(ctx context.Context) (*Response, error) {
 	request.Method = "PATCH"
-	return request.httpWithMiddleware()
+	return request.httpWithMiddleware(ctx)
 }
 
-// Send an HTTP DELETE request
-func (request *Request) Delete() (*Response, error) {
+// Send an HTTP DELETE request. The context can be used to set a timeout or
+// cancel the request.
+func (request *Request) Delete(ctx context.Context) (*Response, error) {
 	request.Method = "DELETE"
-	return request.httpWithMiddleware()
+	return request.httpWithMiddleware(ctx)
 }
 
 // Wraps the request making `http` method with the available middlewares and
 // starts the execution chain.
-func (request *Request) httpWithMiddleware() (*Response, error) {
+func (request *Request) httpWithMiddleware(ctx context.Context) (*Response, error) {
 	var next Middleware = func(*Request) (*Response, error) {
-		return request.http()
+		return request.http(ctx)
 	}
 
 	for i := len(request.Middlewares) - 1; i >= 0; i-- {
@@ -127,14 +128,13 @@ func (request *Request) httpWithMiddleware() (*Response, error) {
 }
 
 // Makes an HTTP request and, if successful, reads the response body.
-func (request *Request) http() (*Response, error) {
+func (request *Request) http(ctx context.Context) (*Response, error) {
 
 	// Use default HTTP client if not set.
 	if request.Client == nil {
 		request.Client = http.DefaultClient
 	}
 
-	ctx := context.WithValue(context.Background(), KEY, request.Context)
 	req, err := http.NewRequestWithContext(ctx, request.Method, request.URL, bytes.NewBuffer(request.Body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
