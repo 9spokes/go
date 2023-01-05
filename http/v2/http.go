@@ -13,7 +13,7 @@ import (
 // the Response. It can modify the request before passing control to the
 // next middleware in the call chain. It can also modify the response before
 // returning it.
-type Middleware func(*Request) (*Response, error)
+type Middleware func(context.Context, *Request) (*Response, error)
 
 // A middleware function is a function that receives a middleware instance and
 // produces a middleware instance. The input is the next middlware in the
@@ -75,7 +75,6 @@ type Request struct {
 	Client        *http.Client
 
 	Middlewares []MiddlewareFunc
-	Context     any
 }
 
 // Send an HTTP POST request. The context can be used to set a timeout or
@@ -116,7 +115,7 @@ func (request *Request) Delete(ctx context.Context) (*Response, error) {
 // Wraps the request making `http` method with the available middlewares and
 // starts the execution chain.
 func (request *Request) httpWithMiddleware(ctx context.Context) (*Response, error) {
-	var next Middleware = func(*Request) (*Response, error) {
+	var next Middleware = func(context.Context, *Request) (*Response, error) {
 		return request.http(ctx)
 	}
 
@@ -124,7 +123,7 @@ func (request *Request) httpWithMiddleware(ctx context.Context) (*Response, erro
 		next = request.Middlewares[i](next)
 	}
 
-	return next(request)
+	return next(ctx, request)
 }
 
 // Makes an HTTP request and, if successful, reads the response body.
