@@ -7,7 +7,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	v1 "github.com/9spokes/go/http"
 )
+
+type MTLSRequest v1.MTLSRequest
 
 // A middleware is a function that receives the Request as input and returns
 // the Response. It can modify the request before passing control to the
