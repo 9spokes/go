@@ -51,7 +51,7 @@ type Authorization struct {
 // The name of the attributes should be self descriptive but there are some
 // mentions to be made.
 //
-// `Method“ should not be set directly. It will be set by the HTTP verb
+// `Method` should not be set directly. It will be set by the HTTP verb
 // methods: Get, Post, etc.
 //
 // `Authorization` is the preferred way for setting the request's Authorization
