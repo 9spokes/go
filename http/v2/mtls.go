@@ -10,5 +10,5 @@ type MTLSRequest v1.MTLSRequest
 
 // Creates a new secure HTTP client.
 func (req MTLSRequest) New() (*http.Client, error) {
-	return req.New()
+	return v1.MTLSRequest(req).New()
 }
