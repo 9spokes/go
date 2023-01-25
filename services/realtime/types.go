@@ -3,8 +3,8 @@ package realtime
 type BankingAccount struct {
 	ID               string  `json:"account_id,omitempty"`
 	Active           bool    `json:"account_active,omitempty"`
-	CurrentBalance   float64 `json:"account_current_balance,omitempty"`
-	AvailableBalance float64 `json:"account_available_balance,omitempty"`
+	CurrentBalance   float64 `json:"account_current_balance"`
+	AvailableBalance float64 `json:"account_available_balance"`
 	Currency         string  `json:"account_currency,omitempty"`
 	Name             string  `json:"account_name,omitempty"`
 	Type             string  `json:"account_type,omitempty"`
