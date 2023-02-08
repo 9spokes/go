@@ -7,6 +7,6 @@ type BankAccount struct {
 	NumberMasked     string          `json:"accountNumberMasked" bson:"account_number_masked"`
 	DisplayName      string          `json:"displayName" bson:"display_name"`
 	Currency         string          `json:"currency" bson:"currency"`
-	CurrentBalance   float64         `json:"currentBalance" bson:"currentBalance"`
-	AvailableBalance float64         `json:"availableBalance" bson:"availableBalance"`
+	CurrentBalance   float64         `json:"currentBalance" bson:"current_balance"`
+	AvailableBalance float64         `json:"availableBalance" bson:"available_balance"`
 }
