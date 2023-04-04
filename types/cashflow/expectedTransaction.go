@@ -12,7 +12,7 @@ type ExpectedTransaction struct {
 	TransactionDate time.Time                  `json:"transactionDate" bson:"transaction_date"`
 	Counterparty    string                     `json:"counterparty" bson:"counterparty"`
 	Type            types.TransactionType      `json:"transactionType" bson:"transaction_type"`
-	Amount          float64                    `json:"amount,string" bson:"amount"`
+	Amount          float64                    `json:"amount" bson:"amount"`
 	Currency        string                     `json:"currency" bson:"currency"`
 	Direction       types.TransactionDirection `json:"transactionDirection" bson:"transaction_direction"`
 	AccountID       string                     `json:"accountId" bson:"account_id"`
