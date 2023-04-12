@@ -14,4 +14,6 @@ const (
 	Adjustment
 	Transfer
 	Interest
+	Expected
+	Projected TransactionType = Expected
 )
