@@ -140,6 +140,7 @@ func (request *Request) http(ctx context.Context) (*Response, error) {
 	}
 
 	// Set headers
+	req.Header.Set("Content-Type", "application/json")
 	for k, v := range request.Headers {
 		req.Header.Set(k, v)
 	}
