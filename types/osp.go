@@ -2,13 +2,14 @@ package types
 
 //OSP is an Online Service Provider definition
 type OSP struct {
-	Name        string            `json:"osp"`
-	NewETL      bool              `json:"new_etl"`
-	Credentials map[string]string `json:"credentials,omitempty"`
-	Tiles       []OSPTile         `json:"tiles"`
-	Proxy       string            `json:"proxy,omitempty"`
-	Unique      bool              `json:"unique,omitempty"`
-	Usage       []string          `json:"usage,omitempty"`
+	Name            string            `json:"osp"`
+	NewETL          bool              `json:"new_etl"`
+	ExtractOnSignin bool              `json:"extract_on_signin"`
+	Credentials     map[string]string `json:"credentials,omitempty"`
+	Tiles           []OSPTile         `json:"tiles"`
+	Proxy           string            `json:"proxy,omitempty"`
+	Unique          bool              `json:"unique,omitempty"`
+	Usage           []string          `json:"usage,omitempty"`
 }
 
 // OSPTile is a tile definition for an OSP
