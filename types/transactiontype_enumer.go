@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-const _TransactionTypeName = "UncategorisedCashChequePurchaseBillPaymentAutomaticPaymentFeeAdjustmentTransferInterest"
+const _TransactionTypeName = "UncategorisedCashChequePurchaseBillPaymentAutomaticPaymentFeeAdjustmentTransferInterestExpectedPOS"
 
-var _TransactionTypeIndex = [...]uint8{0, 13, 17, 23, 31, 42, 58, 61, 71, 79, 87}
+var _TransactionTypeIndex = [...]uint8{0, 13, 17, 23, 31, 42, 58, 61, 71, 79, 87, 95, 98}
 
-const _TransactionTypeLowerName = "uncategorisedcashchequepurchasebillpaymentautomaticpaymentfeeadjustmenttransferinterest"
+const _TransactionTypeLowerName = "uncategorisedcashchequepurchasebillpaymentautomaticpaymentfeeadjustmenttransferinterestexpectedpos"
 
 func (i TransactionType) String() string {
 	if i < 0 || i >= TransactionType(len(_TransactionTypeIndex)-1) {
@@ -35,9 +35,11 @@ func _TransactionTypeNoOp() {
 	_ = x[Adjustment-(7)]
 	_ = x[Transfer-(8)]
 	_ = x[Interest-(9)]
+	_ = x[Expected-(10)]
+	_ = x[POS-(11)]
 }
 
-var _TransactionTypeValues = []TransactionType{Uncategorised, Cash, Cheque, Purchase, BillPayment, AutomaticPayment, Fee, Adjustment, Transfer, Interest}
+var _TransactionTypeValues = []TransactionType{Uncategorised, Cash, Cheque, Purchase, BillPayment, AutomaticPayment, Fee, Adjustment, Transfer, Interest, Expected, POS}
 
 var _TransactionTypeNameToValueMap = map[string]TransactionType{
 	_TransactionTypeName[0:13]:       Uncategorised,
@@ -60,6 +62,10 @@ var _TransactionTypeNameToValueMap = map[string]TransactionType{
 	_TransactionTypeLowerName[71:79]: Transfer,
 	_TransactionTypeName[79:87]:      Interest,
 	_TransactionTypeLowerName[79:87]: Interest,
+	_TransactionTypeName[87:95]:      Expected,
+	_TransactionTypeLowerName[87:95]: Expected,
+	_TransactionTypeName[95:98]:      POS,
+	_TransactionTypeLowerName[95:98]: POS,
 }
 
 var _TransactionTypeNames = []string{
@@ -73,6 +79,8 @@ var _TransactionTypeNames = []string{
 	_TransactionTypeName[61:71],
 	_TransactionTypeName[71:79],
 	_TransactionTypeName[79:87],
+	_TransactionTypeName[87:95],
+	_TransactionTypeName[95:98],
 }
 
 // TransactionTypeString retrieves an enum value from the enum constants string name.

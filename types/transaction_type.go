@@ -15,5 +15,6 @@ const (
 	Transfer
 	Interest
 	Expected
+	POS
 	Projected TransactionType = Expected
 )
