@@ -21,14 +21,10 @@ import (
 // Implementation of the KeyStore interface that uses Azure Key Vault Managed
 // HSM for key management. Only RSA keys are supported.
 type KeyVault struct {
-	// Tenant id
-	Tenant string
-	// HSM name
-	HSMName string
-	// Private key id
-	Key string
-	// Private key version
-	KeyVersion string
+	Tenant     string // Tenant id
+	HSMName    string // HSM name
+	Key        string // Private key id
+	KeyVersion string // Private key version
 
 	// Unfortunately, Azure Key Vault cannot store certificates so we'll need
 	// use a local file instead.
@@ -38,17 +34,17 @@ type KeyVault struct {
 
 func (kv *KeyVault) Get() (tls.Certificate, error) {
 	if err := kv.validate(); err != nil {
-		return tls.Certificate{}, fmt.Errorf("HSM name not specified")
+		return tls.Certificate{}, err
 	}
 
 	err := kv.connectToKeyVault()
 	if err != nil {
-		return tls.Certificate{}, fmt.Errorf("while creating HSM signer")
+		return tls.Certificate{}, err
 	}
 
 	crt, err := kv.loadCert()
 	if err != nil {
-		return tls.Certificate{}, fmt.Errorf("while loading certificate")
+		return tls.Certificate{}, err
 	}
 
 	return tls.Certificate{
