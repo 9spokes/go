@@ -15,7 +15,7 @@ import (
 
 	"github.com/9spokes/go/logging/v3"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azkeys"
+	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azkeys"
 )
 
 // Implementation of the KeyStore interface that uses Azure Key Vault Managed
