@@ -1,6 +1,6 @@
 package types
 
-// OSP is an Online Service Provider definition
+// Holds an OSP's configuration
 type OSP struct {
 	Name            string            `json:"osp"`
 	NewETL          bool              `json:"new_etl"`
