@@ -122,7 +122,7 @@ func (kv *KeyVault) Public() crypto.PublicKey {
 
 	keyBundle, err := kv.client.GetKey(context.Background(), kv.Key, kv.KeyVersion, nil)
 	if err != nil {
-		logging.Errorf("Failed to retreive public key from Key Vault")
+		logging.Errorf("Failed to retreive public key from Key Vault: %s", err.Error())
 		return nil
 	}
 
