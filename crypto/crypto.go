@@ -17,13 +17,14 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"time"
 
 	"github.com/mergermarket/go-pkcs7"
 	"golang.org/x/crypto/pbkdf2"
 )
 
-//Decrypt uses a PBKDF2 key encryption method with a AES-CBC 256 algorithm
+// Decrypt uses a PBKDF2 key encryption method with a AES-CBC 256 algorithm
 func Decrypt(ciphertext []byte, secret []byte) (string, error) {
 
 	ciphertext = ciphertext[4:]
@@ -71,7 +72,7 @@ func Decrypt(ciphertext []byte, secret []byte) (string, error) {
 
 }
 
-//Encrypt uses a PBKDF2 key encryption method with a AES-CBC 256 algorithm
+// Encrypt uses a PBKDF2 key encryption method with a AES-CBC 256 algorithm
 func Encrypt(str string, secret []byte) ([]byte, error) {
 
 	header := make([]byte, 4+aes.BlockSize)
@@ -106,7 +107,7 @@ func Encrypt(str string, secret []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-//SignRSA creates the signature for oauth1 with rsa-sha1
+// SignRSA creates the signature for oauth1 with rsa-sha1
 func SignRSA(message []byte, filepath string) (string, error) {
 	keyInfo, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -127,7 +128,7 @@ func SignRSA(message []byte, filepath string) (string, error) {
 	return base64.StdEncoding.EncodeToString(signed), nil
 }
 
-//SignHMAC will sign a message using the HMAC-SHA1 algorithm.
+// SignHMAC will sign a message using the HMAC-SHA1 algorithm.
 func SignHMAC(message []byte, key string) (string, error) {
 	hash := hmac.New(crypto.SHA1.New, []byte(key))
 	_, err := hash.Write(message)
@@ -189,4 +190,57 @@ func GenerateCallbackURL(url, callback, secret, iv string, timeout bool) (string
 
 	return base64.StdEncoding.EncodeToString(cipherText), nil
 
+}
+
+// Parse a client certificate string from custom HTTP request header to an x509.Certificate object.
+// PEM (base64)-encoded certificate is forwarded by nginx-ingress in URL-encoded form, such as:
+//
+// "Ssl-Client-Cert": [
+//
+//	"-----BEGIN%20CERTIFICATE-----%0AMIIEp%0A-----END%20CERTIFICATE-----%0A"
+//
+// ]
+//
+// It is assumed that only leaf (client) certificate is forwarded, not the whole certificate chain (leaf and any CAs)
+func ParseCertificateFromHTTPHeader(encodedCert string) (*x509.Certificate, error) {
+
+	certUnescaped, err := url.QueryUnescape(encodedCert)
+	if err != nil {
+		return nil, errors.New("cannot unescape certificate from header")
+	}
+
+	// client certificate decoded to DER (=binary form)
+	var der []byte
+
+	// assume a certificate chain is provided with proper BEGIN and END header/footer lines
+	block, _ := pem.Decode([]byte(certUnescaped))
+	if block == nil {
+		// if the decoding fails, assume it is a single Base64-encoded DER certificate
+		if der, err = base64.StdEncoding.DecodeString(certUnescaped); err != nil {
+			// if even that fails, we're unable to proceed with authentication
+			return nil, errors.New("cannot decode certificate from header")
+		}
+	} else {
+		der = block.Bytes
+	}
+
+	var cert *x509.Certificate
+	if cert, err = x509.ParseCertificate(der); err != nil {
+		return nil, errors.New("cannot not parse certificate from DER")
+	}
+	return cert, nil
+}
+
+// Checks whether a pool (array) of certificates contains given certificate
+// Example usage: check if a client certificate is one of the trusted certificates
+// (by exact match, rather than a chain of trust)
+func IsCertificateInPool(pool []x509.Certificate, cert *x509.Certificate) bool {
+	thumbprint := sha256.Sum256(cert.Raw)
+
+	for _, c := range pool {
+		if sha256.Sum256(c.Raw) == thumbprint {
+			return true
+		}
+	}
+	return false
 }
