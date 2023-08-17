@@ -73,12 +73,16 @@ type ListTileClickEvent struct {
 type GraphTile struct {
 	XUnit    string            `json:"xUnit,omitempty"`
 	YUnit    string            `json:"yUnit,omitempty"`
-	Labels   []string          `json:"labels,omitempty"`
+	LabelData GraphTileLabelData `json:"labelData,omitempty"`
 	Series   []GraphTileSeries `json:"series,omitempty"`
 	XGroups  []string          `json:"xGroups,omitempty"`
 	Values   []GraphTileData   `json:"values,omitempty"`
 	SyncedAt string            `json:"lastSyncAt,omitempty"`
 }
+
+type GraphTileLabelData struct {
+	Labels    []string `json:"labels,omitempty"`
+	FormatKey string   `json:"formatKey,omitempty"`
 
 type GraphTileSeries struct {
 	Key  string    `json:"key,omitempty"`
