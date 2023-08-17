@@ -71,19 +71,19 @@ type ListTileClickEvent struct {
 
 // GraphTile is a 9 Spokes V2 area chart tile data format
 type GraphTile struct {
-	XUnit    string            `json:"xUnit,omitempty"`
-	YUnit    string            `json:"yUnit,omitempty"`
+	XUnit     string             `json:"xUnit,omitempty"`
+	YUnit     string             `json:"yUnit,omitempty"`
 	LabelData GraphTileLabelData `json:"labelData,omitempty"`
-	Series   []GraphTileSeries `json:"series,omitempty"`
-	XGroups  []string          `json:"xGroups,omitempty"`
-	Values   []GraphTileData   `json:"values,omitempty"`
-	SyncedAt string            `json:"lastSyncAt,omitempty"`
+	Series    []GraphTileSeries  `json:"series,omitempty"`
+	XGroups   []string           `json:"xGroups,omitempty"`
+	Values    []GraphTileData    `json:"values,omitempty"`
+	SyncedAt  string             `json:"lastSyncAt,omitempty"`
 }
 
 type GraphTileLabelData struct {
 	Labels    []string `json:"labels,omitempty"`
 	FormatKey string   `json:"formatKey,omitempty"`
-
+}
 type GraphTileSeries struct {
 	Key  string    `json:"key,omitempty"`
 	Data []float64 `json:"data,omitempty"`
