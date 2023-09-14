@@ -102,9 +102,13 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 		if response != nil {
 			code = response.StatusCode
 		}
+		responseDetails := "no response"
+		if response != nil {
+			responseDetails = fmt.Sprintf("response headers: %v", response.Headers)
+		}
 		return nil, &types.ErrorResponse{
 			ID:         types.ErrError,
-			Message:    fmt.Sprintf("error while connecting to %s: %s", params.TokenEndpoint, err.Error()),
+			Message:    fmt.Sprintf("error while connecting to %s: %s (%s)", params.TokenEndpoint, err.Error(), responseDetails),
 			HTTPStatus: code,
 			Severity:   types.ErrSeverityFatal,
 		}
