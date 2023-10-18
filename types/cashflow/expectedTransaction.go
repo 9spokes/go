@@ -15,4 +15,5 @@ type ExpectedTransaction struct {
 	Currency        string                     `json:"currency" bson:"currency"`
 	Direction       types.TransactionDirection `json:"transactionDirection" bson:"transaction_direction"`
 	AccountID       string                     `json:"accountId" bson:"account_id"`
+	Recurring       bool                       `json:"recurring" bson:"recurring"`
 }
