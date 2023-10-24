@@ -1,54 +1,15 @@
 trigger:
   - master
 
-pool:
-  name: "9spokes-Agents"
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: build.ci-common
 
-# variables:
-#   CGO_ENABLED: 0
-#   GOOS: linux
-# steps:
-#   - task: Bash@3
-#     inputs:
-#       targetType: 'inline'
-#       script: |
-#         # Write your commands here
-        
-#         echo 'Hello world'
-
-stages:
-  - stage: Build
-    jobs:
-      - job: Build
-        steps:
-          - template: devops/build/main.yml
-#          - template: devops/test/main.yml
-    
-  - stage: Deploy
-    dependsOn: [ Build ]
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    jobs:
-      - job: Deploy
-        steps:
-        - task: DownloadSecureFile@1
-          displayName: "Download SSH Private Key for GitHub"
-          name: "Github"
-          inputs:
-              secureFile: "Github"
-
-        - script: |
-            git remote add github git@github.com:9spokes/go.git &> /dev/null; [ $? -gt 0 ]  || exit 0
-            git pull github
-          #   test -d ~/.ssh || mkdir -p ~/.ssh
-          #   mv $AGENT_TEMPDIRECTORY/Github ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-          #   printf "Host github.com\n  StrictHostKeyChecking no" > ~/.ssh/config
-          # displayName: 'Configure SSH'
-
-        - script: |
-            pwd 
-            ls -lrt
-            git remote set-url origin git@ssh.dev.azure.com:v3/9spokes/9Spokes/common.go
-            git pull origin
-            git checkout master
-            git push github master  
-          displayName: 'Sync to Github'
+extends:
+  template: go/main.yml@templates
+  parameters:
+    buildArgs: -a -installsuffix cgo -v ./...
+    syncToGithub: true
+    goGetArgs: -d ./...
