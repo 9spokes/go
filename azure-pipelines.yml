@@ -7,9 +7,9 @@ resources:
       type: git
       name: build.ci-common
     - repository: github_9spokes_go
-       type: github
-       name: 9spokes/go
-       endpoint: 9spokes.github.com
+      type: github
+      name: 9spokes/go
+      endpoint: 9spokes.github.com
 
 extends:
   template: go/main.yml@templates
