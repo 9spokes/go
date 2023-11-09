@@ -10,6 +10,7 @@ import (
 	"github.com/9spokes/go/http"
 	"github.com/9spokes/go/logging/v3"
 	"github.com/9spokes/go/types"
+	"github.com/go-redis/redis"
 )
 
 // StatusActive is an ACTIVE connection document
@@ -22,10 +23,12 @@ const StatusNotConnected = "NOT_CONNECTED"
 const StatusNew = "NEW"
 
 // Context represents a connection object into the token service
+// If Redis is set, will try to use it for connection documents
 type Context struct {
 	URL          string
 	ClientID     string
 	ClientSecret string
+	Redis        *redis.Client
 }
 
 func (ctx Context) InitiateETL(id string) error {
@@ -78,6 +81,18 @@ func (ctx Context) GetConnectionWithRefresh(id string) (*types.Connection, error
 }
 
 func (ctx Context) getConnection(id string, refresh bool) (*types.Connection, error) {
+
+	if ctx.Redis != nil {
+		// try to get from cache
+		cached, err := ctx.Redis.Get(id).Result()
+		if err == nil {
+			var conn types.Connection
+			if err = json.Unmarshal([]byte(cached), &conn); err == nil {
+				return &conn, nil
+			}
+		}
+	}
+
 	req := http.Request{
 		URL: fmt.Sprintf("%s/connections/%s", ctx.URL, id),
 		Authentication: http.Authentication{
@@ -105,7 +120,7 @@ func (ctx Context) getConnection(id string, refresh bool) (*types.Connection, er
 		Details types.Connection `json:"details"`
 	}
 
-	if json.Unmarshal(response.Body, &parsed); err != nil {
+	if err = json.Unmarshal(response.Body, &parsed); err != nil {
 		return nil, err
 	}
 
