@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	Http "github.com/9spokes/go/http"
-	"github.com/9spokes/go/services/throttler"
 	"github.com/9spokes/go/types"
 )
 
@@ -115,7 +114,7 @@ func (params OAuth2) oauthRequest(opt Options, data url.Values) (map[string]inte
 	}
 
 	if response.StatusCode == http.StatusTooManyRequests {
-		return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrTooManyRequests, Message: throttler.ErrTooManyRequests.Error()}
+		return nil, &types.ErrorResponse{HTTPStatus: response.StatusCode, ID: types.ErrTooManyRequests, Message: types.ErrTooManyRequests}
 	}
 
 	if response.Headers["Content-Type"] == nil {
