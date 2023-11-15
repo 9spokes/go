@@ -25,3 +25,7 @@ type Response struct {
 type Ticket struct {
 	Conn net.Conn
 }
+
+type Client interface {
+	GetTicket(Request, ThrottlerOptions) (*Ticket, error)
+}
