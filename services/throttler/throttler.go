@@ -115,6 +115,10 @@ func (ctx Context) GetTicket(req Request, opt ThrottlerOptions) (*Ticket, error)
 		if err != nil {
 			c.Close()
 
+			if resp == nil {
+				return nil, err
+			}
+
 			if !resp.Retry.IsZero() && resp.Retry.Before(deadline) {
 				time.Sleep(time.Until(resp.Retry))
 				continue
