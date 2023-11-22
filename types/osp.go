@@ -7,6 +7,7 @@ type OSP struct {
 	ExtractOnSignin bool              `json:"extract_on_signin"`
 	Credentials     map[string]string `json:"credentials,omitempty"`
 	Tiles           []OSPTile         `json:"tiles"`
+	Providers       []string          `json:"providers,omitempty"`
 	Proxy           string            `json:"proxy,omitempty"`
 	Unique          bool              `json:"unique,omitempty"`
 	Usage           []string          `json:"usage,omitempty"`
