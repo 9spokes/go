@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
 
 // A middleware is a function that receives the Request as input and returns
@@ -31,6 +33,7 @@ func (r *Request) Use(m MiddlewareFunc) {
 type Response struct {
 	*http.Response
 	Payload []byte
+	Date    time.Time
 }
 
 // Authorization contains the keys needed to build an authorization header.
@@ -154,11 +157,7 @@ func (request *Request) http(ctx context.Context) (*Response, error) {
 	}
 
 	// Set query params
-	q := req.URL.Query()
-	for k, v := range request.Query {
-		q.Add(k, v)
-	}
-	req.URL.RawQuery = q.Encode()
+	req.URL.RawQuery = request.QueryString()
 
 	// Call endpoint
 	resp, err := request.Client.Do(req)
@@ -173,11 +172,20 @@ func (request *Request) http(ctx context.Context) (*Response, error) {
 		return nil, fmt.Errorf("failed while reading response from %v: %w ", req, err)
 	}
 
-	return &Response{resp, payload}, nil
+	return &Response{resp, payload, time.Now().UTC()}, nil
 }
 
 // Returns the details of the HTTP request as a string. Useful for debugging or
 // logging errors.
 func (r *Request) String() string {
-	return fmt.Sprintf("URL: %s (Params: %v)", r.URL, r.Query)
+	return fmt.Sprintf("URL: %s (Params: %v)", r.URL, r.QueryString())
+}
+
+// Returns query string
+func (r *Request) QueryString() string {
+	q := url.Values{}
+	for k, v := range r.Query {
+		q.Add(k, v)
+	}
+	return q.Encode()
 }
