@@ -71,7 +71,7 @@ type Request struct {
 	URL     string
 	Method  string
 	Headers map[string]string
-	Query   map[string]string
+	Query   map[string][]string
 	Body    []byte
 
 	Authorization Authorization
@@ -185,7 +185,9 @@ func (r *Request) String() string {
 func (r *Request) QueryString() string {
 	q := url.Values{}
 	for k, v := range r.Query {
-		q.Add(k, v)
+		for i := range v {
+			q.Add(k, v[i])
+		}
 	}
 	return q.Encode()
 }
